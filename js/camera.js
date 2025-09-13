@@ -12,7 +12,7 @@ class POTBotCamera {
         this.autoScanEnabled = false;
         this.scanInterval = null;
         this.lastAnalysisTime = 0;
-        this.analysisCooldown = 3000; // 3 seconds between analyses
+        this.analysisCooldown = 2000; // 2 seconds between analyses
         this.scanIndicator = null;
         
         try {
@@ -500,17 +500,27 @@ class POTBotCamera {
     }
     
     performAutoScan() {
-        if (!this.isActive || this.isAnalyzing) return;
+        if (!this.isActive || this.isAnalyzing) {
+            console.log('Auto-scan skipped: camera not active or already analyzing');
+            return;
+        }
         
         // Check cooldown
         const now = Date.now();
-        if (now - this.lastAnalysisTime < this.analysisCooldown) return;
+        if (now - this.lastAnalysisTime < this.analysisCooldown) {
+            console.log(`Auto-scan skipped: cooldown active (${Math.round((this.analysisCooldown - (now - this.lastAnalysisTime)) / 1000)}s remaining)`);
+            return;
+        }
+        
+        console.log('Performing auto-scan...');
         
         // Detect if market chart is visible
         if (this.detectMarketChart()) {
             console.log('Market chart detected, starting analysis...');
             this.showScanIndicator();
             this.performAutoAnalysis();
+        } else {
+            console.log('No market chart detected in current frame');
         }
     }
     
@@ -549,10 +559,10 @@ class POTBotCamera {
             }
             
             const chartProbability = chartPixels / totalPixels;
-            console.log(`Chart detection probability: ${(chartProbability * 100).toFixed(1)}%`);
+            console.log(`Chart detection probability: ${(chartProbability * 100).toFixed(1)}% (${chartPixels}/${totalPixels} pixels)`);
             
-            // Return true if chart probability is above threshold
-            return chartProbability > 0.2; // 20% threshold
+            // Return true if chart probability is above threshold (lowered to 10% for better detection)
+            return chartProbability > 0.1; // 10% threshold
             
         } catch (error) {
             console.error('Error detecting market chart:', error);
@@ -561,21 +571,28 @@ class POTBotCamera {
     }
     
     isChartColor(r, g, b) {
-        // Check for common chart colors
-        // Green (bullish candles)
-        if (g > r && g > b && g > 100) return true;
+        // Check for common chart colors (more lenient detection)
         
-        // Red (bearish candles)
-        if (r > g && r > b && r > 100) return true;
+        // Green (bullish candles) - more lenient
+        if (g > r && g > b && g > 80) return true;
         
-        // Blue (chart lines, axes)
-        if (b > r && b > g && b > 100) return true;
+        // Red (bearish candles) - more lenient
+        if (r > g && r > b && r > 80) return true;
         
-        // White/Light colors (background, grid)
-        if (r > 200 && g > 200 && b > 200) return true;
+        // Blue (chart lines, axes) - more lenient
+        if (b > r && b > g && b > 80) return true;
         
-        // Dark colors (text, borders)
-        if (r < 50 && g < 50 && b < 50) return true;
+        // White/Light colors (background, grid) - more lenient
+        if (r > 180 && g > 180 && b > 180) return true;
+        
+        // Dark colors (text, borders) - more lenient
+        if (r < 80 && g < 80 && b < 80) return true;
+        
+        // Yellow/Gold colors (often used in charts)
+        if (r > 150 && g > 150 && b < 100) return true;
+        
+        // Orange colors (trend lines, indicators)
+        if (r > 150 && g > 100 && b < 100) return true;
         
         return false;
     }
@@ -647,6 +664,16 @@ class POTBotCamera {
     hideAnalysisStatus() {
         if (this.analysisStatus) {
             this.analysisStatus.style.display = 'none';
+        }
+    }
+    
+    // Debug method - force analysis for testing
+    forceAnalysis() {
+        console.log('Force analysis triggered for debugging...');
+        if (this.isActive) {
+            this.performAutoAnalysis();
+        } else {
+            console.log('Camera not active, cannot force analysis');
         }
     }
 }
