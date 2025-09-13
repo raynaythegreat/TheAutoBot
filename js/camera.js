@@ -89,9 +89,9 @@ class POTBotCamera {
             
             // Update UI
             this.isActive = true;
-            this.updateStatus('Camera ready - Manual analysis mode');
+            this.updateStatus('Camera ready - Manual AI signal generation');
             
-            // Don't start auto-scanning - manual mode only
+            // Manual AI mode only - no auto-scanning
             
             console.log('Camera started successfully');
             
@@ -510,9 +510,6 @@ class POTBotCamera {
     }
     
     stopCamera() {
-        // Stop auto-scanning
-        this.stopAutoScan();
-        
         if (this.stream) {
             this.stream.getTracks().forEach(track => track.stop());
             this.stream = null;
@@ -615,64 +612,11 @@ class POTBotCamera {
     }
     
     // Auto-scan methods
-    startAutoScan() {
-        if (this.autoScanEnabled) return;
-        
-        this.autoScanEnabled = true;
-        console.log('Starting auto-scan for market detection...');
-        
-        // Create scan indicator
-        this.createScanIndicator();
-        
-        // Start scanning interval
-        this.scanInterval = setInterval(() => {
-            this.performAutoScan();
-        }, 1000); // Scan every 1 second
-    }
+    // Auto-scan removed - manual analysis only
     
-    stopAutoScan() {
-        if (!this.autoScanEnabled) return;
-        
-        this.autoScanEnabled = false;
-        console.log('Stopping auto-scan...');
-        
-        if (this.scanInterval) {
-            clearInterval(this.scanInterval);
-            this.scanInterval = null;
-        }
-        
-        this.hideScanIndicator();
-    }
+    // Auto-scan removed - manual analysis only
     
-    performAutoScan() {
-        if (!this.isActive || this.isAnalyzing) {
-            console.log('Auto-scan skipped: camera not active or already analyzing');
-            return;
-        }
-        
-        // Check cooldown
-        const now = Date.now();
-        if (now - this.lastAnalysisTime < this.analysisCooldown) {
-            console.log(`Auto-scan skipped: cooldown active (${Math.round((this.analysisCooldown - (now - this.lastAnalysisTime)) / 1000)}s remaining)`);
-            return;
-        }
-        
-        console.log('Performing auto-scan...');
-        console.log('Camera status:', { isActive: this.isActive, isAnalyzing: this.isAnalyzing });
-        
-        // Detect if market chart is visible
-        const detectionResult = this.detectMarketChart();
-        console.log('Detection result:', detectionResult);
-        
-        if (detectionResult) {
-            console.log('✅ Market chart with candlesticks detected, starting analysis...');
-            this.showScanIndicator();
-            this.performAutoAnalysis();
-        } else {
-            console.log('❌ No market chart with candlesticks detected in current frame');
-            console.log('❌ Detection failed - check console for detailed analysis');
-        }
-    }
+    // Auto-scan removed - manual analysis only
     
     detectMarketChart() {
         console.log('🔍 Starting market chart detection...');
@@ -1020,72 +964,9 @@ class POTBotCamera {
         return false;
     }
     
-    async performAutoAnalysis() {
-        if (this.isAnalyzing) return;
-        
-        this.isAnalyzing = true;
-        this.lastAnalysisTime = Date.now();
-        
-        try {
-            // Double-check candlestick detection before proceeding
-            console.log('🔍 Verifying candlestick detection before analysis...');
-            if (!this.detectMarketChart()) {
-                console.log('❌ Candlestick verification failed - aborting auto-analysis');
-                return;
-            }
-            
-            console.log('✅ Candlestick verification passed - proceeding with auto-analysis');
-            
-            // Show analysis status
-            this.showAnalysisStatus('Auto-analyzing detected candlestick chart...');
-            
-            // Wait a moment for user to see the detection
-            await this.delay(1000);
-            
-            // Perform the analysis
-            await this.captureAndAnalyze();
-            
-        } catch (error) {
-            console.error('Auto-analysis failed:', error);
-            console.log('Auto-analysis failed, no signal generated');
-            
-        } finally {
-            this.isAnalyzing = false;
-            this.hideAnalysisStatus();
-            this.hideScanIndicator();
-        }
-    }
+    // Auto-analysis removed - manual analysis only
     
-    createScanIndicator() {
-        if (this.scanIndicator) return;
-        
-        this.scanIndicator = document.createElement('div');
-        this.scanIndicator.className = 'scan-indicator';
-        this.scanIndicator.innerHTML = `
-            <div class="scan-content">
-                <i class="fas fa-search scan-icon"></i>
-                <div class="scan-text">Scanning for market charts...</div>
-            </div>
-        `;
-        
-        // Add to camera preview container
-        const cameraContainer = document.querySelector('.camera-preview-container');
-        if (cameraContainer) {
-            cameraContainer.appendChild(this.scanIndicator);
-        }
-    }
-    
-    showScanIndicator() {
-        if (this.scanIndicator) {
-            this.scanIndicator.style.display = 'block';
-        }
-    }
-    
-    hideScanIndicator() {
-        if (this.scanIndicator) {
-            this.scanIndicator.style.display = 'none';
-        }
-    }
+    // Scan indicator methods removed - manual analysis only
     
     showAnalysisStatus(message) {
         if (this.analysisStatus && this.statusText) {
@@ -1136,15 +1017,18 @@ class POTBotCamera {
     async analyzeChart() {
         if (!this.isActive) {
             console.log('Camera not active, cannot analyze');
+            this.updateStatus('Camera not active - please start camera first');
             return;
         }
         
         if (this.isAnalyzing) {
             console.log('Already analyzing, please wait...');
+            this.updateStatus('Analysis in progress - please wait...');
             return;
         }
         
-        console.log('Manual chart analysis triggered');
+        console.log('🤖 Manual AI signal generation triggered');
+        this.updateStatus('AI analyzing chart for trading signals...');
         
         // Check if we're looking at a PocketOption chart
         const isPocketOptionChart = this.detectMarketChart();
@@ -1155,10 +1039,10 @@ class POTBotCamera {
             return;
         }
         
-        console.log('✅ PocketOption chart detected - starting manual analysis');
-        this.updateStatus('PocketOption chart detected - analyzing...');
+        console.log('✅ PocketOption chart detected - starting AI analysis');
+        this.updateStatus('PocketOption chart detected - AI generating signal...');
         
-        // Perform the analysis
+        // Perform the AI analysis
         await this.captureAndAnalyze();
     }
     
