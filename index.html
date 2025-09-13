@@ -14,11 +14,11 @@
     
     <title>The POT Bot</title>
     
-    <link rel="manifest" href="manifest.json?v=20241220d">
+    <link rel="manifest" href="manifest.json?v=20241220e">
     <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
     <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192x192.png">
     
-    <link rel="stylesheet" href="css/styles.css?v=20241220d">
+    <link rel="stylesheet" href="css/styles.css?v=20241220e">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
@@ -139,14 +139,6 @@
                             <p>Point camera at any trading chart</p>
                             <p>Click "Generate Live Signal" for real-time AI analysis</p>
                         </div>
-                        
-                        <!-- Live AI Signal Generation Button -->
-                        <div class="camera-controls">
-                            <button id="analyzeChartBtn" class="camera-btn" onclick="generateSignalNow()">
-                                <i class="fas fa-robot"></i>
-                                Generate Live Signal
-                            </button>
-                        </div>
                     </div>
 
                     <!-- Signal Overlay (Transparent) -->
@@ -178,6 +170,13 @@
                     </div>
                 </div>
 
+                <!-- Generate Live Signal Button - Bottom Position -->
+                <div class="bottom-button-container">
+                    <button id="analyzeChartBtn" class="camera-btn" onclick="generateSignalNow()">
+                        <i class="fas fa-robot"></i>
+                        Generate Live Signal
+                    </button>
+                </div>
 
                 <!-- Analysis Status -->
                 <div class="analysis-status" id="analysisStatus" style="display: none;">
@@ -193,9 +192,9 @@
     </div>
 
     <!-- Scripts -->
-    <script src="js/app.js?v=20241220d"></script>
-    <script src="js/camera.js?v=20241220d"></script>
-    <script src="js/ai-analysis.js?v=20241220d"></script>
+    <script src="js/app.js?v=20241220e"></script>
+    <script src="js/camera.js?v=20241220e"></script>
+    <script src="js/ai-analysis.js?v=20241220e"></script>
     
     <!-- Simple Signal Generation Function -->
     <script>

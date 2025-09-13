@@ -728,13 +728,13 @@ body {
     }
 }
 
-/* Camera controls styles */
-.camera-controls {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1000;
+/* Bottom button container styles */
+.bottom-button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    margin: 20px 0;
 }
 
 .camera-btn {
@@ -759,13 +759,13 @@ body {
 
 .camera-btn:hover {
     background: linear-gradient(135deg, #0056b3, #004085);
-    transform: translate(-50%, -50%) translateY(-5px);
+    transform: translateY(-5px);
     box-shadow: 0 12px 30px rgba(0, 123, 255, 0.6);
     border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 .camera-btn:active {
-    transform: translate(-50%, -50%) translateY(-2px);
+    transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
 }
 
