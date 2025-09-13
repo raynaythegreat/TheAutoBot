@@ -87,7 +87,7 @@ class POTBotCamera {
             
             // Update UI
             this.isActive = true;
-            this.updateStatus('Camera ready - Scanning for PocketOption charts with candlesticks');
+            this.updateStatus('Camera ready - Auto-detecting candlesticks for analysis');
             
             // Start auto-scanning for market detection
             this.startAutoScan();
@@ -108,8 +108,8 @@ class POTBotCamera {
         }
         
         try {
-            console.log('Capturing and analyzing chart...');
-            this.showAnalysisStatus('Analyzing chart with AI...');
+            console.log('Capturing and analyzing candlestick chart...');
+            this.showAnalysisStatus('Analyzing candlestick chart with AI...');
             
             // Try to capture frame, but don't fail if it doesn't work
             let imageData = null;
@@ -117,6 +117,20 @@ class POTBotCamera {
                 imageData = this.captureFrame();
             } catch (captureError) {
                 console.log('Frame capture failed, proceeding with analysis anyway...');
+            }
+            
+            // Verify candlesticks are still present in captured frame
+            if (imageData) {
+                console.log('🔍 Verifying candlesticks in captured frame...');
+                const ctx = this.canvas.getContext('2d');
+                const frameImageData = ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+                const candlestickScore = this.analyzePocketOptionPatterns(frameImageData.data, this.canvas.width, this.canvas.height);
+                
+                if (candlestickScore === 0) {
+                    console.log('❌ No candlesticks found in captured frame - aborting analysis');
+                    return;
+                }
+                console.log('✅ Candlesticks confirmed in captured frame - proceeding with analysis');
             }
             
             // Perform simplified AI analysis
@@ -812,8 +826,17 @@ class POTBotCamera {
         this.lastAnalysisTime = Date.now();
         
         try {
+            // Double-check candlestick detection before proceeding
+            console.log('🔍 Verifying candlestick detection before analysis...');
+            if (!this.detectMarketChart()) {
+                console.log('❌ Candlestick verification failed - aborting auto-analysis');
+                return;
+            }
+            
+            console.log('✅ Candlestick verification passed - proceeding with auto-analysis');
+            
             // Show analysis status
-            this.showAnalysisStatus('Auto-analyzing detected chart...');
+            this.showAnalysisStatus('Auto-analyzing detected candlestick chart...');
             
             // Wait a moment for user to see the detection
             await this.delay(1000);
