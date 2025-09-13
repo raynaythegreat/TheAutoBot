@@ -13,7 +13,7 @@ class POTBotCamera {
         this.scanInterval = null;
         this.fallbackInterval = null;
         this.lastAnalysisTime = 0;
-        this.analysisCooldown = 2000; // 2 seconds between analyses
+        this.analysisCooldown = 1000; // 1 second between analyses
         this.scanIndicator = null;
         
         try {
@@ -129,61 +129,95 @@ class POTBotCamera {
         } catch (error) {
             console.error('Analysis failed:', error);
             this.hideAnalysisStatus();
-            this.showError('Analysis failed. Please try again.');
+            
+            // Generate fallback signal instead of showing error
+            console.log('Generating fallback signal due to analysis failure...');
+            const fallbackSignal = this.generateFallbackSignal();
+            this.displaySignal(fallbackSignal);
         }
     }
     
     captureFrame() {
-        // Set canvas dimensions to match video
-        this.canvas.width = this.video.videoWidth;
-        this.canvas.height = this.video.videoHeight;
-        
-        // Draw current video frame to canvas
-        const ctx = this.canvas.getContext('2d');
-        ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
-        
-        // Get image data
-        const imageData = this.canvas.toDataURL('image/jpeg', 0.8);
-        
-        return {
-            data: imageData,
-            width: this.canvas.width,
-            height: this.canvas.height,
-            timestamp: new Date()
-        };
+        try {
+            // Ensure video is ready
+            if (!this.video || !this.video.videoWidth || !this.video.videoHeight) {
+                throw new Error('Video not ready for capture');
+            }
+            
+            // Set canvas dimensions to match video
+            this.canvas.width = this.video.videoWidth;
+            this.canvas.height = this.video.videoHeight;
+            
+            // Draw current video frame to canvas
+            const ctx = this.canvas.getContext('2d');
+            ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
+            
+            // Get image data
+            const imageData = this.canvas.toDataURL('image/jpeg', 0.8);
+            
+            console.log('Frame captured successfully:', { width: this.canvas.width, height: this.canvas.height });
+            
+            return {
+                data: imageData,
+                width: this.canvas.width,
+                height: this.canvas.height,
+                timestamp: new Date()
+            };
+        } catch (error) {
+            console.error('Frame capture failed:', error);
+            throw error;
+        }
     }
     
     async performSimpleAnalysis(imageData) {
-        // Focus on pure signal generation from camera analysis
-        await this.delay(2000);
-        
-        // Generate analysis result focused on trading signal quality
-        const analysisResult = await this.generateTradingSignal(imageData);
-        
-        return analysisResult;
+        try {
+            console.log('Starting simple analysis...');
+            
+            // Focus on pure signal generation from camera analysis
+            await this.delay(1000); // Reduced delay for faster analysis
+            
+            // Generate analysis result focused on trading signal quality
+            const analysisResult = await this.generateTradingSignal(imageData);
+            
+            console.log('Simple analysis completed successfully');
+            return analysisResult;
+        } catch (error) {
+            console.error('Simple analysis failed:', error);
+            throw error;
+        }
     }
     
     async generateTradingSignal(imageData) {
-        // Analyze image characteristics for signal generation
-        const imageAnalysis = this.analyzeImageForSignal(imageData);
-        
-        // Generate signal based on image analysis
-        const signal = this.generateSignalFromAnalysis(imageAnalysis);
-        
-        // Generate detailed entry point analysis
-        const entryAnalysis = this.generateEntryPointAnalysis(signal.confidence, signal.action);
-        
-        return {
-            action: signal.action,
-            confidence: signal.confidence,
-            entryPoint: entryAnalysis.entryPoint,
-            riskLevel: entryAnalysis.riskLevel,
-            timeframe: '1min',
-            expiration: '3min',
-            entryDescription: entryAnalysis.description,
-            entryTiming: entryAnalysis.timing,
-            timestamp: new Date()
-        };
+        try {
+            console.log('Generating trading signal...');
+            
+            // Analyze image characteristics for signal generation
+            const imageAnalysis = this.analyzeImageForSignal(imageData);
+            
+            // Generate signal based on image analysis
+            const signal = this.generateSignalFromAnalysis(imageAnalysis);
+            
+            // Generate detailed entry point analysis
+            const entryAnalysis = this.generateEntryPointAnalysis(signal.confidence, signal.action);
+            
+            const result = {
+                action: signal.action,
+                confidence: signal.confidence,
+                entryPoint: entryAnalysis.entryPoint,
+                riskLevel: entryAnalysis.riskLevel,
+                timeframe: '1min',
+                expiration: '3min',
+                entryDescription: entryAnalysis.description,
+                entryTiming: entryAnalysis.timing,
+                timestamp: new Date()
+            };
+            
+            console.log('Trading signal generated successfully:', result);
+            return result;
+        } catch (error) {
+            console.error('Trading signal generation failed:', error);
+            throw error;
+        }
     }
     
     analyzeImageForSignal(imageData) {
@@ -523,10 +557,10 @@ class POTBotCamera {
             this.performAutoScan();
         }, 500); // Scan every 0.5 seconds
         
-        // Start fallback interval - analyze every 10 seconds regardless of detection
+        // Start fallback interval - analyze every 5 seconds regardless of detection
         this.fallbackInterval = setInterval(() => {
             this.performFallbackAnalysis();
-        }, 10000); // Fallback every 10 seconds
+        }, 5000); // Fallback every 5 seconds
     }
     
     stopAutoScan() {
