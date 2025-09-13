@@ -87,7 +87,7 @@ class POTBotCamera {
             
             // Update UI
             this.isActive = true;
-            this.updateStatus('Camera ready - Scanning for actual market charts (extremely strict detection)');
+            this.updateStatus('Camera ready - Scanning for market charts (balanced detection)');
             
             // Start auto-scanning for market detection
             this.startAutoScan();
@@ -337,8 +337,8 @@ class POTBotCamera {
         const { greenRatio, redRatio, volatility, trendStrength, chartRatio } = imageAnalysis;
         console.log('Generating signal from market analysis:', { greenRatio, redRatio, volatility, trendStrength, chartRatio });
         
-        // Only generate signals if we have sufficient chart data - extremely strict
-        if (chartRatio < 0.5) {
+        // Only generate signals if we have sufficient chart data - balanced strict
+        if (chartRatio < 0.2) {
             console.log('Insufficient chart data detected, skipping signal generation');
             return null;
         }
@@ -346,22 +346,22 @@ class POTBotCamera {
         // Determine signal direction based on market analysis
         let action, confidence;
         
-        if (greenRatio > redRatio && greenRatio > 0.25) {
+        if (greenRatio > redRatio && greenRatio > 0.1) {
             // Clear green dominance - bullish signal
             action = 'CALL';
             confidence = Math.min(95, 85 + (greenRatio * 100) + (volatility * 30));
             console.log('Bullish signal detected (clear green dominance)');
-        } else if (redRatio > greenRatio && redRatio > 0.25) {
+        } else if (redRatio > greenRatio && redRatio > 0.1) {
             // Clear red dominance - bearish signal
             action = 'PUT';
             confidence = Math.min(95, 85 + (redRatio * 100) + (volatility * 30));
             console.log('Bearish signal detected (clear red dominance)');
         } else {
-            // Mixed or unclear signals - require extremely high threshold
-            if (trendStrength > 0.4) {
+            // Mixed or unclear signals - require balanced threshold
+            if (trendStrength > 0.2) {
                 action = greenRatio > redRatio ? 'CALL' : 'PUT';
                 confidence = 85 + (trendStrength * 30);
-                console.log('Signal based on extremely strong trend');
+                console.log('Signal based on strong trend');
             } else {
                 console.log('Insufficient market clarity, skipping signal generation');
                 return null;
@@ -679,8 +679,8 @@ class POTBotCamera {
             const chartProbability = chartPixels / totalPixels;
             console.log(`Chart detection probability: ${(chartProbability * 100).toFixed(1)}% (${chartPixels}/${totalPixels} pixels)`);
             
-            // Return true if chart probability is above threshold - extremely strict
-            return chartProbability > 0.4; // 40% threshold - extremely strict for real charts only
+            // Return true if chart probability is above threshold - balanced strict
+            return chartProbability > 0.15; // 15% threshold - balanced for real charts
             
         } catch (error) {
             console.error('Error detecting market chart:', error);
@@ -689,26 +689,26 @@ class POTBotCamera {
     }
     
     isChartColor(r, g, b) {
-        // Check for ONLY very specific chart colors - extremely strict detection
+        // Check for chart colors - balanced strict detection
         
-        // ONLY detect very bright green candlesticks (like TradingView)
-        if (g > 200 && g > r + 100 && g > b + 100 && r < 50 && b < 50) return true;
+        // Green candlesticks (bullish) - balanced detection
+        if (g > 120 && g > r + 30 && g > b + 30) return true;
         
-        // ONLY detect very bright red candlesticks (like TradingView)
-        if (r > 200 && r > g + 100 && r > b + 100 && g < 50 && b < 50) return true;
+        // Red candlesticks (bearish) - balanced detection
+        if (r > 120 && r > g + 30 && r > b + 30) return true;
         
-        // ONLY detect very specific chart line blue
-        if (b > 150 && b > r + 80 && b > g + 80 && r < 70 && g < 70) return true;
+        // Blue chart lines and axes - balanced detection
+        if (b > 80 && b > r + 20 && b > g + 20 && b < 180) return true;
         
-        // ONLY detect pure white backgrounds (chart backgrounds)
-        if (r > 250 && g > 250 && b > 250) return true;
+        // White/light backgrounds - balanced detection
+        if (r > 200 && g > 200 && b > 200) return true;
         
-        // ONLY detect very dark chart elements (axes, text)
-        if (r < 20 && g < 20 && b < 20) return true;
+        // Dark chart elements (axes, text, borders) - balanced detection
+        if (r < 60 && g < 60 && b < 60) return true;
         
-        // ONLY detect very specific indicator colors
-        if (r > 220 && g > 220 && b < 30) return true; // Pure bright yellow
-        if (r > 220 && g > 120 && b < 30) return true; // Pure bright orange
+        // Chart indicator colors - balanced detection
+        if (r > 180 && g > 180 && b < 80) return true; // Yellow indicators
+        if (r > 180 && g > 100 && b < 80) return true; // Orange indicators
         
         return false;
     }
