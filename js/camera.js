@@ -227,9 +227,9 @@ class POTBotCamera {
             // Generate signal based on real market analysis
             const signal = this.generateSignalFromAnalysis(imageAnalysis);
             
-            // Only proceed if we have a valid signal with good confidence
-            if (signal.confidence < 80) {
-                console.log('Signal confidence too low, skipping signal generation');
+            // For manual analysis, use lower confidence threshold
+            if (signal.confidence < 60) {
+                console.log('Signal confidence too low for manual analysis, skipping signal generation');
                 return null;
             }
             
@@ -1030,20 +1030,57 @@ class POTBotCamera {
         console.log('🤖 Manual AI signal generation triggered');
         this.updateStatus('AI analyzing chart for trading signals...');
         
-        // Check if we're looking at a PocketOption chart
-        const isPocketOptionChart = this.detectMarketChart();
+        // Set analyzing flag
+        this.isAnalyzing = true;
         
-        if (!isPocketOptionChart) {
-            console.log('❌ No PocketOption chart detected - please point camera at PocketOption chart');
-            this.updateStatus('No PocketOption chart detected - point camera at PocketOption chart');
-            return;
+        try {
+            // Show analysis status
+            this.showAnalysisStatus('AI analyzing chart...');
+            
+            // Wait a moment for user to see the status
+            await this.delay(1000);
+            
+            // Capture frame for analysis
+            const frameData = this.captureFrame();
+            
+            if (!frameData) {
+                console.log('❌ Failed to capture frame');
+                this.updateStatus('Failed to capture frame - please try again');
+                return;
+            }
+            
+            console.log('✅ Frame captured - starting AI analysis');
+            this.updateStatus('Frame captured - AI generating signal...');
+            
+            // Perform AI analysis with lower confidence threshold for manual mode
+            const analysisResult = await this.performSimpleAnalysis(frameData);
+            
+            if (analysisResult && analysisResult.confidence >= 60) {
+                this.displaySignal(analysisResult);
+                console.log('✅ AI signal generated successfully:', analysisResult);
+                this.updateStatus('AI signal generated successfully!');
+            } else {
+                console.log('❌ AI analysis completed but signal confidence too low - generating fallback signal');
+                this.updateStatus('Generating fallback signal...');
+                
+                // Generate a fallback signal for manual mode
+                const fallbackSignal = this.generateFallbackSignal();
+                if (fallbackSignal) {
+                    this.displaySignal(fallbackSignal);
+                    console.log('✅ Fallback signal generated:', fallbackSignal);
+                    this.updateStatus('Fallback signal generated!');
+                } else {
+                    this.updateStatus('Signal generation failed - please try again');
+                }
+            }
+            
+        } catch (error) {
+            console.error('AI signal generation failed:', error);
+            this.updateStatus('AI signal generation failed - please try again');
+        } finally {
+            this.isAnalyzing = false;
+            this.hideAnalysisStatus();
         }
-        
-        console.log('✅ PocketOption chart detected - starting AI analysis');
-        this.updateStatus('PocketOption chart detected - AI generating signal...');
-        
-        // Perform the AI analysis
-        await this.captureAndAnalyze();
     }
     
     
