@@ -134,8 +134,22 @@ class POTBotApp {
     
     openPocketOption() {
         const url = 'https://pocket-friends.com/r/k9fb7vp1y9';
-        window.open(url, '_blank');
-        this.showNotification('Opening Pocket Option registration...');
+        try {
+            // Open in new tab with proper attributes
+            const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+            if (newWindow) {
+                this.showNotification('Opening Pocket Option registration...');
+            } else {
+                // Fallback if popup is blocked
+                window.location.href = url;
+                this.showNotification('Redirecting to Pocket Option registration...');
+            }
+        } catch (error) {
+            console.error('Error opening registration link:', error);
+            // Fallback method
+            window.location.href = url;
+            this.showNotification('Redirecting to Pocket Option registration...');
+        }
     }
     
     onAppHidden() {
