@@ -51,18 +51,40 @@ class PocketOptionApp {
     }
     
     initializeComponents() {
-        // Initialize PocketOption AI (already done in ai-analysis.js)
+        // Wait for AI and Camera modules to be available
+        this.waitForModules().then(() => {
+            // Initialize PocketOption integration
+            this.initializePocketOptionIntegration();
+        }).catch(error => {
+            console.error('Failed to initialize components:', error);
+            this.showError('Failed to initialize components. Please refresh and try again.');
+        });
+    }
+    
+    async waitForModules() {
+        // Wait for AI module
+        let attempts = 0;
+        while (!window.pocketOptionAI && attempts < 50) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            attempts++;
+        }
+        
         if (!window.pocketOptionAI) {
-            throw new Error('PocketOption AI not initialized');
+            throw new Error('PocketOption AI module not loaded');
         }
         
-        // Initialize Camera (already done in camera.js)
+        // Wait for Camera module
+        attempts = 0;
+        while (!window.pocketOptionCamera && attempts < 50) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            attempts++;
+        }
+        
         if (!window.pocketOptionCamera) {
-            throw new Error('PocketOption Camera not initialized');
+            throw new Error('PocketOption Camera module not loaded');
         }
         
-        // Initialize PocketOption integration
-        this.initializePocketOptionIntegration();
+        console.log('All modules loaded successfully');
     }
     
     initializePocketOptionIntegration() {

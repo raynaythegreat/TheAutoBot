@@ -7,8 +7,8 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
-    color: #ffffff;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #dee2e6 100%);
+    color: #212529;
     min-height: 100vh;
     overflow-x: hidden;
 }
@@ -22,13 +22,14 @@ body {
 
 /* Header Styles */
 .app-header {
-    background: rgba(26, 26, 46, 0.95);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(0, 123, 255, 0.2);
     padding: 1rem 0;
     position: sticky;
     top: 0;
     z-index: 100;
+    box-shadow: 0 2px 10px rgba(0, 123, 255, 0.1);
 }
 
 .header-content {
@@ -48,16 +49,13 @@ body {
 
 .logo i {
     font-size: 1.5rem;
-    color: #00d4ff;
+    color: #007bff;
 }
 
 .logo h1 {
     font-size: 1.5rem;
     font-weight: 600;
-    background: linear-gradient(45deg, #00d4ff, #0099cc);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #007bff;
 }
 
 .header-stats {
@@ -72,7 +70,7 @@ body {
 .stat-label {
     display: block;
     font-size: 0.8rem;
-    color: #888;
+    color: #6c757d;
     margin-bottom: 0.2rem;
 }
 
@@ -80,7 +78,7 @@ body {
     display: block;
     font-size: 1.1rem;
     font-weight: 600;
-    color: #00d4ff;
+    color: #007bff;
 }
 
 /* Risk Warning */
@@ -133,11 +131,11 @@ body {
 
 /* Camera Section */
 .camera-section {
-    background: rgba(26, 26, 46, 0.8);
+    background: rgba(255, 255, 255, 0.9);
     border-radius: 15px;
     padding: 2rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(0, 123, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 123, 255, 0.1);
 }
 
 .camera-header {
@@ -147,12 +145,12 @@ body {
 
 .camera-header h2 {
     font-size: 1.8rem;
-    color: #00d4ff;
+    color: #007bff;
     margin-bottom: 0.5rem;
 }
 
 .camera-header p {
-    color: #888;
+    color: #6c757d;
     font-size: 1rem;
 }
 
@@ -165,9 +163,9 @@ body {
 }
 
 .camera-btn {
-    background: rgba(0, 212, 255, 0.2);
-    color: #00d4ff;
-    border: 1px solid #00d4ff;
+    background: rgba(0, 123, 255, 0.1);
+    color: #007bff;
+    border: 1px solid #007bff;
     padding: 1rem 2rem;
     border-radius: 10px;
     cursor: pointer;
@@ -180,10 +178,10 @@ body {
 }
 
 .camera-btn:hover:not(:disabled) {
-    background: #00d4ff;
-    color: #000;
+    background: #007bff;
+    color: #fff;
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
 }
 
 .camera-btn:disabled {
@@ -224,7 +222,7 @@ body {
     position: relative;
     width: 80%;
     height: 60%;
-    border: 2px solid #00d4ff;
+    border: 2px solid #007bff;
     border-radius: 10px;
 }
 
@@ -232,7 +230,7 @@ body {
     position: absolute;
     width: 20px;
     height: 20px;
-    border: 3px solid #00d4ff;
+    border: 3px solid #007bff;
 }
 
 .corner.top-left {
@@ -266,7 +264,7 @@ body {
 .overlay-text {
     margin-top: 1rem;
     text-align: center;
-    color: #00d4ff;
+    color: #007bff;
     font-size: 0.9rem;
 }
 
@@ -276,14 +274,14 @@ body {
 
 /* Analysis Results */
 .analysis-results {
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(255, 255, 255, 0.9);
     border-radius: 15px;
     padding: 2rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(0, 123, 255, 0.2);
 }
 
 .analysis-results h3 {
-    color: #00d4ff;
+    color: #007bff;
     margin-bottom: 1.5rem;
     text-align: center;
     font-size: 1.5rem;
@@ -301,18 +299,18 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 1rem;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(0, 123, 255, 0.05);
     border-radius: 8px;
-    border-left: 3px solid #00d4ff;
+    border-left: 3px solid #007bff;
 }
 
 .analysis-item .label {
-    color: #888;
+    color: #6c757d;
     font-weight: 500;
 }
 
 .analysis-item .value {
-    color: #fff;
+    color: #212529;
     font-weight: 600;
 }
 
@@ -336,31 +334,31 @@ body {
 }
 
 .action-btn.primary {
-    background: linear-gradient(45deg, #00d4ff, #0099cc);
+    background: linear-gradient(45deg, #007bff, #0056b3);
     color: #fff;
 }
 
 .action-btn.secondary {
-    background: rgba(255, 255, 255, 0.1);
-    color: #ccc;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+    border: 1px solid rgba(108, 117, 125, 0.2);
 }
 
 .action-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
 }
 
 /* Signals Section */
 .signals-section {
-    background: rgba(26, 26, 46, 0.8);
+    background: rgba(255, 255, 255, 0.9);
     border-radius: 15px;
     padding: 2rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(0, 123, 255, 0.2);
 }
 
 .signals-section h3 {
-    color: #00d4ff;
+    color: #007bff;
     margin-bottom: 1.5rem;
     font-size: 1.5rem;
 }
@@ -374,26 +372,27 @@ body {
 .no-signals {
     text-align: center;
     padding: 3rem;
-    color: #888;
+    color: #6c757d;
 }
 
 .no-signals i {
     font-size: 3rem;
     margin-bottom: 1rem;
-    color: #00d4ff;
+    color: #007bff;
 }
 
 .signal-card {
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(255, 255, 255, 0.9);
     border-radius: 10px;
     padding: 1.5rem;
-    border-left: 4px solid #00d4ff;
+    border-left: 4px solid #007bff;
     transition: all 0.3s ease;
+    border: 1px solid rgba(0, 123, 255, 0.1);
 }
 
 .signal-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 212, 255, 0.2);
+    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.2);
 }
 
 .signal-header {
@@ -406,11 +405,11 @@ body {
 .signal-asset {
     font-size: 1.2rem;
     font-weight: 600;
-    color: #00d4ff;
+    color: #007bff;
 }
 
 .signal-time {
-    color: #888;
+    color: #6c757d;
     font-size: 0.9rem;
 }
 
@@ -442,7 +441,7 @@ body {
 .confidence-bar {
     width: 100%;
     height: 8px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 123, 255, 0.1);
     border-radius: 4px;
     overflow: hidden;
     margin-bottom: 1rem;
@@ -450,22 +449,22 @@ body {
 
 .confidence-fill {
     height: 100%;
-    background: linear-gradient(45deg, #00d4ff, #0099cc);
+    background: linear-gradient(45deg, #007bff, #0056b3);
     border-radius: 4px;
     transition: width 0.3s ease;
 }
 
 /* PocketOption Section */
 .pocketoption-section {
-    background: rgba(26, 26, 46, 0.8);
+    background: rgba(255, 255, 255, 0.9);
     border-radius: 15px;
     padding: 2rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(0, 123, 255, 0.2);
     text-align: center;
 }
 
 .pocketoption-section h3 {
-    color: #00d4ff;
+    color: #007bff;
     margin-bottom: 1.5rem;
     font-size: 1.5rem;
 }
@@ -482,22 +481,22 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 1rem;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 123, 255, 0.05);
     border-radius: 8px;
 }
 
 .info-item .label {
-    color: #888;
+    color: #6c757d;
     font-weight: 500;
 }
 
 .info-item .value {
-    color: #fff;
+    color: #212529;
     font-weight: 600;
 }
 
 .pocketoption-btn {
-    background: linear-gradient(45deg, #00d4ff, #0099cc);
+    background: linear-gradient(45deg, #007bff, #0056b3);
     color: #fff;
     border: none;
     padding: 1rem 2rem;
@@ -510,12 +509,12 @@ body {
     align-items: center;
     gap: 0.5rem;
     margin: 0 auto;
-    box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+    box-shadow: 0 4px 20px rgba(0, 123, 255, 0.3);
 }
 
 .pocketoption-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 25px rgba(0, 212, 255, 0.4);
+    box-shadow: 0 6px 25px rgba(0, 123, 255, 0.4);
 }
 
 /* Modal */
@@ -538,14 +537,14 @@ body {
 }
 
 .modal-content {
-    background: rgba(26, 26, 46, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 123, 255, 0.2);
     border-radius: 15px;
     max-width: 500px;
     width: 90%;
     max-height: 80vh;
     overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 20px 60px rgba(0, 123, 255, 0.2);
 }
 
 .modal-header {
@@ -553,25 +552,25 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 1.5rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(0, 123, 255, 0.1);
 }
 
 .modal-header h3 {
-    color: #00d4ff;
+    color: #007bff;
     font-size: 1.3rem;
 }
 
 .close-btn {
     background: none;
     border: none;
-    color: #888;
+    color: #6c757d;
     font-size: 1.5rem;
     cursor: pointer;
     transition: color 0.3s ease;
 }
 
 .close-btn:hover {
-    color: #fff;
+    color: #212529;
 }
 
 .modal-body {
@@ -582,7 +581,7 @@ body {
     display: flex;
     gap: 1rem;
     padding: 1.5rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(0, 123, 255, 0.1);
 }
 
 .btn {
@@ -600,19 +599,19 @@ body {
 }
 
 .btn.primary {
-    background: linear-gradient(45deg, #00d4ff, #0099cc);
+    background: linear-gradient(45deg, #007bff, #0056b3);
     color: #fff;
 }
 
 .btn.secondary {
-    background: rgba(255, 255, 255, 0.1);
-    color: #ccc;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+    border: 1px solid rgba(108, 117, 125, 0.2);
 }
 
 .btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
 }
 
 /* Loading Overlay */
@@ -636,14 +635,14 @@ body {
 
 .loading-content {
     text-align: center;
-    color: #fff;
+    color: #212529;
 }
 
 .spinner {
     width: 50px;
     height: 50px;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    border-top: 3px solid #00d4ff;
+    border: 3px solid rgba(0, 123, 255, 0.3);
+    border-top: 3px solid #007bff;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 0 auto 1rem;
