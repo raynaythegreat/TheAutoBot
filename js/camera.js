@@ -690,7 +690,7 @@ class POTBotCamera {
             console.log(`PocketOption detection score: ${(pocketOptionScore * 100).toFixed(1)}%`);
             
             // Return true if PocketOption score is above threshold
-            return pocketOptionScore > 0.2; // 20% threshold for PocketOption detection
+            return pocketOptionScore > 0.1; // 10% threshold for PocketOption detection (more sensitive)
             
         } catch (error) {
             console.error('Error detecting market chart:', error);
@@ -720,15 +720,15 @@ class POTBotCamera {
                 pocketOptionPixels++;
                 
                 // Count specific PocketOption elements
-                if (r < 30 && g < 30 && b < 30) {
+                if (r < 80 && g < 80 && b < 80) {
                     darkBackgroundPixels++; // Dark background
-                } else if (g > 160 && g > r + 60 && g > b + 60 && r < 60 && b < 60) {
-                    greenCandlestickPixels++; // Green candlesticks (very specific)
-                } else if (r > 160 && r > g + 60 && r > b + 60 && g < 60 && b < 60) {
-                    redCandlestickPixels++; // Red candlesticks (very specific)
-                } else if (b > 140 && b > r + 40 && b > g + 40 && r < 80 && g < 80 && b < 220) {
-                    lightBluePixels++; // Light blue elements
-                } else if (r > 80 && g > 80 && b > 80 && r < 140 && g < 140 && b < 140) {
+                } else if (g > 100 && g > r + 20 && g > b + 20) {
+                    greenCandlestickPixels++; // Green candlesticks (flexible)
+                } else if (r > 100 && r > g + 20 && r > b + 20) {
+                    redCandlestickPixels++; // Red candlesticks (flexible)
+                } else if (b > 80 && b > r + 15 && b > g + 15) {
+                    lightBluePixels++; // Blue elements
+                } else if (r > 60 && g > 60 && b > 60 && r < 200 && g < 200 && b < 200) {
                     gridLinePixels++; // Grid lines
                 }
             }
@@ -750,8 +750,8 @@ class POTBotCamera {
             pocketOptionScore += 0.1;
         }
         
-        // Candlesticks are REQUIRED - no signal without them (very strict threshold)
-        if (candlestickRatio > 0.05) {
+        // Candlesticks are REQUIRED - no signal without them (more sensitive threshold)
+        if (candlestickRatio > 0.02) {
             pocketOptionScore += 0.15;
             hasCandlesticks = true;
         }
@@ -776,7 +776,7 @@ class POTBotCamera {
         
         // CRITICAL: Only return positive score if candlesticks are detected
         if (!hasCandlesticks) {
-            console.log('❌ NO CANDLESTICKS DETECTED - candlestick ratio:', (candlestickRatio * 100).toFixed(1) + '% (required: 5%+)');
+            console.log('❌ NO CANDLESTICKS DETECTED - candlestick ratio:', (candlestickRatio * 100).toFixed(1) + '% (required: 2%+)');
             console.log('❌ NOT A VALID TRADING CHART - no signals will be generated');
             return 0; // Force detection failure if no candlesticks
         } else {
@@ -810,7 +810,7 @@ class POTBotCamera {
                 const b = data[pixelIndex + 2];
                 
                 // Check for green candlestick pattern (rectangular shape)
-                if (g > 160 && g > r + 60 && g > b + 60 && r < 60 && b < 60) {
+                if (g > 100 && g > r + 20 && g > b + 20) {
                     // Look for rectangular pattern around this pixel
                     if (this.isCandlestickRectangle(data, x, y, width, height, 'green')) {
                         candlestickPatterns++;
@@ -818,7 +818,7 @@ class POTBotCamera {
                 }
                 
                 // Check for red candlestick pattern (rectangular shape)
-                if (r > 160 && r > g + 60 && r > b + 60 && g < 60 && b < 60) {
+                if (r > 100 && r > g + 20 && r > b + 20) {
                     // Look for rectangular pattern around this pixel
                     if (this.isCandlestickRectangle(data, x, y, width, height, 'red')) {
                         candlestickPatterns++;
@@ -852,44 +852,44 @@ class POTBotCamera {
                 
                 totalPixels++;
                 
-                if (color === 'green' && g > 160 && g > r + 60 && g > b + 60 && r < 60 && b < 60) {
+                if (color === 'green' && g > 100 && g > r + 20 && g > b + 20) {
                     matchingPixels++;
-                } else if (color === 'red' && r > 160 && r > g + 60 && r > b + 60 && g < 60 && b < 60) {
+                } else if (color === 'red' && r > 100 && r > g + 20 && r > b + 20) {
                     matchingPixels++;
                 }
             }
         }
         
-        // Consider it a candlestick if 70% of pixels match the color
-        return (matchingPixels / totalPixels) > 0.7;
+        // Consider it a candlestick if 50% of pixels match the color (more flexible)
+        return (matchingPixels / totalPixels) > 0.5;
     }
     
     isChartColor(r, g, b) {
-        // Check for PocketOption-specific chart colors and characteristics
+        // Check for PocketOption chart colors - more flexible detection
         
-        // PocketOption Green Candlesticks (very specific bright green)
-        if (g > 160 && g > r + 60 && g > b + 60 && r < 60 && b < 60) return true;
+        // Green Candlesticks (various shades of green)
+        if (g > 100 && g > r + 20 && g > b + 20) return true;
         
-        // PocketOption Red Candlesticks (very specific bright red)
-        if (r > 160 && r > g + 60 && r > b + 60 && g < 60 && b < 60) return true;
+        // Red Candlesticks (various shades of red)
+        if (r > 100 && r > g + 20 && r > b + 20) return true;
         
-        // PocketOption Light Blue (current price box, lines)
-        if (b > 140 && b > r + 40 && b > g + 40 && r < 80 && g < 80 && b < 220) return true;
+        // Blue elements (price indicators, lines, highlights)
+        if (b > 80 && b > r + 15 && b > g + 15) return true;
         
-        // PocketOption Dark Background (very dark grey/black)
-        if (r < 30 && g < 30 && b < 30) return true;
+        // Dark backgrounds (chart backgrounds)
+        if (r < 80 && g < 80 && b < 80) return true;
         
-        // PocketOption Light Grey Grid Lines (subtle)
-        if (r > 80 && g > 80 && b > 80 && r < 140 && g < 140 && b < 140) return true;
+        // Light grey elements (grid lines, borders)
+        if (r > 60 && g > 60 && b > 60 && r < 200 && g < 200 && b < 200) return true;
         
-        // PocketOption White Text/Labels (pure white)
-        if (r > 240 && g > 240 && b > 240) return true;
+        // White/light elements (text, labels)
+        if (r > 180 && g > 180 && b > 180) return true;
         
-        // PocketOption Orange Indicator Lines (Stochastic)
-        if (r > 220 && g > 140 && g < 200 && b < 40) return true;
+        // Orange/Yellow elements (indicators)
+        if (r > 150 && g > 100 && b < 100) return true;
         
-        // PocketOption Blue Indicator Lines (Stochastic)
-        if (b > 180 && b > r + 60 && b > g + 60 && r < 80 && g < 80) return true;
+        // Any bright colors that could be chart elements
+        if ((r > 120 || g > 120 || b > 120) && (r + g + b) > 200) return true;
         
         return false;
     }
