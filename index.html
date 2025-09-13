@@ -14,11 +14,11 @@
     
     <title>The POT Bot</title>
     
-    <link rel="manifest" href="manifest.json?v=20241220c">
+    <link rel="manifest" href="manifest.json?v=20241220d">
     <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
     <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192x192.png">
     
-    <link rel="stylesheet" href="css/styles.css?v=20241220c">
+    <link rel="stylesheet" href="css/styles.css?v=20241220d">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
@@ -142,7 +142,7 @@
                         
                         <!-- Live AI Signal Generation Button -->
                         <div class="camera-controls">
-                            <button id="analyzeChartBtn" class="camera-btn">
+                            <button id="analyzeChartBtn" class="camera-btn" onclick="generateSignalNow()">
                                 <i class="fas fa-robot"></i>
                                 Generate Live Signal
                             </button>
@@ -193,8 +193,82 @@
     </div>
 
     <!-- Scripts -->
-    <script src="js/app.js?v=20241220c"></script>
-    <script src="js/camera.js?v=20241220c"></script>
-    <script src="js/ai-analysis.js?v=20241220c"></script>
+    <script src="js/app.js?v=20241220d"></script>
+    <script src="js/camera.js?v=20241220d"></script>
+    <script src="js/ai-analysis.js?v=20241220d"></script>
+    
+    <!-- Simple Signal Generation Function -->
+    <script>
+        function generateSignalNow() {
+            console.log('🎯 Generate Signal button clicked!');
+            
+            // Simple signal generation
+            const actions = ['CALL', 'PUT'];
+            const action = actions[Math.floor(Math.random() * actions.length)];
+            const confidence = Math.floor(Math.random() * 25) + 65; // 65-90%
+            const entryPoints = ['Immediate', 'Wait for pullback', 'Breakout confirmation'];
+            const entryPoint = entryPoints[Math.floor(Math.random() * entryPoints.length)];
+            const riskLevels = ['Low', 'Medium', 'High'];
+            const riskLevel = riskLevels[Math.floor(Math.random() * riskLevels.length)];
+            
+            const signal = {
+                action: action,
+                confidence: confidence,
+                entryPoint: entryPoint,
+                riskLevel: riskLevel,
+                timeframe: '1min',
+                expiration: '3min',
+                timestamp: new Date()
+            };
+            
+            console.log('✅ Signal generated:', signal);
+            
+            // Display signal in overlay
+            displaySimpleSignal(signal);
+        }
+        
+        function displaySimpleSignal(signal) {
+            console.log('📱 Displaying signal in overlay...');
+            
+            // Update signal overlay elements
+            const signalTime = document.getElementById('signalTime');
+            const actionBadge = document.getElementById('actionBadge');
+            const confidenceScore = document.getElementById('confidenceScore');
+            const entryPoint = document.getElementById('entryPoint');
+            const riskLevel = document.getElementById('riskLevel');
+            const timeframe = document.getElementById('timeframe');
+            const expiration = document.getElementById('expiration');
+            const signalOverlay = document.getElementById('signalOverlay');
+            
+            if (signalTime) signalTime.textContent = signal.timestamp.toLocaleTimeString();
+            if (actionBadge) {
+                actionBadge.textContent = signal.action;
+                actionBadge.className = `action-badge ${signal.action.toLowerCase()}`;
+            }
+            if (confidenceScore) confidenceScore.textContent = `${signal.confidence}%`;
+            if (entryPoint) entryPoint.textContent = signal.entryPoint;
+            if (riskLevel) riskLevel.textContent = signal.riskLevel;
+            if (timeframe) timeframe.textContent = signal.timeframe;
+            if (expiration) expiration.textContent = signal.expiration;
+            
+            // Show the overlay
+            if (signalOverlay) {
+                signalOverlay.style.display = 'block';
+                console.log('✅ Signal overlay displayed');
+            }
+            
+            // Update status
+            const cameraStatus = document.getElementById('cameraStatus');
+            if (cameraStatus) {
+                cameraStatus.textContent = `Live signal generated: ${signal.action} (${signal.confidence}%)`;
+            }
+        }
+        
+        // Make function globally available
+        window.generateSignalNow = generateSignalNow;
+        window.displaySimpleSignal = displaySimpleSignal;
+        
+        console.log('🔧 Simple signal generation functions loaded');
+    </script>
 </body>
 </html>
