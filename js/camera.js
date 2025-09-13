@@ -87,7 +87,7 @@ class POTBotCamera {
             
             // Update UI
             this.isActive = true;
-            this.updateStatus('Camera ready - Scanning for market charts (balanced detection)');
+            this.updateStatus('Camera ready - Scanning for PocketOption charts (po.trade optimized)');
             
             // Start auto-scanning for market detection
             this.startAutoScan();
@@ -691,29 +691,13 @@ class POTBotCamera {
             const imageData = ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
             const data = imageData.data;
             
-            // Analyze for chart-like patterns
-            let chartPixels = 0;
-            let totalPixels = 0;
+            // Analyze for PocketOption-specific patterns
+            const pocketOptionScore = this.analyzePocketOptionPatterns(data, this.canvas.width, this.canvas.height);
             
-            // Sample every 10th pixel for performance
-            for (let i = 0; i < data.length; i += 40) { // 4 bytes per pixel, so 40 = 10 pixels
-                const r = data[i];
-                const g = data[i + 1];
-                const b = data[i + 2];
-                
-                totalPixels++;
-                
-                // Check for chart colors (candlesticks, lines, etc.)
-                if (this.isChartColor(r, g, b)) {
-                    chartPixels++;
-                }
-            }
+            console.log(`PocketOption detection score: ${(pocketOptionScore * 100).toFixed(1)}%`);
             
-            const chartProbability = chartPixels / totalPixels;
-            console.log(`Chart detection probability: ${(chartProbability * 100).toFixed(1)}% (${chartPixels}/${totalPixels} pixels)`);
-            
-            // Return true if chart probability is above threshold - balanced strict
-            return chartProbability > 0.15; // 15% threshold - balanced for real charts
+            // Return true if PocketOption score is above threshold
+            return pocketOptionScore > 0.2; // 20% threshold for PocketOption detection
             
         } catch (error) {
             console.error('Error detecting market chart:', error);
@@ -721,27 +705,110 @@ class POTBotCamera {
         }
     }
     
+    analyzePocketOptionPatterns(data, width, height) {
+        let pocketOptionPixels = 0;
+        let totalPixels = 0;
+        let darkBackgroundPixels = 0;
+        let greenCandlestickPixels = 0;
+        let redCandlestickPixels = 0;
+        let lightBluePixels = 0;
+        let gridLinePixels = 0;
+        
+        // Sample pixels for analysis
+        for (let i = 0; i < data.length; i += 40) { // Sample every 10th pixel
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            
+            totalPixels++;
+            
+            // Check for PocketOption-specific colors
+            if (this.isChartColor(r, g, b)) {
+                pocketOptionPixels++;
+                
+                // Count specific PocketOption elements
+                if (r < 40 && g < 40 && b < 40) {
+                    darkBackgroundPixels++; // Dark background
+                } else if (g > 140 && g > r + 40 && g > b + 40 && r < 80 && b < 80) {
+                    greenCandlestickPixels++; // Green candlesticks
+                } else if (r > 140 && r > g + 40 && r > b + 40 && g < 80 && b < 80) {
+                    redCandlestickPixels++; // Red candlesticks
+                } else if (b > 120 && b > r + 30 && b > g + 30 && r < 100 && g < 100 && b < 200) {
+                    lightBluePixels++; // Light blue elements
+                } else if (r > 100 && g > 100 && b > 100 && r < 180 && g < 180 && b < 180) {
+                    gridLinePixels++; // Grid lines
+                }
+            }
+        }
+        
+        // Calculate PocketOption-specific score
+        const baseScore = pocketOptionPixels / totalPixels;
+        const darkBackgroundRatio = darkBackgroundPixels / totalPixels;
+        const candlestickRatio = (greenCandlestickPixels + redCandlestickPixels) / totalPixels;
+        const lightBlueRatio = lightBluePixels / totalPixels;
+        const gridRatio = gridLinePixels / totalPixels;
+        
+        // Boost score if we detect PocketOption characteristics
+        let pocketOptionScore = baseScore;
+        
+        // Dark background is essential for PocketOption
+        if (darkBackgroundRatio > 0.3) {
+            pocketOptionScore += 0.1;
+        }
+        
+        // Candlesticks are key indicators
+        if (candlestickRatio > 0.02) {
+            pocketOptionScore += 0.15;
+        }
+        
+        // Light blue elements (price indicators, lines)
+        if (lightBlueRatio > 0.01) {
+            pocketOptionScore += 0.1;
+        }
+        
+        // Grid lines are common in PocketOption
+        if (gridRatio > 0.05) {
+            pocketOptionScore += 0.05;
+        }
+        
+        console.log('PocketOption pattern analysis:', {
+            baseScore: (baseScore * 100).toFixed(1) + '%',
+            darkBackground: (darkBackgroundRatio * 100).toFixed(1) + '%',
+            candlesticks: (candlestickRatio * 100).toFixed(1) + '%',
+            lightBlue: (lightBlueRatio * 100).toFixed(1) + '%',
+            gridLines: (gridRatio * 100).toFixed(1) + '%',
+            finalScore: (pocketOptionScore * 100).toFixed(1) + '%'
+        });
+        
+        return Math.min(pocketOptionScore, 1.0); // Cap at 100%
+    }
+    
     isChartColor(r, g, b) {
-        // Check for chart colors - balanced strict detection
+        // Check for PocketOption-specific chart colors and characteristics
         
-        // Green candlesticks (bullish) - balanced detection
-        if (g > 120 && g > r + 30 && g > b + 30) return true;
+        // PocketOption Green Candlesticks (bright, solid green)
+        if (g > 140 && g > r + 40 && g > b + 40 && r < 80 && b < 80) return true;
         
-        // Red candlesticks (bearish) - balanced detection
-        if (r > 120 && r > g + 30 && r > b + 30) return true;
+        // PocketOption Red Candlesticks (bright, solid red)
+        if (r > 140 && r > g + 40 && r > b + 40 && g < 80 && b < 80) return true;
         
-        // Blue chart lines and axes - balanced detection
-        if (b > 80 && b > r + 20 && b > g + 20 && b < 180) return true;
+        // PocketOption Light Blue (current price, lines, highlights)
+        if (b > 120 && b > r + 30 && b > g + 30 && r < 100 && g < 100 && b < 200) return true;
         
-        // White/light backgrounds - balanced detection
-        if (r > 200 && g > 200 && b > 200) return true;
+        // PocketOption Dark Background (very dark grey/black)
+        if (r < 40 && g < 40 && b < 40) return true;
         
-        // Dark chart elements (axes, text, borders) - balanced detection
-        if (r < 60 && g < 60 && b < 60) return true;
+        // PocketOption Light Grey Grid Lines
+        if (r > 100 && g > 100 && b > 100 && r < 180 && g < 180 && b < 180) return true;
         
-        // Chart indicator colors - balanced detection
-        if (r > 180 && g > 180 && b < 80) return true; // Yellow indicators
-        if (r > 180 && g > 100 && b < 80) return true; // Orange indicators
+        // PocketOption White Text/Labels
+        if (r > 220 && g > 220 && b > 220) return true;
+        
+        // PocketOption Orange Indicator Lines
+        if (r > 200 && g > 120 && g < 180 && b < 60) return true;
+        
+        // PocketOption Blue Indicator Lines
+        if (b > 150 && b > r + 50 && b > g + 50 && r < 100 && g < 100) return true;
         
         return false;
     }
