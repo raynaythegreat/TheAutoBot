@@ -731,9 +731,9 @@ body {
 /* Camera controls styles */
 .camera-controls {
     position: absolute;
-    bottom: 20px;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translate(-50%, -50%);
     z-index: 1000;
 }
 
@@ -741,30 +741,34 @@ body {
     background: linear-gradient(135deg, #007bff, #0056b3);
     color: white;
     border: none;
-    padding: 16px 32px;
-    border-radius: 30px;
-    font-size: 18px;
+    padding: 20px 40px;
+    border-radius: 35px;
+    font-size: 20px;
     font-weight: 700;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 12px;
-    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+    gap: 15px;
+    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.5);
     transition: all 0.3s ease;
-    min-width: 200px;
+    min-width: 250px;
     justify-content: center;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .camera-btn:hover {
     background: linear-gradient(135deg, #0056b3, #004085);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.5);
+    transform: translate(-50%, -50%) translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0, 123, 255, 0.6);
+    border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 .camera-btn:active {
-    transform: translateY(0);
+    transform: translate(-50%, -50%) translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
 }
 
 .camera-btn i {
-    font-size: 20px;
+    font-size: 24px;
 }

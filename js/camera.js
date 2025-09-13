@@ -65,7 +65,16 @@ class POTBotCamera {
     
     bindEvents() {
         this.backBtn.addEventListener('click', () => this.goBack());
-        this.analyzeChartBtn.addEventListener('click', () => this.analyzeChart());
+        
+        if (this.analyzeChartBtn) {
+            this.analyzeChartBtn.addEventListener('click', () => {
+                console.log('🔘 Generate AI Signal button clicked!');
+                this.analyzeChart();
+            });
+            console.log('✅ Generate AI Signal button event listener attached');
+        } else {
+            console.error('❌ analyzeChartBtn not found - button may not exist');
+        }
     }
     
     async startCamera() {
@@ -1133,41 +1142,65 @@ class POTBotCamera {
     
     displaySignalOverlay(signal) {
         console.log('📱 Displaying signal in transparent overlay...');
+        console.log('Signal data:', signal);
         
         // Update signal overlay elements
         if (this.signalTime) {
             this.signalTime.textContent = signal.timestamp.toLocaleTimeString();
+            console.log('✅ Signal time updated');
+        } else {
+            console.log('❌ signalTime element not found');
         }
         
         if (this.actionBadge) {
             this.actionBadge.textContent = signal.action;
             this.actionBadge.className = `action-badge ${signal.action.toLowerCase()}`;
+            console.log('✅ Action badge updated:', signal.action);
+        } else {
+            console.log('❌ actionBadge element not found');
         }
         
         if (this.confidenceScore) {
             this.confidenceScore.textContent = `${signal.confidence}%`;
+            console.log('✅ Confidence score updated:', signal.confidence);
+        } else {
+            console.log('❌ confidenceScore element not found');
         }
         
         if (this.entryPoint) {
             this.entryPoint.textContent = signal.entryPoint;
+            console.log('✅ Entry point updated:', signal.entryPoint);
+        } else {
+            console.log('❌ entryPoint element not found');
         }
         
         if (this.riskLevel) {
             this.riskLevel.textContent = signal.riskLevel;
+            console.log('✅ Risk level updated:', signal.riskLevel);
+        } else {
+            console.log('❌ riskLevel element not found');
         }
         
         if (this.timeframe) {
             this.timeframe.textContent = signal.timeframe;
+            console.log('✅ Timeframe updated:', signal.timeframe);
+        } else {
+            console.log('❌ timeframe element not found');
         }
         
         if (this.expiration) {
             this.expiration.textContent = signal.expiration;
+            console.log('✅ Expiration updated:', signal.expiration);
+        } else {
+            console.log('❌ expiration element not found');
         }
         
         // Show the transparent overlay
         if (this.signalOverlay) {
             this.signalOverlay.style.display = 'block';
             console.log('✅ Signal overlay displayed');
+        } else {
+            console.log('❌ signalOverlay element not found');
         }
         
         // Update signal count
@@ -1175,6 +1208,9 @@ class POTBotCamera {
         if (signalCount) {
             const currentCount = parseInt(signalCount.textContent) || 0;
             signalCount.textContent = currentCount + 1;
+            console.log('✅ Signal count updated:', currentCount + 1);
+        } else {
+            console.log('❌ signalCount element not found');
         }
     }
     
@@ -1225,14 +1261,16 @@ class POTBotCamera {
     }
     
     async analyzeChart() {
+        console.log('🚀 analyzeChart method called');
+        
         if (!this.isActive) {
-            console.log('Camera not active, cannot analyze');
+            console.log('❌ Camera not active, cannot analyze');
             this.updateStatus('Camera not active - please start camera first');
             return;
         }
         
         if (this.isAnalyzing) {
-            console.log('Already analyzing, please wait...');
+            console.log('⏳ Already analyzing, please wait...');
             this.updateStatus('Analysis in progress - please wait...');
             return;
         }
@@ -1251,6 +1289,7 @@ class POTBotCamera {
             await this.delay(1500);
             
             // Capture current camera screen
+            console.log('📸 Attempting to capture current screen...');
             const screenData = this.captureCurrentScreen();
             
             if (!screenData) {
@@ -1259,16 +1298,20 @@ class POTBotCamera {
                 return;
             }
             
+            console.log('✅ Screen data captured successfully:', screenData);
+            
             console.log('✅ Current screen captured - generating AI trading signal');
             this.updateStatus('Screen captured - AI generating trading signal...');
             
             // Generate AI trading signal from current screen
+            console.log('🤖 Generating AI trading signal...');
             const tradingSignal = await this.generateAITradingSignal(screenData);
             
             if (tradingSignal) {
+                console.log('✅ AI trading signal generated successfully:', tradingSignal);
                 // Display signal in transparent overlay
                 this.displaySignalOverlay(tradingSignal);
-                console.log('✅ AI trading signal generated and displayed:', tradingSignal);
+                console.log('✅ AI trading signal displayed in overlay');
                 this.updateStatus('AI trading signal generated successfully!');
             } else {
                 console.log('❌ Failed to generate AI trading signal');
