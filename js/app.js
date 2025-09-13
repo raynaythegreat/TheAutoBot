@@ -1,485 +1,165 @@
-// Main App Controller
+// PocketOption AI Signals App Controller
 class PocketOptionApp {
     constructor() {
-        this.currentTab = 'signals';
         this.isInitialized = false;
+        this.currentSignal = null;
+        this.signalHistory = [];
         
         this.initializeApp();
     }
     
-    initializeApp() {
-        this.setupEventListeners();
-        this.initializeTabs();
-        this.loadSettings();
-        this.setupNotifications();
-        this.isInitialized = true;
-        
-        console.log('PocketOption AI Signals App initialized');
+    async initializeApp() {
+        try {
+            console.log('Initializing PocketOption AI Signals App...');
+            
+            // Check for required APIs
+            await this.checkRequirements();
+            
+            // Initialize components
+            this.initializeComponents();
+            
+            // Bind global events
+            this.bindGlobalEvents();
+            
+            this.isInitialized = true;
+            console.log('PocketOption AI Signals App initialized successfully');
+            
+        } catch (error) {
+            console.error('Failed to initialize app:', error);
+            this.showError('Failed to initialize app. Please refresh and try again.');
+        }
     }
     
-    setupEventListeners() {
-        // Tab navigation
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const tab = e.currentTarget.dataset.tab;
-                this.switchTab(tab);
-            });
-        });
+    async checkRequirements() {
+        // Check for required browser APIs
+        const requiredAPIs = [
+            { name: 'Camera API', check: () => navigator.mediaDevices && navigator.mediaDevices.getUserMedia },
+            { name: 'Canvas API', check: () => document.createElement('canvas').getContext },
+            { name: 'Local Storage', check: () => typeof Storage !== 'undefined' }
+        ];
         
-        // Modal controls
-        const modal = document.getElementById('signalModal');
-        const closeBtn = document.getElementById('closeModalBtn');
-        const copyBtn = document.getElementById('copySignalBtn');
+        const missingAPIs = requiredAPIs.filter(api => !api.check());
+        
+        if (missingAPIs.length > 0) {
+            throw new Error(`Missing required APIs: ${missingAPIs.map(api => api.name).join(', ')}`);
+        }
+        
+        // Check for HTTPS (required for camera)
+        if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+            throw new Error('HTTPS is required for camera access. Please use HTTPS or localhost.');
+        }
+    }
+    
+    initializeComponents() {
+        // Initialize PocketOption AI (already done in ai-analysis.js)
+        if (!window.pocketOptionAI) {
+            throw new Error('PocketOption AI not initialized');
+        }
+        
+        // Initialize Camera (already done in camera.js)
+        if (!window.pocketOptionCamera) {
+            throw new Error('PocketOption Camera not initialized');
+        }
+        
+        // Initialize PocketOption integration
+        this.initializePocketOptionIntegration();
+    }
+    
+    initializePocketOptionIntegration() {
         const openPocketOptionBtn = document.getElementById('openPocketOptionBtn');
-        
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => this.closeModal());
-        }
-        
-        if (copyBtn) {
-            copyBtn.addEventListener('click', () => this.copyCurrentSignal());
-        }
-        
         if (openPocketOptionBtn) {
-            openPocketOptionBtn.addEventListener('click', () => this.openPocketOption());
-        }
-        
-        // Close modal on outside click
-        if (modal) {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    this.closeModal();
-                }
-            });
-        }
-        
-        // Settings event listeners
-        this.setupSettingsListeners();
-    }
-    
-    setupSettingsListeners() {
-        // Auto-generate signals
-        const autoGenerate = document.getElementById('autoGenerateSignals');
-        if (autoGenerate) {
-            autoGenerate.addEventListener('change', (e) => {
-                this.saveSetting('autoGenerateSignals', e.target.checked);
-            });
-        }
-        
-        // High confidence only
-        const highConfidenceOnly = document.getElementById('highConfidenceOnly');
-        if (highConfidenceOnly) {
-            highConfidenceOnly.addEventListener('change', (e) => {
-                this.saveSetting('highConfidenceOnly', e.target.checked);
-                this.applyFilters();
-            });
-        }
-        
-        // Sound notifications
-        const soundNotifications = document.getElementById('soundNotifications');
-        if (soundNotifications) {
-            soundNotifications.addEventListener('change', (e) => {
-                this.saveSetting('soundNotifications', e.target.checked);
-            });
-        }
-        
-        // Risk management
-        const maxRiskPerTrade = document.getElementById('maxRiskPerTrade');
-        if (maxRiskPerTrade) {
-            maxRiskPerTrade.addEventListener('input', (e) => {
-                const value = e.target.value;
-                document.getElementById('riskValue').textContent = `${value}%`;
-                this.saveSetting('maxRiskPerTrade', parseInt(value));
-            });
-        }
-        
-        const dailyLossLimit = document.getElementById('dailyLossLimit');
-        if (dailyLossLimit) {
-            dailyLossLimit.addEventListener('change', (e) => {
-                this.saveSetting('dailyLossLimit', parseInt(e.target.value));
-            });
-        }
-        
-        // Camera settings
-        const cameraQuality = document.getElementById('cameraQuality');
-        if (cameraQuality) {
-            cameraQuality.addEventListener('change', (e) => {
-                this.saveSetting('cameraQuality', e.target.value);
-            });
-        }
-        
-        const autoCapture = document.getElementById('autoCapture');
-        if (autoCapture) {
-            autoCapture.addEventListener('change', (e) => {
-                this.saveSetting('autoCapture', e.target.checked);
+            openPocketOptionBtn.addEventListener('click', () => {
+                this.openPocketOption();
             });
         }
     }
     
-    initializeTabs() {
-        // Show initial tab
-        this.switchTab('signals');
-    }
-    
-    switchTab(tabName) {
-        // Update navigation buttons
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        
-        const activeBtn = document.querySelector(`[data-tab="${tabName}"]`);
-        if (activeBtn) {
-            activeBtn.classList.add('active');
-        }
-        
-        // Update tab content
-        document.querySelectorAll('.tab-content').forEach(content => {
-            content.classList.remove('active');
-        });
-        
-        const activeContent = document.getElementById(`${tabName}-tab`);
-        if (activeContent) {
-            activeContent.classList.add('active');
-        }
-        
-        this.currentTab = tabName;
-        
-        // Tab-specific initialization
-        this.initializeTabContent(tabName);
-    }
-    
-    initializeTabContent(tabName) {
-        switch (tabName) {
-            case 'signals':
-                this.initializeSignalsTab();
-                break;
-            case 'camera':
-                this.initializeCameraTab();
-                break;
-            case 'portfolio':
-                this.initializePortfolioTab();
-                break;
-            case 'settings':
-                this.initializeSettingsTab();
-                break;
-        }
-    }
-    
-    initializeSignalsTab() {
-        // Refresh signals if needed
-        if (window.signalsManager) {
-            window.signalsManager.renderSignals();
-        }
-    }
-    
-    initializeCameraTab() {
-        // Initialize camera if not already done
-        if (window.cameraManager && !window.cameraManager.isInitialized) {
-            // Camera will be initialized when user clicks start
-        }
-    }
-    
-    initializePortfolioTab() {
-        this.loadPortfolioData();
-    }
-    
-    initializeSettingsTab() {
-        this.loadSettings();
-    }
-    
-    loadPortfolioData() {
-        // Load portfolio data from localStorage or API
-        const portfolioData = this.getPortfolioData();
-        
-        // Update portfolio stats
-        document.getElementById('totalPnL').textContent = `$${portfolioData.totalPnL.toFixed(2)}`;
-        document.getElementById('winRate').textContent = `${portfolioData.winRate.toFixed(1)}%`;
-        document.getElementById('totalTrades').textContent = portfolioData.totalTrades;
-        
-        // Load recent trades
-        this.loadRecentTrades(portfolioData.recentTrades);
-    }
-    
-    getPortfolioData() {
-        // Mock portfolio data - in real app, this would come from API
-        return {
-            totalPnL: 1247.50,
-            winRate: 73.2,
-            totalTrades: 156,
-            recentTrades: [
-                { asset: 'EUR/USD', action: 'CALL', result: 'win', amount: 85.00, time: '2m ago' },
-                { asset: 'GBP/USD', action: 'PUT', result: 'loss', amount: -50.00, time: '5m ago' },
-                { asset: 'USD/JPY', action: 'CALL', result: 'win', amount: 75.00, time: '8m ago' },
-                { asset: 'AUD/USD', action: 'PUT', result: 'win', amount: 90.00, time: '12m ago' },
-                { asset: 'EUR/GBP', action: 'CALL', result: 'loss', amount: -45.00, time: '15m ago' }
-            ]
-        };
-    }
-    
-    loadRecentTrades(trades) {
-        const tradesList = document.getElementById('tradesList');
-        if (!tradesList) return;
-        
-        tradesList.innerHTML = '';
-        
-        trades.forEach(trade => {
-            const tradeElement = document.createElement('div');
-            tradeElement.className = 'trade-item';
-            
-            const resultClass = trade.result === 'win' ? 'win' : 'loss';
-            const resultIcon = trade.result === 'win' ? 'fa-arrow-up' : 'fa-arrow-down';
-            
-            tradeElement.innerHTML = `
-                <div class="trade-info">
-                    <div class="trade-asset">${trade.asset} ${trade.action}</div>
-                    <div class="trade-time">${trade.time}</div>
-                </div>
-                <div class="trade-result ${resultClass}">
-                    <i class="fas ${resultIcon}"></i>
-                    $${Math.abs(trade.amount).toFixed(2)}
-                </div>
-            `;
-            
-            tradesList.appendChild(tradeElement);
-        });
-    }
-    
-    loadSettings() {
-        const settings = this.getSettings();
-        
-        // Apply settings to UI
-        Object.keys(settings).forEach(key => {
-            const element = document.getElementById(key);
-            if (element) {
-                if (element.type === 'checkbox') {
-                    element.checked = settings[key];
-                } else if (element.type === 'range') {
-                    element.value = settings[key];
-                    // Update display value for range inputs
-                    const displayElement = document.getElementById(key.replace('PerTrade', 'Value'));
-                    if (displayElement) {
-                        displayElement.textContent = `${settings[key]}%`;
-                    }
-                } else {
-                    element.value = settings[key];
-                }
+    bindGlobalEvents() {
+        // Handle app visibility changes
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                this.onAppHidden();
+            } else {
+                this.onAppVisible();
             }
         });
-    }
-    
-    getSettings() {
-        const defaultSettings = {
-            autoGenerateSignals: true,
-            highConfidenceOnly: false,
-            soundNotifications: true,
-            maxRiskPerTrade: 2,
-            dailyLossLimit: 100,
-            cameraQuality: 'medium',
-            autoCapture: true
-        };
         
-        const savedSettings = localStorage.getItem('pocketOptionSettings');
-        if (savedSettings) {
-            return { ...defaultSettings, ...JSON.parse(savedSettings) };
-        }
-        
-        return defaultSettings;
-    }
-    
-    saveSetting(key, value) {
-        const settings = this.getSettings();
-        settings[key] = value;
-        localStorage.setItem('pocketOptionSettings', JSON.stringify(settings));
-    }
-    
-    applyFilters() {
-        // Apply high confidence filter if enabled
-        const highConfidenceOnly = this.getSettings().highConfidenceOnly;
-        if (highConfidenceOnly && window.signalsManager) {
-            // Filter signals to show only high confidence ones
-            window.signalsManager.filterSignals();
-        }
-    }
-    
-    setupNotifications() {
-        // Request notification permission
-        if ('Notification' in window && Notification.permission === 'default') {
-            Notification.requestPermission();
-        }
-    }
-    
-    showNotification(title, body, icon = null) {
-        const settings = this.getSettings();
-        
-        // Browser notification
-        if (settings.soundNotifications && 'Notification' in window && Notification.permission === 'granted') {
-            new Notification(title, {
-                body: body,
-                icon: icon || '/assets/icons/icon-192x192.png',
-                badge: '/assets/icons/icon-72x72.png'
+        // Handle retry analysis button
+        const retryBtn = document.getElementById('retryAnalysisBtn');
+        if (retryBtn) {
+            retryBtn.addEventListener('click', () => {
+                this.retryAnalysis();
             });
         }
         
-        // In-app notification
-        this.showInAppNotification(body, 'info');
-    }
-    
-    showInAppNotification(message, type = 'info') {
-        // Create notification element
-        const notification = document.createElement('div');
-        notification.className = `notification ${type}`;
-        notification.innerHTML = `
-            <div class="notification-content">
-                <i class="fas fa-${type === 'error' ? 'exclamation-circle' : type === 'success' ? 'check-circle' : 'info-circle'}"></i>
-                <span>${message}</span>
-            </div>
-        `;
-        
-        // Add to page
-        document.body.appendChild(notification);
-        
-        // Show notification
-        setTimeout(() => notification.classList.add('show'), 100);
-        
-        // Remove after 3 seconds
-        setTimeout(() => {
-            notification.classList.remove('show');
-            setTimeout(() => notification.remove(), 300);
-        }, 3000);
-    }
-    
-    showModal(signal) {
-        const modal = document.getElementById('signalModal');
-        const signalDetails = document.getElementById('signalDetails');
-        
-        if (!modal || !signalDetails) return;
-        
-        // Populate signal details
-        signalDetails.innerHTML = `
-            <div class="signal-detail-item">
-                <strong>Asset:</strong> ${signal.asset}
-            </div>
-            <div class="signal-detail-item">
-                <strong>Action:</strong> <span class="action-${signal.action.toLowerCase()}">${signal.action}</span>
-            </div>
-            <div class="signal-detail-item">
-                <strong>Timeframe:</strong> ${signal.timeframe}
-            </div>
-            <div class="signal-detail-item">
-                <strong>Confidence:</strong> ${signal.confidence}%
-            </div>
-            <div class="signal-detail-item">
-                <strong>Pattern:</strong> ${signal.pattern}
-            </div>
-            <div class="signal-detail-item">
-                <strong>Trend:</strong> ${signal.trend}
-            </div>
-            <div class="signal-detail-item">
-                <strong>Risk Level:</strong> ${signal.riskLevel}
-            </div>
-        `;
-        
-        // Store current signal for modal actions
-        this.currentModalSignal = signal;
-        
-        // Show modal
-        modal.classList.add('active');
-    }
-    
-    closeModal() {
-        const modal = document.getElementById('signalModal');
-        if (modal) {
-            modal.classList.remove('active');
+        // Handle execute signal button
+        const executeBtn = document.getElementById('executeSignalBtn');
+        if (executeBtn) {
+            executeBtn.addEventListener('click', () => {
+                this.executeCurrentSignal();
+            });
         }
-        this.currentModalSignal = null;
-    }
-    
-    copyCurrentSignal() {
-        if (!this.currentModalSignal) return;
-        
-        const signal = this.currentModalSignal;
-        const signalText = `${signal.asset} ${signal.action} ${signal.timeframe} - Confidence: ${signal.confidence}%`;
-        
-        navigator.clipboard.writeText(signalText).then(() => {
-            this.showInAppNotification('Signal copied to clipboard!', 'success');
-        }).catch(() => {
-            this.showInAppNotification('Failed to copy signal', 'error');
-        });
     }
     
     openPocketOption() {
-        const pocketOptionUrl = 'https://pocketoption.com';
-        window.open(pocketOptionUrl, '_blank');
-        this.showInAppNotification('Opening PocketOption...', 'info');
+        const url = 'https://pocketoption.com/en/trade';
+        window.open(url, '_blank');
+        this.showNotification('Opening PocketOption...');
     }
     
-    // Utility methods
-    formatCurrency(amount) {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD'
-        }).format(amount);
-    }
-    
-    formatPercentage(value) {
-        return `${value.toFixed(1)}%`;
-    }
-    
-    formatTime(timestamp) {
-        return new Intl.DateTimeFormat('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
-        }).format(timestamp);
-    }
-    
-    // Error handling
-    handleError(error, context = '') {
-        console.error(`Error in ${context}:`, error);
-        this.showInAppNotification(`Error: ${error.message}`, 'error');
-    }
-    
-    // Cleanup
-    destroy() {
-        // Clean up event listeners and resources
-        if (window.cameraManager) {
-            window.cameraManager.destroy();
+    retryAnalysis() {
+        if (window.pocketOptionCamera && window.pocketOptionCamera.isActive) {
+            window.pocketOptionCamera.captureAndAnalyze();
+        } else {
+            this.showError('Camera not active. Please start camera first.');
         }
+    }
+    
+    executeCurrentSignal() {
+        if (this.currentSignal) {
+            window.pocketOptionCamera.executeTrade(this.currentSignal);
+        } else {
+            this.showError('No signal available. Please analyze a chart first.');
+        }
+    }
+    
+    onAppHidden() {
+        console.log('App hidden - pausing camera');
+        if (window.pocketOptionCamera && window.pocketOptionCamera.isActive) {
+            window.pocketOptionCamera.pauseCamera();
+        }
+    }
+    
+    onAppVisible() {
+        console.log('App visible - resuming camera');
+        if (window.pocketOptionCamera && window.pocketOptionCamera.isActive) {
+            window.pocketOptionCamera.resumeCamera();
+        }
+    }
+    
+    showError(message) {
+        console.error('App Error:', message);
+        alert(message);
+    }
+    
+    showNotification(message) {
+        console.log('App Notification:', message);
+        alert(message);
+    }
+    
+    // Public API methods
+    getCurrentSignal() {
+        return this.currentSignal;
+    }
+    
+    getSignalHistory() {
+        return this.signalHistory;
     }
 }
 
 // Initialize app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    window.app = new PocketOptionApp();
-});
-
-// Handle page visibility changes
-document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-        // Page is hidden - pause any active processes
-        console.log('App paused');
-    } else {
-        // Page is visible - resume processes
-        console.log('App resumed');
-        if (window.app) {
-            window.app.initializeTabContent(window.app.currentTab);
-        }
-    }
-});
-
-// Handle online/offline status
-window.addEventListener('online', () => {
-    console.log('App is online');
-    if (window.app) {
-        window.app.showInAppNotification('Connection restored', 'success');
-    }
-});
-
-window.addEventListener('offline', () => {
-    console.log('App is offline');
-    if (window.app) {
-        window.app.showInAppNotification('Connection lost - working offline', 'error');
-    }
+    window.pocketOptionApp = new PocketOptionApp();
 });
 
 // Service Worker Registration

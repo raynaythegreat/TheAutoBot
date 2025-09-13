@@ -1,15 +1,15 @@
 {
-  "name": "PocketOption AI Signals Generator",
-  "short_name": "PocketOption Signals",
-  "description": "AI-powered binary options signals generator with camera analysis for PocketOption trading",
+  "name": "PocketOption AI Signals",
+  "short_name": "PocketOption AI",
+  "description": "AI-powered trading signals for PocketOption with camera analysis",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f0f23",
+  "background_color": "#1a1a2e",
   "theme_color": "#00d4ff",
   "orientation": "portrait-primary",
   "scope": "/",
   "lang": "en",
-  "categories": ["finance", "productivity", "business"],
+  "categories": ["finance", "productivity", "utilities"],
   "icons": [
     {
       "src": "assets/icons/icon-72x72.png",
@@ -62,73 +62,25 @@
   ],
   "screenshots": [
     {
-      "src": "assets/images/screenshot-main.png",
-      "sizes": "390x844",
+      "src": "assets/screenshots/desktop.png",
+      "sizes": "1280x720",
       "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Main signals interface"
+      "form_factor": "wide"
     },
     {
-      "src": "assets/images/screenshot-camera.png",
-      "sizes": "390x844",
+      "src": "assets/screenshots/mobile.png",
+      "sizes": "375x667",
       "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Camera analysis feature"
-    },
-    {
-      "src": "assets/images/screenshot-portfolio.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Portfolio tracking"
+      "form_factor": "narrow"
     }
   ],
-  "prefer_related_applications": false,
-  "related_applications": [],
-  "edge_side_panel": {
-    "preferred_width": 400
-  },
-  "launch_handler": {
-    "client_mode": "navigate-existing"
-  },
-  "shortcuts": [
-    {
-      "name": "Generate Signal",
-      "short_name": "Generate",
-      "description": "Generate a new AI trading signal",
-      "url": "/?action=generate",
-      "icons": [
-        {
-          "src": "assets/icons/icon-96x96.png",
-          "sizes": "96x96"
-        }
-      ]
-    },
-    {
-      "name": "Camera Analysis",
-      "short_name": "Camera",
-      "description": "Analyze chart with camera",
-      "url": "/?action=camera",
-      "icons": [
-        {
-          "src": "assets/icons/icon-96x96.png",
-          "sizes": "96x96"
-        }
-      ]
-    }
+  "features": [
+    "Camera access for chart analysis",
+    "AI-powered signal generation",
+    "PocketOption integration",
+    "Offline support"
   ],
-  "protocol_handlers": [
-    {
-      "protocol": "web+pocketoption",
-      "url": "/?signal=%s"
-    }
-  ],
-  "file_handlers": [
-    {
-      "action": "/",
-      "accept": {
-        "image/*": [".png", ".jpg", ".jpeg", ".gif"]
-      }
-    }
+  "permissions": [
+    "camera"
   ]
 }

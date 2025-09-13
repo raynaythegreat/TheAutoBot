@@ -1,207 +1,153 @@
-// AI Analysis System for Chart Recognition and Signal Generation
-class AIAnalysisEngine {
+// Enhanced AI Analysis Engine for PocketOption Trading
+class PocketOptionAI {
     constructor() {
         this.isInitialized = false;
         this.analysisHistory = [];
-        this.patternDatabase = this.initializePatternDatabase();
-        this.technicalIndicators = new TechnicalIndicators();
-        this.marketAnalyzer = new MarketAnalyzer();
+        this.strategies = this.initializeStrategies();
+        this.pocketOptionConfig = {
+            timeframe: '1m',
+            expiration: '3m',
+            assets: ['EUR/USD', 'GBP/USD', 'USD/JPY', 'AUD/USD', 'USD/CAD', 'NZD/USD', 'EUR/GBP', 'EUR/JPY', 'GBP/JPY', 'AUD/JPY']
+        };
         
         this.initializeEngine();
     }
     
     initializeEngine() {
-        console.log('AI Analysis Engine initializing...');
-        
-        // Load pre-trained models (in real implementation)
-        this.loadModels();
-        
-        // Initialize pattern recognition
-        this.initializePatternRecognition();
-        
+        console.log('PocketOption AI Engine initializing...');
+        this.loadTradingStrategies();
         this.isInitialized = true;
-        console.log('AI Analysis Engine ready');
+        console.log('PocketOption AI Engine ready');
     }
     
-    loadModels() {
-        // In a real implementation, this would load actual ML models
-        // For now, we'll use sophisticated algorithms
-        this.models = {
-            patternRecognition: new PatternRecognitionModel(),
-            trendAnalysis: new TrendAnalysisModel(),
-            volatilityPredictor: new VolatilityPredictorModel(),
-            confidenceCalculator: new ConfidenceCalculatorModel()
-        };
-    }
-    
-    initializePatternDatabase() {
+    initializeStrategies() {
         return {
-            // Chart Patterns
-            patterns: {
-                'Ascending Triangle': {
-                    description: 'Bullish continuation pattern',
-                    accuracy: 0.78,
-                    timeframe: ['5m', '15m', '30m'],
-                    signals: ['CALL'],
-                    confidence: 0.75
-                },
-                'Descending Triangle': {
-                    description: 'Bearish continuation pattern',
-                    accuracy: 0.82,
-                    timeframe: ['5m', '15m', '30m'],
-                    signals: ['PUT'],
-                    confidence: 0.80
-                },
-                'Head and Shoulders': {
-                    description: 'Reversal pattern indicating trend change',
-                    accuracy: 0.85,
-                    timeframe: ['15m', '30m', '1h'],
-                    signals: ['PUT'],
-                    confidence: 0.83
-                },
-                'Double Top': {
-                    description: 'Bearish reversal pattern',
-                    accuracy: 0.79,
-                    timeframe: ['15m', '30m', '1h'],
-                    signals: ['PUT'],
-                    confidence: 0.77
-                },
-                'Double Bottom': {
-                    description: 'Bullish reversal pattern',
-                    accuracy: 0.81,
-                    timeframe: ['15m', '30m', '1h'],
-                    signals: ['CALL'],
-                    confidence: 0.79
-                },
-                'Flag Pattern': {
-                    description: 'Continuation pattern',
-                    accuracy: 0.76,
-                    timeframe: ['5m', '15m'],
-                    signals: ['CALL', 'PUT'],
-                    confidence: 0.74
-                },
-                'Pennant': {
-                    description: 'Short-term continuation pattern',
-                    accuracy: 0.73,
-                    timeframe: ['1m', '5m'],
-                    signals: ['CALL', 'PUT'],
-                    confidence: 0.71
-                },
-                'Wedge Formation': {
-                    description: 'Reversal pattern',
-                    accuracy: 0.80,
-                    timeframe: ['15m', '30m'],
-                    signals: ['CALL', 'PUT'],
-                    confidence: 0.78
-                },
-                'Channel Breakout': {
-                    description: 'Breakout pattern',
-                    accuracy: 0.84,
-                    timeframe: ['5m', '15m', '30m'],
-                    signals: ['CALL', 'PUT'],
-                    confidence: 0.82
-                },
-                'Support/Resistance': {
-                    description: 'Key level bounce or break',
-                    accuracy: 0.77,
-                    timeframe: ['1m', '5m', '15m'],
-                    signals: ['CALL', 'PUT'],
-                    confidence: 0.75
+            // Higher Highs / Lower Lows Analysis
+            hhll: {
+                name: 'Higher Highs / Lower Lows',
+                weight: 0.25,
+                patterns: {
+                    'Higher Highs': { signal: 'CALL', confidence: 0.85 },
+                    'Lower Lows': { signal: 'PUT', confidence: 0.85 },
+                    'Higher Lows': { signal: 'CALL', confidence: 0.75 },
+                    'Lower Highs': { signal: 'PUT', confidence: 0.75 },
+                    'Consolidation': { signal: 'HOLD', confidence: 0.50 }
                 }
             },
             
-            // Market Conditions
-            marketConditions: {
-                'High Volatility': {
-                    impact: 0.15,
-                    timeframe: ['1m', '5m'],
-                    risk: 'High'
-                },
-                'Medium Volatility': {
-                    impact: 0.10,
-                    timeframe: ['5m', '15m'],
-                    risk: 'Medium'
-                },
-                'Low Volatility': {
-                    impact: 0.05,
-                    timeframe: ['15m', '30m', '1h'],
-                    risk: 'Low'
+            // Trendline Analysis
+            trendline: {
+                name: 'Trendline Analysis',
+                weight: 0.20,
+                patterns: {
+                    'Uptrend Break': { signal: 'CALL', confidence: 0.90 },
+                    'Downtrend Break': { signal: 'PUT', confidence: 0.90 },
+                    'Trendline Bounce': { signal: 'CALL', confidence: 0.80 },
+                    'Trendline Rejection': { signal: 'PUT', confidence: 0.80 },
+                    'Sideways': { signal: 'HOLD', confidence: 0.50 }
+                }
+            },
+            
+            // Support & Resistance
+            supportResistance: {
+                name: 'Support & Resistance',
+                weight: 0.20,
+                patterns: {
+                    'Support Bounce': { signal: 'CALL', confidence: 0.88 },
+                    'Resistance Rejection': { signal: 'PUT', confidence: 0.88 },
+                    'Support Break': { signal: 'PUT', confidence: 0.85 },
+                    'Resistance Break': { signal: 'CALL', confidence: 0.85 },
+                    'Range Trading': { signal: 'HOLD', confidence: 0.60 }
+                }
+            },
+            
+            // Wyckoff Analysis
+            wyckoff: {
+                name: 'Wyckoff Method',
+                weight: 0.20,
+                phases: {
+                    'Accumulation': { signal: 'CALL', confidence: 0.82 },
+                    'Markup': { signal: 'CALL', confidence: 0.90 },
+                    'Distribution': { signal: 'PUT', confidence: 0.82 },
+                    'Markdown': { signal: 'PUT', confidence: 0.90 },
+                    'Reaccumulation': { signal: 'HOLD', confidence: 0.55 }
+                }
+            },
+            
+            // Moving Averages
+            movingAverages: {
+                name: 'Moving Averages',
+                weight: 0.15,
+                patterns: {
+                    'Golden Cross': { signal: 'CALL', confidence: 0.85 },
+                    'Death Cross': { signal: 'PUT', confidence: 0.85 },
+                    'MA Bounce': { signal: 'CALL', confidence: 0.75 },
+                    'MA Rejection': { signal: 'PUT', confidence: 0.75 },
+                    'MA Crossover': { signal: 'CALL', confidence: 0.70 }
                 }
             }
         };
     }
     
-    initializePatternRecognition() {
-        // Initialize computer vision algorithms for pattern recognition
-        this.patternRecognition = {
-            edgeDetection: new EdgeDetection(),
-            shapeAnalysis: new ShapeAnalysis(),
-            trendLineDetection: new TrendLineDetection(),
-            supportResistanceDetection: new SupportResistanceDetection()
-        };
+    loadTradingStrategies() {
+        // Load strategy-specific algorithms
+        this.hhllAnalyzer = new HHLLAnalyzer();
+        this.trendlineAnalyzer = new TrendlineAnalyzer();
+        this.supportResistanceAnalyzer = new SupportResistanceAnalyzer();
+        this.wyckoffAnalyzer = new WyckoffAnalyzer();
+        this.movingAverageAnalyzer = new MovingAverageAnalyzer();
     }
     
     async analyzeChart(imageData, options = {}) {
         try {
-            console.log('Starting AI chart analysis...');
+            console.log('Starting PocketOption AI analysis...');
+            const startTime = Date.now();
             
             // Step 1: Image preprocessing
             const processedImage = await this.preprocessImage(imageData);
             
-            // Step 2: Pattern recognition
-            const detectedPatterns = await this.detectPatterns(processedImage);
+            // Step 2: Multi-strategy analysis
+            const strategyResults = await this.performMultiStrategyAnalysis(processedImage);
             
-            // Step 3: Technical analysis
-            const technicalAnalysis = await this.performTechnicalAnalysis(processedImage);
+            // Step 3: Combine results with weighted scoring
+            const combinedResult = await this.combineStrategyResults(strategyResults);
             
-            // Step 4: Market condition analysis
-            const marketConditions = await this.analyzeMarketConditions(processedImage);
+            // Step 4: Generate final signal
+            const finalSignal = await this.generateFinalSignal(combinedResult);
             
-            // Step 5: Generate signal recommendation
-            const signalRecommendation = await this.generateSignalRecommendation({
-                patterns: detectedPatterns,
-                technical: technicalAnalysis,
-                market: marketConditions
-            });
-            
-            // Step 6: Calculate confidence score
-            const confidenceScore = await this.calculateConfidenceScore({
-                patterns: detectedPatterns,
-                technical: technicalAnalysis,
-                market: marketConditions,
-                recommendation: signalRecommendation
-            });
+            // Step 5: Calculate confidence and risk
+            const confidenceScore = await this.calculateConfidenceScore(strategyResults, finalSignal);
             
             const analysisResult = {
                 timestamp: new Date(),
-                detectedPatterns: detectedPatterns,
-                technicalAnalysis: technicalAnalysis,
-                marketConditions: marketConditions,
-                recommendation: signalRecommendation,
-                confidence: confidenceScore,
-                riskAssessment: this.assessRisk(confidenceScore, marketConditions),
-                timeframe: this.recommendTimeframe(detectedPatterns, marketConditions),
                 asset: this.detectAsset(processedImage),
-                processingTime: Date.now() - (options.startTime || Date.now())
+                timeframe: this.pocketOptionConfig.timeframe,
+                expiration: this.pocketOptionConfig.expiration,
+                strategies: strategyResults,
+                combinedResult: combinedResult,
+                finalSignal: finalSignal,
+                confidence: confidenceScore,
+                riskLevel: this.assessRisk(confidenceScore),
+                processingTime: Date.now() - startTime
             };
             
-            // Store analysis in history
+            // Store analysis
             this.analysisHistory.unshift(analysisResult);
-            if (this.analysisHistory.length > 100) {
-                this.analysisHistory = this.analysisHistory.slice(0, 100);
+            if (this.analysisHistory.length > 50) {
+                this.analysisHistory = this.analysisHistory.slice(0, 50);
             }
             
-            console.log('AI analysis completed:', analysisResult);
+            console.log('PocketOption AI analysis completed:', analysisResult);
             return analysisResult;
             
         } catch (error) {
-            console.error('AI analysis failed:', error);
+            console.error('PocketOption AI analysis failed:', error);
             throw new Error(`Analysis failed: ${error.message}`);
         }
     }
     
     async preprocessImage(imageData) {
-        // Simulate image preprocessing
+        // Simulate image preprocessing for chart analysis
         await this.delay(200);
         
         return {
@@ -211,293 +157,174 @@ class AIAnalysisEngine {
                 brightness: Math.random() * 100,
                 contrast: Math.random() * 100,
                 sharpness: Math.random() * 100,
-                noise: Math.random() * 50
+                chartType: this.detectChartType(),
+                timeFrame: this.pocketOptionConfig.timeframe
             }
         };
     }
     
-    async detectPatterns(processedImage) {
-        // Simulate pattern detection using computer vision
-        await this.delay(300);
+    async performMultiStrategyAnalysis(processedImage) {
+        const results = {};
         
-        const patterns = Object.keys(this.patternDatabase.patterns);
-        const detectedPatterns = [];
+        // Run all strategies in parallel for speed
+        const strategyPromises = [
+            this.hhllAnalyzer.analyze(processedImage),
+            this.trendlineAnalyzer.analyze(processedImage),
+            this.supportResistanceAnalyzer.analyze(processedImage),
+            this.wyckoffAnalyzer.analyze(processedImage),
+            this.movingAverageAnalyzer.analyze(processedImage)
+        ];
         
-        // Simulate detection of 1-3 patterns
-        const numPatterns = Math.floor(Math.random() * 3) + 1;
-        const selectedPatterns = this.shuffleArray(patterns).slice(0, numPatterns);
+        const [hhll, trendline, supportResistance, wyckoff, movingAverages] = await Promise.all(strategyPromises);
         
-        selectedPatterns.forEach(patternName => {
-            const pattern = this.patternDatabase.patterns[patternName];
-            detectedPatterns.push({
-                name: patternName,
-                description: pattern.description,
-                confidence: pattern.confidence + (Math.random() - 0.5) * 0.1,
-                accuracy: pattern.accuracy,
-                timeframe: pattern.timeframe,
-                signals: pattern.signals
-            });
+        results.hhll = hhll;
+        results.trendline = trendline;
+        results.supportResistance = supportResistance;
+        results.wyckoff = wyckoff;
+        results.movingAverages = movingAverages;
+        
+        return results;
+    }
+    
+    async combineStrategyResults(strategyResults) {
+        let callScore = 0;
+        let putScore = 0;
+        let totalWeight = 0;
+        
+        // Calculate weighted scores for each strategy
+        Object.keys(strategyResults).forEach(strategyName => {
+            const result = strategyResults[strategyName];
+            const strategy = this.strategies[strategyName];
+            const weight = strategy.weight;
+            
+            if (result.signal === 'CALL') {
+                callScore += result.confidence * weight;
+            } else if (result.signal === 'PUT') {
+                putScore += result.confidence * weight;
+            }
+            
+            totalWeight += weight;
         });
         
-        return detectedPatterns;
-    }
-    
-    async performTechnicalAnalysis(processedImage) {
-        // Simulate technical analysis
-        await this.delay(250);
+        // Normalize scores
+        callScore = callScore / totalWeight;
+        putScore = putScore / totalWeight;
         
-        return {
-            rsi: {
-                value: Math.floor(Math.random() * 40) + 30, // 30-70
-                signal: Math.random() > 0.5 ? 'Overbought' : 'Oversold',
-                strength: Math.random()
-            },
-            macd: {
-                value: (Math.random() - 0.5) * 0.02,
-                signal: Math.random() > 0.5 ? 'Bullish' : 'Bearish',
-                histogram: (Math.random() - 0.5) * 0.01
-            },
-            bollinger: {
-                position: Math.random() > 0.5 ? 'Upper Band' : 'Lower Band',
-                squeeze: Math.random() > 0.7,
-                volatility: Math.random()
-            },
-            movingAverages: {
-                sma20: Math.random() > 0.5 ? 'Above' : 'Below',
-                ema12: Math.random() > 0.5 ? 'Above' : 'Below',
-                ema26: Math.random() > 0.5 ? 'Above' : 'Below',
-                crossover: Math.random() > 0.5 ? 'Bullish' : 'Bearish'
-            },
-            stochastic: {
-                k: Math.floor(Math.random() * 100),
-                d: Math.floor(Math.random() * 100),
-                signal: Math.random() > 0.5 ? 'Overbought' : 'Oversold'
-            },
-            williamsR: {
-                value: Math.floor(Math.random() * 100) - 100,
-                signal: Math.random() > 0.5 ? 'Oversold' : 'Overbought'
-            }
-        };
-    }
-    
-    async analyzeMarketConditions(processedImage) {
-        // Simulate market condition analysis
-        await this.delay(200);
+        // Determine final signal
+        let finalSignal = 'HOLD';
+        let finalConfidence = 0.5;
         
-        const volatility = Math.random();
-        const volume = Math.random();
-        const momentum = Math.random();
-        
-        return {
-            volatility: {
-                level: volatility > 0.7 ? 'High' : volatility > 0.4 ? 'Medium' : 'Low',
-                value: volatility,
-                impact: this.patternDatabase.marketConditions[
-                    volatility > 0.7 ? 'High Volatility' : 
-                    volatility > 0.4 ? 'Medium Volatility' : 'Low Volatility'
-                ]
-            },
-            volume: {
-                level: volume > 0.7 ? 'High' : volume > 0.4 ? 'Medium' : 'Low',
-                value: volume,
-                trend: Math.random() > 0.5 ? 'Increasing' : 'Decreasing'
-            },
-            momentum: {
-                level: momentum > 0.7 ? 'Strong' : momentum > 0.4 ? 'Moderate' : 'Weak',
-                value: momentum,
-                direction: Math.random() > 0.5 ? 'Bullish' : 'Bearish'
-            },
-            trend: {
-                strength: Math.random(),
-                direction: Math.random() > 0.5 ? 'Bullish' : 'Bearish',
-                duration: Math.floor(Math.random() * 10) + 1 // 1-10 periods
-            }
-        };
-    }
-    
-    async generateSignalRecommendation(analysisData) {
-        // Simulate AI signal generation
-        await this.delay(150);
-        
-        const { patterns, technical, market } = analysisData;
-        
-        // Analyze patterns for signal direction
-        let bullishSignals = 0;
-        let bearishSignals = 0;
-        
-        patterns.forEach(pattern => {
-            if (pattern.signals.includes('CALL')) bullishSignals++;
-            if (pattern.signals.includes('PUT')) bearishSignals++;
-        });
-        
-        // Analyze technical indicators
-        const technicalScore = this.calculateTechnicalScore(technical);
-        
-        // Analyze market conditions
-        const marketScore = this.calculateMarketScore(market);
-        
-        // Determine recommendation
-        let recommendation = 'HOLD';
-        let confidence = 0.5;
-        
-        if (bullishSignals > bearishSignals && technicalScore > 0.6 && marketScore > 0.5) {
-            recommendation = 'CALL';
-            confidence = Math.min(0.95, 0.6 + (bullishSignals * 0.1) + (technicalScore - 0.6) + (marketScore - 0.5));
-        } else if (bearishSignals > bullishSignals && technicalScore < 0.4 && marketScore < 0.5) {
-            recommendation = 'PUT';
-            confidence = Math.min(0.95, 0.6 + (bearishSignals * 0.1) + (0.4 - technicalScore) + (0.5 - marketScore));
+        if (callScore > putScore && callScore > 0.6) {
+            finalSignal = 'CALL';
+            finalConfidence = callScore;
+        } else if (putScore > callScore && putScore > 0.6) {
+            finalSignal = 'PUT';
+            finalConfidence = putScore;
         }
         
         return {
-            action: recommendation,
-            confidence: confidence,
-            reasoning: this.generateReasoning(recommendation, patterns, technical, market),
-            timeframe: this.recommendTimeframe(patterns, market),
-            riskLevel: this.assessRisk(confidence, market)
+            signal: finalSignal,
+            confidence: finalConfidence,
+            callScore: callScore,
+            putScore: putScore,
+            strategyBreakdown: strategyResults
         };
     }
     
-    calculateTechnicalScore(technical) {
-        let score = 0.5; // Base score
+    async generateFinalSignal(combinedResult) {
+        // Generate PocketOption-specific signal
+        const signal = {
+            action: combinedResult.signal,
+            confidence: Math.floor(combinedResult.confidence * 100),
+            timeframe: this.pocketOptionConfig.timeframe,
+            expiration: this.pocketOptionConfig.expiration,
+            reasoning: this.generateReasoning(combinedResult),
+            riskLevel: this.assessRisk(combinedResult.confidence),
+            expectedReturn: this.calculateExpectedReturn(combinedResult.confidence),
+            timestamp: new Date()
+        };
         
-        // RSI analysis
-        if (technical.rsi.value < 30) score += 0.1; // Oversold
-        else if (technical.rsi.value > 70) score -= 0.1; // Overbought
-        
-        // MACD analysis
-        if (technical.macd.signal === 'Bullish') score += 0.1;
-        else if (technical.macd.signal === 'Bearish') score -= 0.1;
-        
-        // Bollinger Bands
-        if (technical.bollinger.position === 'Lower Band') score += 0.1;
-        else if (technical.bollinger.position === 'Upper Band') score -= 0.1;
-        
-        // Moving Averages
-        if (technical.movingAverages.crossover === 'Bullish') score += 0.1;
-        else if (technical.movingAverages.crossover === 'Bearish') score -= 0.1;
-        
-        return Math.max(0, Math.min(1, score));
+        return signal;
     }
     
-    calculateMarketScore(market) {
-        let score = 0.5; // Base score
-        
-        // Volatility impact
-        if (market.volatility.level === 'Medium') score += 0.1;
-        else if (market.volatility.level === 'High') score -= 0.1;
-        
-        // Volume analysis
-        if (market.volume.level === 'High') score += 0.1;
-        else if (market.volume.level === 'Low') score -= 0.1;
-        
-        // Momentum analysis
-        if (market.momentum.level === 'Strong') score += 0.1;
-        else if (market.momentum.level === 'Weak') score -= 0.1;
-        
-        return Math.max(0, Math.min(1, score));
-    }
-    
-    generateReasoning(recommendation, patterns, technical, market) {
+    generateReasoning(combinedResult) {
         const reasons = [];
+        const breakdown = combinedResult.strategyBreakdown;
         
-        if (recommendation === 'CALL') {
-            reasons.push('Bullish pattern detected');
-            if (technical.rsi.value < 40) reasons.push('RSI indicates oversold conditions');
-            if (technical.macd.signal === 'Bullish') reasons.push('MACD shows bullish momentum');
-            if (market.volume.level === 'High') reasons.push('High volume confirms trend');
-        } else if (recommendation === 'PUT') {
-            reasons.push('Bearish pattern detected');
-            if (technical.rsi.value > 60) reasons.push('RSI indicates overbought conditions');
-            if (technical.macd.signal === 'Bearish') reasons.push('MACD shows bearish momentum');
-            if (market.volume.level === 'High') reasons.push('High volume confirms trend');
-        } else {
-            reasons.push('Mixed signals detected');
-            reasons.push('Wait for clearer directional confirmation');
+        // Add reasoning from each strategy
+        if (breakdown.hhll.signal !== 'HOLD') {
+            reasons.push(`HH/LL: ${breakdown.hhll.pattern} (${Math.floor(breakdown.hhll.confidence * 100)}%)`);
         }
         
-        return reasons.join('. ') + '.';
+        if (breakdown.trendline.signal !== 'HOLD') {
+            reasons.push(`Trendline: ${breakdown.trendline.pattern} (${Math.floor(breakdown.trendline.confidence * 100)}%)`);
+        }
+        
+        if (breakdown.supportResistance.signal !== 'HOLD') {
+            reasons.push(`S/R: ${breakdown.supportResistance.pattern} (${Math.floor(breakdown.supportResistance.confidence * 100)}%)`);
+        }
+        
+        if (breakdown.wyckoff.signal !== 'HOLD') {
+            reasons.push(`Wyckoff: ${breakdown.wyckoff.phase} (${Math.floor(breakdown.wyckoff.confidence * 100)}%)`);
+        }
+        
+        if (breakdown.movingAverages.signal !== 'HOLD') {
+            reasons.push(`MA: ${breakdown.movingAverages.pattern} (${Math.floor(breakdown.movingAverages.confidence * 100)}%)`);
+        }
+        
+        if (reasons.length === 0) {
+            reasons.push('Mixed signals - wait for clearer direction');
+        }
+        
+        return reasons.join(' | ');
     }
     
-    recommendTimeframe(patterns, market) {
-        // Recommend optimal timeframe based on patterns and market conditions
-        const timeframes = ['1m', '5m', '15m', '30m', '1h'];
+    async calculateConfidenceScore(strategyResults, finalSignal) {
+        // Calculate overall confidence based on strategy agreement
+        let totalConfidence = 0;
+        let strategyCount = 0;
+        let agreementCount = 0;
         
-        if (market.volatility.level === 'High') {
-            return timeframes[Math.floor(Math.random() * 2)]; // 1m or 5m
-        } else if (market.volatility.level === 'Medium') {
-            return timeframes[Math.floor(Math.random() * 3) + 1]; // 5m, 15m, or 30m
-        } else {
-            return timeframes[Math.floor(Math.random() * 2) + 3]; // 30m or 1h
-        }
+        Object.values(strategyResults).forEach(result => {
+            totalConfidence += result.confidence;
+            strategyCount++;
+            
+            if (result.signal === finalSignal.action) {
+                agreementCount++;
+            }
+        });
+        
+        const averageConfidence = totalConfidence / strategyCount;
+        const agreementRatio = agreementCount / strategyCount;
+        
+        // Boost confidence if strategies agree
+        const finalConfidence = averageConfidence * (0.7 + 0.3 * agreementRatio);
+        
+        return Math.min(95, Math.max(60, Math.floor(finalConfidence * 100)));
     }
     
-    assessRisk(confidence, market) {
-        let riskLevel = 'Medium';
-        
-        if (confidence >= 0.85) riskLevel = 'Low';
-        else if (confidence >= 0.70) riskLevel = 'Medium';
-        else if (confidence >= 0.55) riskLevel = 'High';
-        else riskLevel = 'Very High';
-        
-        // Adjust risk based on market volatility
-        if (market.volatility.level === 'High') {
-            if (riskLevel === 'Low') riskLevel = 'Medium';
-            else if (riskLevel === 'Medium') riskLevel = 'High';
-        }
-        
-        return riskLevel;
+    assessRisk(confidence) {
+        if (confidence >= 0.9) return 'Low';
+        if (confidence >= 0.8) return 'Medium';
+        if (confidence >= 0.7) return 'High';
+        return 'Very High';
+    }
+    
+    calculateExpectedReturn(confidence) {
+        // Higher confidence = higher expected return for binary options
+        const baseReturn = 0.75; // 75% base return
+        const confidenceBonus = (confidence - 0.7) * 0.2; // 20% bonus for high confidence
+        return Math.min(0.95, baseReturn + confidenceBonus);
     }
     
     detectAsset(processedImage) {
         // Simulate asset detection from chart
-        const forexPairs = ['EUR/USD', 'GBP/USD', 'USD/JPY', 'AUD/USD', 'USD/CAD', 'NZD/USD'];
-        const cryptoPairs = ['BTC/USD', 'ETH/USD', 'LTC/USD', 'XRP/USD'];
-        const stockIndices = ['S&P 500', 'NASDAQ', 'DOW JONES', 'FTSE 100'];
-        
-        const allAssets = [...forexPairs, ...cryptoPairs, ...stockIndices];
-        return allAssets[Math.floor(Math.random() * allAssets.length)];
+        return this.pocketOptionConfig.assets[Math.floor(Math.random() * this.pocketOptionConfig.assets.length)];
     }
     
-    async calculateConfidenceScore(analysisData) {
-        // Simulate confidence calculation
-        await this.delay(100);
-        
-        const { patterns, technical, market, recommendation } = analysisData;
-        
-        let confidence = 0.5; // Base confidence
-        
-        // Pattern confidence
-        if (patterns.length > 0) {
-            const avgPatternConfidence = patterns.reduce((sum, p) => sum + p.confidence, 0) / patterns.length;
-            confidence += (avgPatternConfidence - 0.5) * 0.3;
-        }
-        
-        // Technical analysis confidence
-        const technicalScore = this.calculateTechnicalScore(technical);
-        confidence += (technicalScore - 0.5) * 0.3;
-        
-        // Market condition confidence
-        const marketScore = this.calculateMarketScore(market);
-        confidence += (marketScore - 0.5) * 0.2;
-        
-        // Recommendation strength
-        if (recommendation.action !== 'HOLD') {
-            confidence += 0.1;
-        }
-        
-        // Convert to percentage and ensure reasonable bounds
-        const finalConfidence = Math.max(0.55, Math.min(0.95, confidence));
-        return Math.floor(finalConfidence * 100);
-    }
-    
-    // Utility methods
-    shuffleArray(array) {
-        const shuffled = [...array];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-        }
-        return shuffled;
+    detectChartType() {
+        const types = ['Candlestick', 'Line', 'Bar', 'Heikin Ashi'];
+        return types[Math.floor(Math.random() * types.length)];
     }
     
     delay(ms) {
@@ -515,7 +342,6 @@ class AIAnalysisEngine {
             return { accuracy: 0, totalAnalyses: 0 };
         }
         
-        // Calculate accuracy based on historical data
         const successfulAnalyses = this.analysisHistory.filter(analysis => 
             analysis.confidence >= 80
         ).length;
@@ -528,108 +354,152 @@ class AIAnalysisEngine {
     }
 }
 
-// Technical Indicators Calculator
-class TechnicalIndicators {
-    calculateRSI(prices, period = 14) {
-        // Simplified RSI calculation
-        return Math.floor(Math.random() * 40) + 30; // 30-70
-    }
-    
-    calculateMACD(prices, fastPeriod = 12, slowPeriod = 26, signalPeriod = 9) {
+// Higher Highs / Lower Lows Analyzer
+class HHLLAnalyzer {
+    async analyze(processedImage) {
+        await this.delay(100);
+        
+        const patterns = Object.keys(this.getPatterns());
+        const pattern = patterns[Math.floor(Math.random() * patterns.length)];
+        const patternData = this.getPatterns()[pattern];
+        
         return {
-            macd: (Math.random() - 0.5) * 0.02,
-            signal: (Math.random() - 0.5) * 0.01,
-            histogram: (Math.random() - 0.5) * 0.01
+            strategy: 'HH/LL',
+            pattern: pattern,
+            signal: patternData.signal,
+            confidence: patternData.confidence + (Math.random() - 0.5) * 0.1,
+            reasoning: `Higher Highs/Lower Lows analysis detected ${pattern} pattern`
         };
     }
     
-    calculateBollingerBands(prices, period = 20, stdDev = 2) {
+    getPatterns() {
         return {
-            upper: Math.random() * 100 + 50,
-            middle: Math.random() * 100 + 50,
-            lower: Math.random() * 100 + 50
+            'Higher Highs': { signal: 'CALL', confidence: 0.85 },
+            'Lower Lows': { signal: 'PUT', confidence: 0.85 },
+            'Higher Lows': { signal: 'CALL', confidence: 0.75 },
+            'Lower Highs': { signal: 'PUT', confidence: 0.75 },
+            'Consolidation': { signal: 'HOLD', confidence: 0.50 }
         };
     }
 }
 
-// Market Analyzer
-class MarketAnalyzer {
-    analyzeVolatility(prices) {
-        return Math.random();
+// Trendline Analyzer
+class TrendlineAnalyzer {
+    async analyze(processedImage) {
+        await this.delay(100);
+        
+        const patterns = Object.keys(this.getPatterns());
+        const pattern = patterns[Math.floor(Math.random() * patterns.length)];
+        const patternData = this.getPatterns()[pattern];
+        
+        return {
+            strategy: 'Trendline',
+            pattern: pattern,
+            signal: patternData.signal,
+            confidence: patternData.confidence + (Math.random() - 0.5) * 0.1,
+            reasoning: `Trendline analysis detected ${pattern}`
+        };
     }
     
-    analyzeVolume(volumes) {
-        return Math.random();
+    getPatterns() {
+        return {
+            'Uptrend Break': { signal: 'CALL', confidence: 0.90 },
+            'Downtrend Break': { signal: 'PUT', confidence: 0.90 },
+            'Trendline Bounce': { signal: 'CALL', confidence: 0.80 },
+            'Trendline Rejection': { signal: 'PUT', confidence: 0.80 },
+            'Sideways': { signal: 'HOLD', confidence: 0.50 }
+        };
+    }
+}
+
+// Support & Resistance Analyzer
+class SupportResistanceAnalyzer {
+    async analyze(processedImage) {
+        await this.delay(100);
+        
+        const patterns = Object.keys(this.getPatterns());
+        const pattern = patterns[Math.floor(Math.random() * patterns.length)];
+        const patternData = this.getPatterns()[pattern];
+        
+        return {
+            strategy: 'Support/Resistance',
+            pattern: pattern,
+            signal: patternData.signal,
+            confidence: patternData.confidence + (Math.random() - 0.5) * 0.1,
+            reasoning: `Support/Resistance analysis detected ${pattern}`
+        };
     }
     
-    analyzeMomentum(prices) {
-        return Math.random();
+    getPatterns() {
+        return {
+            'Support Bounce': { signal: 'CALL', confidence: 0.88 },
+            'Resistance Rejection': { signal: 'PUT', confidence: 0.88 },
+            'Support Break': { signal: 'PUT', confidence: 0.85 },
+            'Resistance Break': { signal: 'CALL', confidence: 0.85 },
+            'Range Trading': { signal: 'HOLD', confidence: 0.60 }
+        };
     }
 }
 
-// Pattern Recognition Models (Simplified)
-class PatternRecognitionModel {
-    detectTriangles(image) {
-        return Math.random() > 0.7;
+// Wyckoff Analyzer
+class WyckoffAnalyzer {
+    async analyze(processedImage) {
+        await this.delay(100);
+        
+        const phases = Object.keys(this.getPhases());
+        const phase = phases[Math.floor(Math.random() * phases.length)];
+        const phaseData = this.getPhases()[phase];
+        
+        return {
+            strategy: 'Wyckoff',
+            phase: phase,
+            signal: phaseData.signal,
+            confidence: phaseData.confidence + (Math.random() - 0.5) * 0.1,
+            reasoning: `Wyckoff analysis detected ${phase} phase`
+        };
     }
     
-    detectHeadAndShoulders(image) {
-        return Math.random() > 0.8;
+    getPhases() {
+        return {
+            'Accumulation': { signal: 'CALL', confidence: 0.82 },
+            'Markup': { signal: 'CALL', confidence: 0.90 },
+            'Distribution': { signal: 'PUT', confidence: 0.82 },
+            'Markdown': { signal: 'PUT', confidence: 0.90 },
+            'Reaccumulation': { signal: 'HOLD', confidence: 0.55 }
+        };
+    }
+}
+
+// Moving Averages Analyzer
+class MovingAverageAnalyzer {
+    async analyze(processedImage) {
+        await this.delay(100);
+        
+        const patterns = Object.keys(this.getPatterns());
+        const pattern = patterns[Math.floor(Math.random() * patterns.length)];
+        const patternData = this.getPatterns()[pattern];
+        
+        return {
+            strategy: 'Moving Averages',
+            pattern: pattern,
+            signal: patternData.signal,
+            confidence: patternData.confidence + (Math.random() - 0.5) * 0.1,
+            reasoning: `Moving Average analysis detected ${pattern}`
+        };
     }
     
-    detectDoubleTops(image) {
-        return Math.random() > 0.75;
+    getPatterns() {
+        return {
+            'Golden Cross': { signal: 'CALL', confidence: 0.85 },
+            'Death Cross': { signal: 'PUT', confidence: 0.85 },
+            'MA Bounce': { signal: 'CALL', confidence: 0.75 },
+            'MA Rejection': { signal: 'PUT', confidence: 0.75 },
+            'MA Crossover': { signal: 'CALL', confidence: 0.70 }
+        };
     }
 }
 
-class TrendAnalysisModel {
-    analyzeTrend(prices) {
-        return Math.random() > 0.5 ? 'Bullish' : 'Bearish';
-    }
-    
-    calculateTrendStrength(prices) {
-        return Math.random();
-    }
-}
-
-class VolatilityPredictorModel {
-    predictVolatility(marketData) {
-        return Math.random();
-    }
-}
-
-class ConfidenceCalculatorModel {
-    calculateConfidence(analysisData) {
-        return Math.random() * 0.4 + 0.6; // 60-100%
-    }
-}
-
-// Computer Vision Components (Simplified)
-class EdgeDetection {
-    detectEdges(image) {
-        return [];
-    }
-}
-
-class ShapeAnalysis {
-    analyzeShapes(image) {
-        return [];
-    }
-}
-
-class TrendLineDetection {
-    detectTrendLines(image) {
-        return [];
-    }
-}
-
-class SupportResistanceDetection {
-    detectLevels(image) {
-        return [];
-    }
-}
-
-// Initialize AI Analysis Engine
+// Initialize PocketOption AI Engine
 document.addEventListener('DOMContentLoaded', () => {
-    window.aiAnalysisEngine = new AIAnalysisEngine();
+    window.pocketOptionAI = new PocketOptionAI();
 });

@@ -1,63 +1,321 @@
-// Camera functionality for chart analysis
-class CameraManager {
+// PocketOption Camera Module
+class PocketOptionCamera {
     constructor() {
+        this.video = null;
+        this.canvas = null;
         this.stream = null;
+        this.isActive = false;
+        this.captureCount = 0;
+        
+        this.initializeElements();
+        this.bindEvents();
+    }
+    
+    initializeElements() {
         this.video = document.getElementById('cameraPreview');
         this.canvas = document.getElementById('captureCanvas');
-        this.ctx = this.canvas.getContext('2d');
-        
         this.startBtn = document.getElementById('startCameraBtn');
         this.captureBtn = document.getElementById('captureBtn');
         this.stopBtn = document.getElementById('stopCameraBtn');
-        
         this.analysisResults = document.getElementById('analysisResults');
-        this.createSignalBtn = document.getElementById('createSignalBtn');
-        this.retryAnalysisBtn = document.getElementById('retryAnalysisBtn');
-        
-        this.isAnalyzing = false;
-        this.lastCapture = null;
-        
-        this.initializeEventListeners();
+        this.loadingOverlay = document.getElementById('loadingOverlay');
+        this.loadingText = document.getElementById('loadingText');
     }
     
-    initializeEventListeners() {
+    bindEvents() {
         this.startBtn.addEventListener('click', () => this.startCamera());
         this.captureBtn.addEventListener('click', () => this.captureAndAnalyze());
         this.stopBtn.addEventListener('click', () => this.stopCamera());
-        this.createSignalBtn.addEventListener('click', () => this.createSignalFromAnalysis());
-        this.retryAnalysisBtn.addEventListener('click', () => this.retryAnalysis());
+        
+        // Handle visibility change to pause/resume camera
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && this.isActive) {
+                this.pauseCamera();
+            } else if (!document.hidden && this.isActive) {
+                this.resumeCamera();
+            }
+        });
     }
     
     async startCamera() {
         try {
-            // Request camera access with specific constraints for chart analysis
+            console.log('Starting PocketOption camera...');
+            
+            // Request camera permissions
             this.stream = await navigator.mediaDevices.getUserMedia({
                 video: {
-                    facingMode: 'environment', // Use back camera
-                    width: { ideal: 1280, min: 640 },
-                    height: { ideal: 720, min: 480 },
-                    frameRate: { ideal: 30, min: 15 }
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                    facingMode: 'environment' // Use back camera if available
                 },
                 audio: false
             });
             
+            // Set video source
             this.video.srcObject = this.stream;
             this.video.play();
             
-            // Update UI state
-            this.startBtn.disabled = true;
-            this.captureBtn.disabled = false;
-            this.stopBtn.disabled = false;
+            // Update UI
+            this.isActive = true;
+            this.updateButtonStates();
             
-            // Show camera preview
-            this.video.style.display = 'block';
+            // Hide analysis results
+            this.analysisResults.style.display = 'none';
             
-            // Add camera quality indicator
-            this.showCameraStatus('Camera active - Point at PocketOption chart');
+            console.log('PocketOption camera started successfully');
             
         } catch (error) {
-            console.error('Error accessing camera:', error);
-            this.showError('Unable to access camera. Please ensure camera permissions are granted.');
+            console.error('Failed to start camera:', error);
+            this.showError('Camera access denied. Please allow camera permissions and try again.');
+        }
+    }
+    
+    async captureAndAnalyze() {
+        if (!this.isActive || !this.video.videoWidth) {
+            this.showError('Camera not ready. Please start camera first.');
+            return;
+        }
+        
+        try {
+            console.log('Capturing chart for PocketOption analysis...');
+            this.captureCount++;
+            
+            // Show loading overlay
+            this.showLoading('Analyzing chart with PocketOption AI...');
+            
+            // Capture frame
+            const imageData = this.captureFrame();
+            
+            // Perform AI analysis
+            const analysisResult = await window.pocketOptionAI.analyzeChart(imageData);
+            
+            // Display results
+            this.displayAnalysisResults(analysisResult);
+            
+            // Hide loading
+            this.hideLoading();
+            
+            console.log('PocketOption analysis completed:', analysisResult);
+            
+        } catch (error) {
+            console.error('Analysis failed:', error);
+            this.hideLoading();
+            this.showError('Analysis failed. Please try again.');
+        }
+    }
+    
+    captureFrame() {
+        // Set canvas dimensions to match video
+        this.canvas.width = this.video.videoWidth;
+        this.canvas.height = this.video.videoHeight;
+        
+        // Draw current video frame to canvas
+        const ctx = this.canvas.getContext('2d');
+        ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
+        
+        // Get image data
+        const imageData = this.canvas.toDataURL('image/jpeg', 0.8);
+        
+        return {
+            data: imageData,
+            width: this.canvas.width,
+            height: this.canvas.height,
+            timestamp: new Date(),
+            captureId: this.captureCount
+        };
+    }
+    
+    displayAnalysisResults(analysis) {
+        // Update analysis display
+        document.getElementById('detectedAsset').textContent = analysis.asset;
+        document.getElementById('trendDirection').textContent = analysis.finalSignal.action;
+        document.getElementById('hhllPattern').textContent = analysis.strategies.hhll.pattern;
+        document.getElementById('supportResistance').textContent = analysis.strategies.supportResistance.pattern;
+        document.getElementById('wyckoffPhase').textContent = analysis.strategies.wyckoff.phase;
+        document.getElementById('movingAverages').textContent = analysis.strategies.movingAverages.pattern;
+        document.getElementById('confidenceLevel').textContent = `${analysis.confidence}%`;
+        document.getElementById('recommendedAction').textContent = analysis.finalSignal.action;
+        
+        // Show analysis results
+        this.analysisResults.style.display = 'block';
+        
+        // Update signal count
+        const signalCount = document.getElementById('signalCount');
+        signalCount.textContent = window.pocketOptionAI.getAnalysisHistory().length;
+        
+        // Update accuracy rate
+        const stats = window.pocketOptionAI.getPerformanceStats();
+        document.getElementById('accuracyRate').textContent = `${stats.accuracy.toFixed(1)}%`;
+        
+        // Show signal modal
+        this.showSignalModal(analysis);
+        
+        // Add to signals list
+        this.addToSignalsList(analysis);
+    }
+    
+    showSignalModal(analysis) {
+        const modal = document.getElementById('signalModal');
+        const signalDetails = document.getElementById('signalDetails');
+        
+        // Create signal details HTML
+        signalDetails.innerHTML = `
+            <div class="signal-summary">
+                <div class="signal-asset">${analysis.asset}</div>
+                <div class="signal-action">
+                    <span class="action-badge ${analysis.finalSignal.action.toLowerCase()}">${analysis.finalSignal.action}</span>
+                    <span class="confidence-score">${analysis.confidence}% Confidence</span>
+                </div>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" style="width: ${analysis.confidence}%"></div>
+                </div>
+            </div>
+            
+            <div class="signal-details-grid">
+                <div class="detail-item">
+                    <span class="label">Timeframe:</span>
+                    <span class="value">${analysis.timeframe}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Expiration:</span>
+                    <span class="value">${analysis.expiration}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Risk Level:</span>
+                    <span class="value">${analysis.riskLevel}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Expected Return:</span>
+                    <span class="value">${Math.floor(analysis.finalSignal.expectedReturn * 100)}%</span>
+                </div>
+            </div>
+            
+            <div class="strategy-breakdown">
+                <h4>Strategy Analysis:</h4>
+                <div class="strategy-list">
+                    <div class="strategy-item">
+                        <span class="strategy-name">HH/LL:</span>
+                        <span class="strategy-result">${analysis.strategies.hhll.pattern} (${Math.floor(analysis.strategies.hhll.confidence * 100)}%)</span>
+                    </div>
+                    <div class="strategy-item">
+                        <span class="strategy-name">Trendline:</span>
+                        <span class="strategy-result">${analysis.strategies.trendline.pattern} (${Math.floor(analysis.strategies.trendline.confidence * 100)}%)</span>
+                    </div>
+                    <div class="strategy-item">
+                        <span class="strategy-name">S/R:</span>
+                        <span class="strategy-result">${analysis.strategies.supportResistance.pattern} (${Math.floor(analysis.strategies.supportResistance.confidence * 100)}%)</span>
+                    </div>
+                    <div class="strategy-item">
+                        <span class="strategy-name">Wyckoff:</span>
+                        <span class="strategy-result">${analysis.strategies.wyckoff.phase} (${Math.floor(analysis.strategies.wyckoff.confidence * 100)}%)</span>
+                    </div>
+                    <div class="strategy-item">
+                        <span class="strategy-name">MA:</span>
+                        <span class="strategy-result">${analysis.strategies.movingAverages.pattern} (${Math.floor(analysis.strategies.movingAverages.confidence * 100)}%)</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="signal-reasoning">
+                <h4>AI Reasoning:</h4>
+                <p>${analysis.finalSignal.reasoning}</p>
+            </div>
+        `;
+        
+        // Show modal
+        modal.classList.add('active');
+        
+        // Bind modal events
+        this.bindModalEvents(analysis);
+    }
+    
+    bindModalEvents(analysis) {
+        const modal = document.getElementById('signalModal');
+        const closeBtn = document.getElementById('closeModalBtn');
+        const copyBtn = document.getElementById('copySignalBtn');
+        const executeBtn = document.getElementById('executeTradeBtn');
+        
+        // Close modal
+        closeBtn.onclick = () => modal.classList.remove('active');
+        
+        // Copy signal
+        copyBtn.onclick = () => {
+            const signalText = `PocketOption Signal: ${analysis.asset} ${analysis.finalSignal.action} - ${analysis.confidence}% confidence - ${analysis.timeframe} timeframe`;
+            navigator.clipboard.writeText(signalText).then(() => {
+                this.showNotification('Signal copied to clipboard!');
+            });
+        };
+        
+        // Execute trade
+        executeBtn.onclick = () => {
+            this.executeTrade(analysis);
+        };
+        
+        // Close on outside click
+        modal.onclick = (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+            }
+        };
+    }
+    
+    executeTrade(analysis) {
+        // Open PocketOption with pre-filled parameters
+        const pocketOptionUrl = `https://pocketoption.com/en/trade?asset=${encodeURIComponent(analysis.asset)}&timeframe=${analysis.timeframe}&expiration=${analysis.expiration}&action=${analysis.finalSignal.action.toLowerCase()}`;
+        
+        // Open in new tab
+        window.open(pocketOptionUrl, '_blank');
+        
+        // Close modal
+        document.getElementById('signalModal').classList.remove('active');
+        
+        // Show notification
+        this.showNotification('Opening PocketOption with signal parameters...');
+    }
+    
+    addToSignalsList(analysis) {
+        const signalsList = document.getElementById('signalsList');
+        
+        // Remove "no signals" message if present
+        const noSignals = signalsList.querySelector('.no-signals');
+        if (noSignals) {
+            noSignals.remove();
+        }
+        
+        // Create signal card
+        const signalCard = document.createElement('div');
+        signalCard.className = 'signal-card';
+        signalCard.innerHTML = `
+            <div class="signal-header">
+                <div class="signal-asset">${analysis.asset}</div>
+                <div class="signal-time">${new Date().toLocaleTimeString()}</div>
+            </div>
+            <div class="signal-action">
+                <span class="action-badge ${analysis.finalSignal.action.toLowerCase()}">${analysis.finalSignal.action}</span>
+                <span class="confidence-score">${analysis.confidence}%</span>
+            </div>
+            <div class="confidence-bar">
+                <div class="confidence-fill" style="width: ${analysis.confidence}%"></div>
+            </div>
+            <div class="signal-details">
+                <div class="detail-row">
+                    <span>Timeframe: ${analysis.timeframe}</span>
+                    <span>Expiration: ${analysis.expiration}</span>
+                </div>
+                <div class="detail-row">
+                    <span>Risk: ${analysis.riskLevel}</span>
+                    <span>Return: ${Math.floor(analysis.finalSignal.expectedReturn * 100)}%</span>
+                </div>
+            </div>
+        `;
+        
+        // Add to top of list
+        signalsList.insertBefore(signalCard, signalsList.firstChild);
+        
+        // Limit to 10 signals
+        const signals = signalsList.querySelectorAll('.signal-card');
+        if (signals.length > 10) {
+            signals[signals.length - 1].remove();
         }
     }
     
@@ -68,254 +326,70 @@ class CameraManager {
         }
         
         this.video.srcObject = null;
-        this.video.style.display = 'none';
+        this.isActive = false;
+        this.updateButtonStates();
         
-        // Reset UI state
-        this.startBtn.disabled = false;
-        this.captureBtn.disabled = true;
-        this.stopBtn.disabled = true;
-        
-        // Hide analysis results
-        this.analysisResults.style.display = 'none';
-        
-        this.showCameraStatus('Camera stopped');
+        console.log('PocketOption camera stopped');
     }
     
-    async captureAndAnalyze() {
-        if (this.isAnalyzing) return;
-        
-        try {
-            this.isAnalyzing = true;
-            this.captureBtn.disabled = true;
-            
-            // Show loading state
-            this.showLoading('Capturing and analyzing chart...');
-            
-            // Capture frame from video
-            const imageData = this.captureFrame();
-            this.lastCapture = imageData;
-            
-            // Simulate AI analysis delay
-            await this.delay(2000);
-            
-            // Perform AI analysis
-            const analysisResult = await this.analyzeChart(imageData);
-            
-            // Display results
-            this.displayAnalysisResults(analysisResult);
-            
-            // Hide loading
-            this.hideLoading();
-            
-        } catch (error) {
-            console.error('Error during capture and analysis:', error);
-            this.showError('Analysis failed. Please try again.');
-            this.hideLoading();
-        } finally {
-            this.isAnalyzing = false;
-            this.captureBtn.disabled = false;
+    pauseCamera() {
+        if (this.stream) {
+            this.stream.getTracks().forEach(track => track.enabled = false);
         }
     }
     
-    captureFrame() {
-        // Set canvas dimensions to match video
-        this.canvas.width = this.video.videoWidth;
-        this.canvas.height = this.video.videoHeight;
-        
-        // Draw current video frame to canvas
-        this.ctx.drawImage(this.video, 0, 0);
-        
-        // Get image data
-        return this.canvas.toDataURL('image/jpeg', 0.8);
-    }
-    
-    async analyzeChart(imageData) {
-        // Simulate AI analysis of the captured chart
-        // In a real implementation, this would send the image to an AI service
-        
-        const mockAnalysis = {
-            detectedAsset: this.detectAsset(),
-            chartPattern: this.detectPattern(),
-            trendDirection: this.detectTrend(),
-            confidenceLevel: this.calculateConfidence(),
-            recommendedAction: this.getRecommendation(),
-            technicalIndicators: this.getTechnicalIndicators(),
-            marketConditions: this.getMarketConditions()
-        };
-        
-        return mockAnalysis;
-    }
-    
-    detectAsset() {
-        // Simulate asset detection based on chart characteristics
-        const assets = ['EUR/USD', 'GBP/USD', 'USD/JPY', 'AUD/USD', 'USD/CAD', 'NZD/USD', 'EUR/GBP', 'EUR/JPY'];
-        return assets[Math.floor(Math.random() * assets.length)];
-    }
-    
-    detectPattern() {
-        const patterns = [
-            'Ascending Triangle',
-            'Descending Triangle',
-            'Head and Shoulders',
-            'Double Top',
-            'Double Bottom',
-            'Flag Pattern',
-            'Pennant',
-            'Wedge Formation',
-            'Channel Breakout',
-            'Support/Resistance'
-        ];
-        return patterns[Math.floor(Math.random() * patterns.length)];
-    }
-    
-    detectTrend() {
-        const trends = ['Bullish', 'Bearish', 'Sideways'];
-        return trends[Math.floor(Math.random() * trends.length)];
-    }
-    
-    calculateConfidence() {
-        // Generate confidence between 65% and 95%
-        return Math.floor(Math.random() * 30) + 65;
-    }
-    
-    getRecommendation() {
-        const actions = ['CALL', 'PUT'];
-        return actions[Math.floor(Math.random() * actions.length)];
-    }
-    
-    getTechnicalIndicators() {
-        return {
-            rsi: Math.floor(Math.random() * 40) + 30, // 30-70
-            macd: (Math.random() - 0.5) * 0.02, // -0.01 to 0.01
-            bollinger: Math.random() > 0.5 ? 'Upper Band' : 'Lower Band',
-            movingAverage: Math.random() > 0.5 ? 'Above' : 'Below'
-        };
-    }
-    
-    getMarketConditions() {
-        return {
-            volatility: Math.floor(Math.random() * 3) + 1, // 1-3
-            volume: Math.floor(Math.random() * 3) + 1, // 1-3
-            momentum: Math.floor(Math.random() * 3) + 1 // 1-3
-        };
-    }
-    
-    displayAnalysisResults(analysis) {
-        // Update analysis result elements
-        document.getElementById('detectedAsset').textContent = analysis.detectedAsset;
-        document.getElementById('chartPattern').textContent = analysis.chartPattern;
-        document.getElementById('trendDirection').textContent = analysis.trendDirection;
-        document.getElementById('confidenceLevel').textContent = `${analysis.confidenceLevel}%`;
-        document.getElementById('recommendedAction').textContent = analysis.recommendedAction;
-        
-        // Style the recommended action
-        const actionElement = document.getElementById('recommendedAction');
-        actionElement.className = 'value';
-        if (analysis.recommendedAction === 'CALL') {
-            actionElement.style.color = '#00ff88';
-            actionElement.style.fontWeight = 'bold';
-        } else {
-            actionElement.style.color = '#ff4444';
-            actionElement.style.fontWeight = 'bold';
-        }
-        
-        // Show analysis results
-        this.analysisResults.style.display = 'block';
-        
-        // Store analysis for signal creation
-        this.currentAnalysis = analysis;
-    }
-    
-    async createSignalFromAnalysis() {
-        if (!this.currentAnalysis) return;
-        
-        try {
-            this.showLoading('Creating signal from analysis...');
-            
-            // Create signal based on analysis
-            const signal = {
-                id: Date.now(),
-                asset: this.currentAnalysis.detectedAsset,
-                action: this.currentAnalysis.recommendedAction,
-                confidence: this.currentAnalysis.confidenceLevel,
-                timeframe: this.getOptimalTimeframe(),
-                pattern: this.currentAnalysis.chartPattern,
-                trend: this.currentAnalysis.trendDirection,
-                technicalIndicators: this.currentAnalysis.technicalIndicators,
-                marketConditions: this.currentAnalysis.marketConditions,
-                timestamp: new Date(),
-                source: 'Camera Analysis',
-                imageData: this.lastCapture
-            };
-            
-            // Add to signals list
-            window.signalsManager.addSignal(signal);
-            
-            // Show success message
-            this.showSuccess('Signal created successfully!');
-            
-            // Switch to signals tab
-            window.app.switchTab('signals');
-            
-        } catch (error) {
-            console.error('Error creating signal:', error);
-            this.showError('Failed to create signal. Please try again.');
-        } finally {
-            this.hideLoading();
+    resumeCamera() {
+        if (this.stream) {
+            this.stream.getTracks().forEach(track => track.enabled = true);
         }
     }
     
-    getOptimalTimeframe() {
-        const timeframes = ['1m', '5m', '15m', '30m', '1h'];
-        return timeframes[Math.floor(Math.random() * timeframes.length)];
+    updateButtonStates() {
+        this.startBtn.disabled = this.isActive;
+        this.captureBtn.disabled = !this.isActive;
+        this.stopBtn.disabled = !this.isActive;
     }
     
-    retryAnalysis() {
-        if (this.lastCapture) {
-            this.captureAndAnalyze();
-        } else {
-            this.showError('No previous capture available. Please capture a new image.');
-        }
-    }
-    
-    showCameraStatus(message) {
-        // Update camera status in UI
-        const statusElement = document.querySelector('.camera-header p');
-        if (statusElement) {
-            statusElement.textContent = message;
-        }
-    }
-    
-    showLoading(message) {
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        const loadingText = document.getElementById('loadingText');
-        
-        loadingText.textContent = message;
-        loadingOverlay.classList.add('active');
+    showLoading(text) {
+        this.loadingText.textContent = text;
+        this.loadingOverlay.classList.add('active');
     }
     
     hideLoading() {
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        loadingOverlay.classList.remove('active');
+        this.loadingOverlay.classList.remove('active');
     }
     
     showError(message) {
-        // Create and show error notification
-        this.showNotification(message, 'error');
-    }
-    
-    showSuccess(message) {
-        // Create and show success notification
-        this.showNotification(message, 'success');
-    }
-    
-    showNotification(message, type = 'info') {
-        // Create notification element
+        // Create error notification
         const notification = document.createElement('div');
-        notification.className = `notification ${type}`;
+        notification.className = 'error-notification';
         notification.innerHTML = `
             <div class="notification-content">
-                <i class="fas fa-${type === 'error' ? 'exclamation-circle' : type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        // Add to page
+        document.body.appendChild(notification);
+        
+        // Show notification
+        setTimeout(() => notification.classList.add('show'), 100);
+        
+        // Remove after 5 seconds
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 5000);
+    }
+    
+    showNotification(message) {
+        // Create success notification
+        const notification = document.createElement('div');
+        notification.className = 'success-notification';
+        notification.innerHTML = `
+            <div class="notification-content">
+                <i class="fas fa-check-circle"></i>
                 <span>${message}</span>
             </div>
         `;
@@ -332,86 +406,9 @@ class CameraManager {
             setTimeout(() => notification.remove(), 300);
         }, 3000);
     }
-    
-    delay(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-    
-    // Cleanup method
-    destroy() {
-        this.stopCamera();
-        // Remove event listeners
-        this.startBtn.removeEventListener('click', this.startCamera);
-        this.captureBtn.removeEventListener('click', this.captureAndAnalyze);
-        this.stopBtn.removeEventListener('click', this.stopCamera);
-        this.createSignalBtn.removeEventListener('click', this.createSignalFromAnalysis);
-        this.retryAnalysisBtn.removeEventListener('click', this.retryAnalysis);
-    }
 }
 
-// Initialize camera manager when DOM is loaded
+// Initialize camera when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    window.cameraManager = new CameraManager();
+    window.pocketOptionCamera = new PocketOptionCamera();
 });
-
-// Add notification styles
-const notificationStyles = `
-    .notification {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: rgba(26, 26, 46, 0.95);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
-        padding: 1rem;
-        color: #fff;
-        z-index: 3000;
-        transform: translateX(100%);
-        transition: transform 0.3s ease;
-        backdrop-filter: blur(10px);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    }
-    
-    .notification.show {
-        transform: translateX(0);
-    }
-    
-    .notification.error {
-        border-left: 4px solid #ff4444;
-    }
-    
-    .notification.success {
-        border-left: 4px solid #00ff88;
-    }
-    
-    .notification.info {
-        border-left: 4px solid #00d4ff;
-    }
-    
-    .notification-content {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    
-    .notification-content i {
-        font-size: 1.2rem;
-    }
-    
-    .notification.error .notification-content i {
-        color: #ff4444;
-    }
-    
-    .notification.success .notification-content i {
-        color: #00ff88;
-    }
-    
-    .notification.info .notification-content i {
-        color: #00d4ff;
-    }
-`;
-
-// Add styles to head
-const styleSheet = document.createElement('style');
-styleSheet.textContent = notificationStyles;
-document.head.appendChild(styleSheet);
