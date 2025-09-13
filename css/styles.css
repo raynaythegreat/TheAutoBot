@@ -20,6 +20,17 @@ body {
     flex-direction: column;
 }
 
+/* Page Management */
+.page {
+    display: none;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+.page.active {
+    display: flex;
+}
+
 /* Header Styles */
 .app-header {
     background: rgba(255, 255, 255, 0.95);
@@ -129,224 +140,84 @@ body {
     gap: 2rem;
 }
 
-/* Camera Section */
-.camera-section {
+/* Welcome Section */
+.welcome-section {
     background: rgba(255, 255, 255, 0.9);
     border-radius: 15px;
-    padding: 2rem;
+    padding: 3rem 2rem;
     border: 1px solid rgba(0, 123, 255, 0.2);
     box-shadow: 0 8px 32px rgba(0, 123, 255, 0.1);
+    text-align: center;
 }
 
-.camera-header {
-    text-align: center;
+.welcome-section h2 {
+    font-size: 2.5rem;
+    color: #007bff;
+    margin-bottom: 1rem;
+}
+
+.welcome-section p {
+    font-size: 1.2rem;
+    color: #6c757d;
     margin-bottom: 2rem;
 }
 
-.camera-header h2 {
-    font-size: 1.8rem;
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.feature-item {
+    text-align: center;
+    padding: 1.5rem;
+    background: rgba(0, 123, 255, 0.05);
+    border-radius: 10px;
+    border: 1px solid rgba(0, 123, 255, 0.1);
+}
+
+.feature-item i {
+    font-size: 2.5rem;
+    color: #007bff;
+    margin-bottom: 1rem;
+}
+
+.feature-item h3 {
+    font-size: 1.3rem;
     color: #007bff;
     margin-bottom: 0.5rem;
 }
 
-.camera-header p {
+.feature-item p {
     color: #6c757d;
-    font-size: 1rem;
-}
-
-.camera-controls {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    margin-bottom: 2rem;
-    flex-wrap: wrap;
-}
-
-.camera-btn {
-    background: rgba(0, 123, 255, 0.1);
-    color: #007bff;
-    border: 1px solid #007bff;
-    padding: 1rem 2rem;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 600;
-    font-size: 1rem;
-}
-
-.camera-btn:hover:not(:disabled) {
-    background: #007bff;
-    color: #fff;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
-}
-
-.camera-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.camera-preview-container {
-    position: relative;
-    background: #000;
-    border-radius: 15px;
-    overflow: hidden;
-    aspect-ratio: 16/9;
-    max-height: 500px;
-    margin-bottom: 2rem;
-}
-
-#cameraPreview {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.camera-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    pointer-events: none;
-}
-
-.overlay-frame {
-    position: relative;
-    width: 80%;
-    height: 60%;
-    border: 2px solid #007bff;
-    border-radius: 10px;
-}
-
-.corner {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    border: 3px solid #007bff;
-}
-
-.corner.top-left {
-    top: -3px;
-    left: -3px;
-    border-right: none;
-    border-bottom: none;
-}
-
-.corner.top-right {
-    top: -3px;
-    right: -3px;
-    border-left: none;
-    border-bottom: none;
-}
-
-.corner.bottom-left {
-    bottom: -3px;
-    left: -3px;
-    border-right: none;
-    border-top: none;
-}
-
-.corner.bottom-right {
-    bottom: -3px;
-    right: -3px;
-    border-left: none;
-    border-top: none;
-}
-
-.overlay-text {
-    margin-top: 1rem;
-    text-align: center;
-    color: #007bff;
     font-size: 0.9rem;
 }
 
-.overlay-text p {
-    margin-bottom: 0.3rem;
-}
-
-/* Analysis Results */
-.analysis-results {
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 15px;
-    padding: 2rem;
-    border: 1px solid rgba(0, 123, 255, 0.2);
-}
-
-.analysis-results h3 {
-    color: #007bff;
-    margin-bottom: 1.5rem;
-    text-align: center;
-    font-size: 1.5rem;
-}
-
-.analysis-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1rem;
-    margin-bottom: 2rem;
-}
-
-.analysis-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    background: rgba(0, 123, 255, 0.05);
-    border-radius: 8px;
-    border-left: 3px solid #007bff;
-}
-
-.analysis-item .label {
-    color: #6c757d;
-    font-weight: 500;
-}
-
-.analysis-item .value {
-    color: #212529;
-    font-weight: 600;
-}
-
-.signal-actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-}
-
-.action-btn {
-    padding: 1rem 2rem;
+.start-camera-btn {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    color: #fff;
     border: none;
-    border-radius: 10px;
+    padding: 1.5rem 3rem;
+    border-radius: 15px;
     cursor: pointer;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 1.3rem;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 1rem;
+    margin: 0 auto;
+    box-shadow: 0 6px 25px rgba(0, 123, 255, 0.3);
 }
 
-.action-btn.primary {
-    background: linear-gradient(45deg, #007bff, #0056b3);
-    color: #fff;
+.start-camera-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0, 123, 255, 0.4);
 }
 
-.action-btn.secondary {
-    background: rgba(108, 117, 125, 0.1);
-    color: #6c757d;
-    border: 1px solid rgba(108, 117, 125, 0.2);
-}
-
-.action-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+.start-camera-btn i {
+    font-size: 1.5rem;
 }
 
 /* Signals Section */
@@ -517,125 +388,294 @@ body {
     box-shadow: 0 6px 25px rgba(0, 123, 255, 0.4);
 }
 
-/* Modal */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    z-index: 1000;
-    backdrop-filter: blur(5px);
-}
-
-.modal.active {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.modal-content {
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(0, 123, 255, 0.2);
-    border-radius: 15px;
-    max-width: 500px;
-    width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0, 123, 255, 0.2);
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.5rem;
-    border-bottom: 1px solid rgba(0, 123, 255, 0.1);
-}
-
-.modal-header h3 {
-    color: #007bff;
-    font-size: 1.3rem;
-}
-
-.close-btn {
-    background: none;
-    border: none;
-    color: #6c757d;
-    font-size: 1.5rem;
-    cursor: pointer;
-    transition: color 0.3s ease;
-}
-
-.close-btn:hover {
-    color: #212529;
-}
-
-.modal-body {
-    padding: 1.5rem;
-}
-
-.modal-footer {
-    display: flex;
-    gap: 1rem;
-    padding: 1.5rem;
-    border-top: 1px solid rgba(0, 123, 255, 0.1);
-}
-
-.btn {
+/* Camera Page Styles */
+.camera-container {
     flex: 1;
-    padding: 0.8rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    background: #000;
+    min-height: 100vh;
+}
+
+.camera-header {
+    background: rgba(0, 0, 0, 0.8);
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.back-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
     border: none;
+    padding: 0.8rem;
     border-radius: 8px;
     cursor: pointer;
-    font-weight: 500;
+    font-size: 1.2rem;
     transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.camera-header h2 {
+    color: #fff;
+    font-size: 1.3rem;
+    flex: 1;
+}
+
+.camera-status {
+    color: #00ff88;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.camera-preview-container {
+    flex: 1;
+    position: relative;
+    background: #000;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
 }
 
-.btn.primary {
-    background: linear-gradient(45deg, #007bff, #0056b3);
+#cameraPreview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.camera-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.overlay-frame {
+    position: relative;
+    width: 80%;
+    height: 60%;
+    border: 2px solid #007bff;
+    border-radius: 10px;
+}
+
+.corner {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #007bff;
+}
+
+.corner.top-left {
+    top: -3px;
+    left: -3px;
+    border-right: none;
+    border-bottom: none;
+}
+
+.corner.top-right {
+    top: -3px;
+    right: -3px;
+    border-left: none;
+    border-bottom: none;
+}
+
+.corner.bottom-left {
+    bottom: -3px;
+    left: -3px;
+    border-right: none;
+    border-top: none;
+}
+
+.corner.bottom-right {
+    bottom: -3px;
+    right: -3px;
+    border-left: none;
+    border-top: none;
+}
+
+.overlay-text {
+    margin-top: 1rem;
+    text-align: center;
+    color: #007bff;
+    font-size: 0.9rem;
+}
+
+.overlay-text p {
+    margin-bottom: 0.3rem;
+}
+
+/* Signal Overlay (Transparent) */
+.signal-overlay {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    min-width: 250px;
+    z-index: 20;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.signal-content {
     color: #fff;
 }
 
-.btn.secondary {
-    background: rgba(108, 117, 125, 0.1);
-    color: #6c757d;
-    border: 1px solid rgba(108, 117, 125, 0.2);
+.signal-content .signal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
 }
 
-.btn:hover {
-    transform: translateY(-1px);
+.signal-content .signal-asset {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #00ff88;
+}
+
+.signal-content .signal-time {
+    color: #ccc;
+    font-size: 0.8rem;
+}
+
+.signal-content .signal-action {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.signal-content .action-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+.signal-content .action-badge.call {
+    background: linear-gradient(45deg, #00ff88, #00cc66);
+    color: #000;
+}
+
+.signal-content .action-badge.put {
+    background: linear-gradient(45deg, #ff4444, #cc0000);
+    color: #fff;
+}
+
+.signal-content .confidence-score {
+    color: #00ff88;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.signal-content .signal-details {
+    font-size: 0.9rem;
+    color: #ccc;
+}
+
+.signal-content .detail-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+/* Camera Controls */
+.camera-controls {
+    background: rgba(0, 0, 0, 0.8);
+    padding: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    position: sticky;
+    bottom: 0;
+    z-index: 100;
+}
+
+.camera-btn {
+    background: rgba(0, 123, 255, 0.2);
+    color: #007bff;
+    border: 1px solid #007bff;
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.camera-btn:hover:not(:disabled) {
+    background: #007bff;
+    color: #fff;
+    transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
 }
 
-/* Loading Overlay */
-.loading-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    z-index: 2000;
-    backdrop-filter: blur(5px);
+.camera-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
-.loading-overlay.active {
+.regenerate-btn {
+    background: rgba(0, 255, 136, 0.2);
+    color: #00ff88;
+    border: 1px solid #00ff88;
+}
+
+.regenerate-btn:hover:not(:disabled) {
+    background: #00ff88;
+    color: #000;
+    box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+}
+
+/* Analysis Status */
+.analysis-status {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 30;
 }
 
-.loading-content {
+.status-content {
     text-align: center;
-    color: #212529;
+    color: #fff;
 }
 
 .spinner {
@@ -669,10 +709,29 @@ body {
         padding: 0.5rem;
     }
     
-    .camera-section,
-    .signals-section,
-    .pocketoption-section {
-        padding: 1.5rem;
+    .welcome-section {
+        padding: 2rem 1rem;
+    }
+    
+    .welcome-section h2 {
+        font-size: 2rem;
+    }
+    
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .start-camera-btn {
+        padding: 1.2rem 2rem;
+        font-size: 1.1rem;
+    }
+    
+    .signal-overlay {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        min-width: auto;
     }
     
     .camera-controls {
@@ -683,23 +742,6 @@ body {
     .camera-btn {
         width: 100%;
         max-width: 250px;
-    }
-    
-    .analysis-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .pocketoption-info {
-        grid-template-columns: 1fr;
-    }
-    
-    .modal-content {
-        width: 95%;
-        margin: 1rem;
-    }
-    
-    .modal-footer {
-        flex-direction: column;
     }
 }
 
@@ -726,13 +768,11 @@ body {
         font-size: 0.8rem;
     }
     
-    .camera-header h2 {
-        font-size: 1.5rem;
+    .welcome-section h2 {
+        font-size: 1.8rem;
     }
     
-    .analysis-results h3,
-    .signals-section h3,
-    .pocketoption-section h3 {
-        font-size: 1.3rem;
+    .welcome-section p {
+        font-size: 1rem;
     }
 }

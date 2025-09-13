@@ -1,9 +1,8 @@
-// PocketOption AI Signals App Controller
+// Simplified PocketOption App Controller
 class PocketOptionApp {
     constructor() {
         this.isInitialized = false;
-        this.currentSignal = null;
-        this.signalHistory = [];
+        this.currentPage = 'main';
         
         this.initializeApp();
     }
@@ -51,30 +50,18 @@ class PocketOptionApp {
     }
     
     initializeComponents() {
-        // Wait for AI and Camera modules to be available
-        this.waitForModules().then(() => {
-            // Initialize PocketOption integration
-            this.initializePocketOptionIntegration();
+        // Wait for Camera module to be available
+        this.waitForCameraModule().then(() => {
+            console.log('Camera module loaded successfully');
         }).catch(error => {
-            console.error('Failed to initialize components:', error);
-            this.showError('Failed to initialize components. Please refresh and try again.');
+            console.error('Failed to load camera module:', error);
+            this.showError('Failed to load camera module. Please refresh and try again.');
         });
     }
     
-    async waitForModules() {
-        // Wait for AI module
-        let attempts = 0;
-        while (!window.pocketOptionAI && attempts < 50) {
-            await new Promise(resolve => setTimeout(resolve, 100));
-            attempts++;
-        }
-        
-        if (!window.pocketOptionAI) {
-            throw new Error('PocketOption AI module not loaded');
-        }
-        
+    async waitForCameraModule() {
         // Wait for Camera module
-        attempts = 0;
+        let attempts = 0;
         while (!window.pocketOptionCamera && attempts < 50) {
             await new Promise(resolve => setTimeout(resolve, 100));
             attempts++;
@@ -84,19 +71,26 @@ class PocketOptionApp {
             throw new Error('PocketOption Camera module not loaded');
         }
         
-        console.log('All modules loaded successfully');
+        console.log('Camera module loaded successfully');
     }
     
-    initializePocketOptionIntegration() {
+    bindGlobalEvents() {
+        // Handle start camera button
+        const startCameraBtn = document.getElementById('startCameraBtn');
+        if (startCameraBtn) {
+            startCameraBtn.addEventListener('click', () => {
+                this.startCamera();
+            });
+        }
+        
+        // Handle PocketOption button
         const openPocketOptionBtn = document.getElementById('openPocketOptionBtn');
         if (openPocketOptionBtn) {
             openPocketOptionBtn.addEventListener('click', () => {
                 this.openPocketOption();
             });
         }
-    }
-    
-    bindGlobalEvents() {
+        
         // Handle app visibility changes
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
@@ -105,21 +99,36 @@ class PocketOptionApp {
                 this.onAppVisible();
             }
         });
-        
-        // Handle retry analysis button
-        const retryBtn = document.getElementById('retryAnalysisBtn');
-        if (retryBtn) {
-            retryBtn.addEventListener('click', () => {
-                this.retryAnalysis();
-            });
+    }
+    
+    startCamera() {
+        try {
+            // Switch to camera page
+            this.showPage('camera');
+            
+            // Start camera after a short delay to ensure page is visible
+            setTimeout(() => {
+                if (window.pocketOptionCamera) {
+                    window.pocketOptionCamera.startCamera();
+                }
+            }, 100);
+            
+        } catch (error) {
+            console.error('Failed to start camera:', error);
+            this.showError('Failed to start camera. Please try again.');
         }
+    }
+    
+    showPage(pageId) {
+        // Hide all pages
+        const pages = document.querySelectorAll('.page');
+        pages.forEach(page => page.classList.remove('active'));
         
-        // Handle execute signal button
-        const executeBtn = document.getElementById('executeSignalBtn');
-        if (executeBtn) {
-            executeBtn.addEventListener('click', () => {
-                this.executeCurrentSignal();
-            });
+        // Show selected page
+        const targetPage = document.getElementById(pageId + 'Page');
+        if (targetPage) {
+            targetPage.classList.add('active');
+            this.currentPage = pageId;
         }
     }
     
@@ -129,33 +138,23 @@ class PocketOptionApp {
         this.showNotification('Opening PocketOption...');
     }
     
-    retryAnalysis() {
-        if (window.pocketOptionCamera && window.pocketOptionCamera.isActive) {
-            window.pocketOptionCamera.captureAndAnalyze();
-        } else {
-            this.showError('Camera not active. Please start camera first.');
-        }
-    }
-    
-    executeCurrentSignal() {
-        if (this.currentSignal) {
-            window.pocketOptionCamera.executeTrade(this.currentSignal);
-        } else {
-            this.showError('No signal available. Please analyze a chart first.');
-        }
-    }
-    
     onAppHidden() {
-        console.log('App hidden - pausing camera');
-        if (window.pocketOptionCamera && window.pocketOptionCamera.isActive) {
-            window.pocketOptionCamera.pauseCamera();
+        console.log('App hidden');
+        if (this.currentPage === 'camera' && window.pocketOptionCamera && window.pocketOptionCamera.isActive) {
+            // Pause camera when app is hidden
+            if (window.pocketOptionCamera.stream) {
+                window.pocketOptionCamera.stream.getTracks().forEach(track => track.enabled = false);
+            }
         }
     }
     
     onAppVisible() {
-        console.log('App visible - resuming camera');
-        if (window.pocketOptionCamera && window.pocketOptionCamera.isActive) {
-            window.pocketOptionCamera.resumeCamera();
+        console.log('App visible');
+        if (this.currentPage === 'camera' && window.pocketOptionCamera && window.pocketOptionCamera.isActive) {
+            // Resume camera when app is visible
+            if (window.pocketOptionCamera.stream) {
+                window.pocketOptionCamera.stream.getTracks().forEach(track => track.enabled = true);
+            }
         }
     }
     
@@ -170,12 +169,12 @@ class PocketOptionApp {
     }
     
     // Public API methods
-    getCurrentSignal() {
-        return this.currentSignal;
+    getCurrentPage() {
+        return this.currentPage;
     }
     
-    getSignalHistory() {
-        return this.signalHistory;
+    isCameraActive() {
+        return window.pocketOptionCamera && window.pocketOptionCamera.isActive;
     }
 }
 

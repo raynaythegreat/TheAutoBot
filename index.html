@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="PocketOption AI">
-    <meta name="theme-color" content="#1a1a2e">
+    <meta name="theme-color" content="#007bff">
     <meta name="description" content="AI-powered PocketOption signals with camera analysis">
     
     <title>PocketOption AI Signals</title>
@@ -21,63 +21,117 @@
 <body>
     <div id="app" class="app-container">
         
-        <!-- Header -->
-        <header class="app-header">
-            <div class="header-content">
-                <div class="logo">
-                    <i class="fas fa-chart-line"></i>
-                    <h1>PocketOption AI</h1>
-                </div>
-                <div class="header-stats">
-                    <div class="stat-item">
-                        <span class="stat-label">Accuracy</span>
-                        <span class="stat-value" id="accuracyRate">92.4%</span>
+        <!-- Main Landing Page -->
+        <div id="mainPage" class="page active">
+            <header class="app-header">
+                <div class="header-content">
+                    <div class="logo">
+                        <i class="fas fa-chart-line"></i>
+                        <h1>PocketOption AI</h1>
                     </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Signals</span>
-                        <span class="stat-value" id="signalCount">0</span>
+                    <div class="header-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Accuracy</span>
+                            <span class="stat-value" id="accuracyRate">92.4%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Signals</span>
+                            <span class="stat-value" id="signalCount">0</span>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </header>
+            </header>
 
-        <!-- Critical Risk Warning -->
-        <div class="risk-warning">
-            <div class="warning-content">
-                <i class="fas fa-exclamation-triangle"></i>
-                <div class="warning-text">
-                    <h3>⚠️ HIGH RISK WARNING ⚠️</h3>
-                    <p><strong>Binary options trading involves substantial risk of loss and is not suitable for all investors.</strong></p>
-                    <p>This app provides signals for educational purposes only. Past performance does not guarantee future results.</p>
-                    <p><strong>Never invest more than you can afford to lose.</strong></p>
+            <!-- Risk Warning -->
+            <div class="risk-warning">
+                <div class="warning-content">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div class="warning-text">
+                        <h3>⚠️ HIGH RISK WARNING ⚠️</h3>
+                        <p><strong>Binary options trading involves substantial risk of loss and is not suitable for all investors.</strong></p>
+                        <p>This app provides signals for educational purposes only. Past performance does not guarantee future results.</p>
+                        <p><strong>Never invest more than you can afford to lose.</strong></p>
+                    </div>
                 </div>
             </div>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <div class="welcome-section">
+                    <h2>📷 AI Chart Analysis</h2>
+                    <p>Point your camera at PocketOption charts for instant AI analysis</p>
+                    
+                    <div class="features-grid">
+                        <div class="feature-item">
+                            <i class="fas fa-brain"></i>
+                            <h3>AI Analysis</h3>
+                            <p>5 trading strategies combined</p>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-clock"></i>
+                            <h3>1min Timeframe</h3>
+                            <p>3min expiration trades</p>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-chart-line"></i>
+                            <h3>Real-time Signals</h3>
+                            <p>CALL/PUT recommendations</p>
+                        </div>
+                    </div>
+                    
+                    <button class="start-camera-btn" id="startCameraBtn">
+                        <i class="fas fa-video"></i>
+                        Start Camera Analysis
+                    </button>
+                </div>
+
+                <!-- Recent Signals -->
+                <div class="signals-section">
+                    <h3>📊 Recent Signals</h3>
+                    <div class="signals-list" id="signalsList">
+                        <div class="no-signals">
+                            <i class="fas fa-chart-line"></i>
+                            <p>No signals generated yet</p>
+                            <p>Use camera to analyze charts</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PocketOption Integration -->
+                <div class="pocketoption-section">
+                    <h3>🎯 PocketOption Integration</h3>
+                    <div class="pocketoption-info">
+                        <div class="info-item">
+                            <span class="label">Timeframe:</span>
+                            <span class="value">1 Minute</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Expiration:</span>
+                            <span class="value">3 Minutes</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Strategy:</span>
+                            <span class="value">Multi-Strategy AI</span>
+                        </div>
+                    </div>
+                    <button class="pocketoption-btn" id="openPocketOptionBtn">
+                        <i class="fas fa-external-link-alt"></i>
+                        Open PocketOption
+                    </button>
+                </div>
+            </main>
         </div>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            
-            <!-- Camera Section -->
-            <div class="camera-section">
+        <!-- Camera Page -->
+        <div id="cameraPage" class="page">
+            <div class="camera-container">
+                <!-- Camera Header -->
                 <div class="camera-header">
+                    <button class="back-btn" id="backBtn">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
                     <h2>📷 Chart Analysis</h2>
-                    <p>Point camera at PocketOption chart for AI analysis</p>
-                </div>
-                
-                <!-- Camera Controls -->
-                <div class="camera-controls">
-                    <button class="camera-btn" id="startCameraBtn">
-                        <i class="fas fa-video"></i>
-                        Start Camera
-                    </button>
-                    <button class="camera-btn" id="captureBtn" disabled>
-                        <i class="fas fa-camera"></i>
-                        Analyze Chart
-                    </button>
-                    <button class="camera-btn" id="stopCameraBtn" disabled>
-                        <i class="fas fa-stop"></i>
-                        Stop Camera
-                    </button>
+                    <div class="camera-status" id="cameraStatus">Starting Camera...</div>
                 </div>
 
                 <!-- Camera Preview -->
@@ -98,127 +152,47 @@
                             <p>Ensure good lighting</p>
                         </div>
                     </div>
+
+                    <!-- Signal Overlay (Transparent) -->
+                    <div class="signal-overlay" id="signalOverlay" style="display: none;">
+                        <div class="signal-content">
+                            <div class="signal-header">
+                                <span class="signal-asset" id="signalAsset">EUR/USD</span>
+                                <span class="signal-time" id="signalTime">12:34:56</span>
+                            </div>
+                            <div class="signal-action">
+                                <span class="action-badge" id="actionBadge">CALL</span>
+                                <span class="confidence-score" id="confidenceScore">85%</span>
+                            </div>
+                            <div class="signal-details">
+                                <div class="detail-row">
+                                    <span>Entry: <span id="entryPoint">Immediate</span></span>
+                                    <span>Risk: <span id="riskLevel">Medium</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Analysis Results -->
-                <div class="analysis-results" id="analysisResults" style="display: none;">
-                    <h3>🤖 AI Analysis Results</h3>
-                    <div class="analysis-grid">
-                        <div class="analysis-item">
-                            <span class="label">Asset:</span>
-                            <span class="value" id="detectedAsset">-</span>
-                        </div>
-                        <div class="analysis-item">
-                            <span class="label">Trend:</span>
-                            <span class="value" id="trendDirection">-</span>
-                        </div>
-                        <div class="analysis-item">
-                            <span class="label">HH/LL:</span>
-                            <span class="value" id="hhllPattern">-</span>
-                        </div>
-                        <div class="analysis-item">
-                            <span class="label">Support/Resistance:</span>
-                            <span class="value" id="supportResistance">-</span>
-                        </div>
-                        <div class="analysis-item">
-                            <span class="label">Wyckoff Phase:</span>
-                            <span class="value" id="wyckoffPhase">-</span>
-                        </div>
-                        <div class="analysis-item">
-                            <span class="label">Moving Averages:</span>
-                            <span class="value" id="movingAverages">-</span>
-                        </div>
-                        <div class="analysis-item">
-                            <span class="label">Confidence:</span>
-                            <span class="value" id="confidenceLevel">-</span>
-                        </div>
-                        <div class="analysis-item">
-                            <span class="label">Signal:</span>
-                            <span class="value" id="recommendedAction">-</span>
-                        </div>
-                    </div>
-                    
-                    <div class="signal-actions">
-                        <button class="action-btn primary" id="executeSignalBtn">
-                            <i class="fas fa-play"></i>
-                            Execute Trade
-                        </button>
-                        <button class="action-btn secondary" id="retryAnalysisBtn">
-                            <i class="fas fa-redo"></i>
-                            Retry Analysis
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recent Signals -->
-            <div class="signals-section">
-                <h3>📊 Recent Signals</h3>
-                <div class="signals-list" id="signalsList">
-                    <div class="no-signals">
-                        <i class="fas fa-chart-line"></i>
-                        <p>No signals generated yet</p>
-                        <p>Use camera to analyze charts</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- PocketOption Integration -->
-            <div class="pocketoption-section">
-                <h3>🎯 PocketOption Integration</h3>
-                <div class="pocketoption-info">
-                    <div class="info-item">
-                        <span class="label">Timeframe:</span>
-                        <span class="value">1 Minute</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">Expiration:</span>
-                        <span class="value">3 Minutes</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">Strategy:</span>
-                        <span class="value">Multi-Strategy AI</span>
-                    </div>
-                </div>
-                <button class="pocketoption-btn" id="openPocketOptionBtn">
-                    <i class="fas fa-external-link-alt"></i>
-                    Open PocketOption
-                </button>
-            </div>
-        </main>
-
-        <!-- Signal Modal -->
-        <div id="signalModal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>🚀 Trade Signal Generated</h3>
-                    <button class="close-btn" id="closeModalBtn">
-                        <i class="fas fa-times"></i>
+                <!-- Camera Controls -->
+                <div class="camera-controls">
+                    <button class="camera-btn" id="captureBtn">
+                        <i class="fas fa-camera"></i>
+                        Analyze Chart
+                    </button>
+                    <button class="camera-btn regenerate-btn" id="regenerateBtn" style="display: none;">
+                        <i class="fas fa-redo"></i>
+                        Regenerate Signal
                     </button>
                 </div>
-                <div class="modal-body">
-                    <div class="signal-details" id="signalDetails">
-                        <!-- Signal details will be populated here -->
+
+                <!-- Analysis Status -->
+                <div class="analysis-status" id="analysisStatus" style="display: none;">
+                    <div class="status-content">
+                        <div class="spinner"></div>
+                        <p id="statusText">Analyzing chart with AI...</p>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button class="btn secondary" id="copySignalBtn">
-                        <i class="fas fa-copy"></i>
-                        Copy Signal
-                    </button>
-                    <button class="btn primary" id="executeTradeBtn">
-                        <i class="fas fa-play"></i>
-                        Execute Trade
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Loading Overlay -->
-        <div id="loadingOverlay" class="loading-overlay">
-            <div class="loading-content">
-                <div class="spinner"></div>
-                <p id="loadingText">Analyzing chart with AI...</p>
             </div>
         </div>
     </div>
