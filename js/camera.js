@@ -155,8 +155,8 @@ class POTBotCamera {
             const ctx = this.canvas.getContext('2d');
             ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
             
-            // Get image data
-            const imageData = this.canvas.toDataURL('image/jpeg', 0.8);
+            // Get image data for analysis
+            const imageData = ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
             
             console.log('Frame captured successfully:', { width: this.canvas.width, height: this.canvas.height });
             
@@ -267,19 +267,14 @@ class POTBotCamera {
     
     analyzeImageForSignal(imageData) {
         // Analyze image characteristics to determine signal quality
-        const canvas = this.canvas;
-        const ctx = canvas.getContext('2d');
-        
-        // Ensure we have the latest frame data
-        if (!canvas.width || !canvas.height) {
-            console.error('Canvas not properly sized');
-            return { greenRatio: 0, redRatio: 0, avgBrightness: 0, totalPixels: 0, volatility: 0, trendStrength: 0 };
+        if (!imageData || !imageData.data) {
+            console.error('No image data provided for analysis');
+            return { greenRatio: 0, redRatio: 0, avgBrightness: 0, totalPixels: 0, volatility: 0, trendStrength: 0, chartRatio: 0 };
         }
         
-        const imageDataObj = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imageDataObj.data;
+        const data = imageData.data;
         
-        console.log('Analyzing market image data:', { width: canvas.width, height: canvas.height, dataLength: data.length });
+        console.log('Analyzing market image data:', { dataLength: data.length });
         
         let greenPixels = 0;
         let redPixels = 0;
@@ -335,11 +330,17 @@ class POTBotCamera {
     
     generateSignalFromAnalysis(imageAnalysis) {
         const { greenRatio, redRatio, volatility, trendStrength, chartRatio } = imageAnalysis;
-        console.log('Generating signal from market analysis:', { greenRatio, redRatio, volatility, trendStrength, chartRatio });
+        console.log('Generating signal from market analysis:', { 
+            greenRatio: (greenRatio * 100).toFixed(1) + '%', 
+            redRatio: (redRatio * 100).toFixed(1) + '%', 
+            volatility: (volatility * 100).toFixed(1) + '%', 
+            trendStrength: (trendStrength * 100).toFixed(1) + '%', 
+            chartRatio: (chartRatio * 100).toFixed(1) + '%' 
+        });
         
         // Only generate signals if we have sufficient chart data - balanced strict
         if (chartRatio < 0.2) {
-            console.log('Insufficient chart data detected, skipping signal generation');
+            console.log('Insufficient chart data detected, skipping signal generation. Chart ratio:', (chartRatio * 100).toFixed(1) + '%');
             return null;
         }
         
@@ -350,20 +351,20 @@ class POTBotCamera {
             // Clear green dominance - bullish signal
             action = 'CALL';
             confidence = Math.min(95, 85 + (greenRatio * 100) + (volatility * 30));
-            console.log('Bullish signal detected (clear green dominance)');
+            console.log('Bullish signal detected (clear green dominance):', (greenRatio * 100).toFixed(1) + '% green vs ' + (redRatio * 100).toFixed(1) + '% red');
         } else if (redRatio > greenRatio && redRatio > 0.1) {
             // Clear red dominance - bearish signal
             action = 'PUT';
             confidence = Math.min(95, 85 + (redRatio * 100) + (volatility * 30));
-            console.log('Bearish signal detected (clear red dominance)');
+            console.log('Bearish signal detected (clear red dominance):', (redRatio * 100).toFixed(1) + '% red vs ' + (greenRatio * 100).toFixed(1) + '% green');
         } else {
             // Mixed or unclear signals - require balanced threshold
             if (trendStrength > 0.2) {
                 action = greenRatio > redRatio ? 'CALL' : 'PUT';
                 confidence = 85 + (trendStrength * 30);
-                console.log('Signal based on strong trend');
+                console.log('Signal based on strong trend:', (trendStrength * 100).toFixed(1) + '% trend strength');
             } else {
-                console.log('Insufficient market clarity, skipping signal generation');
+                console.log('Insufficient market clarity, skipping signal generation. Green:', (greenRatio * 100).toFixed(1) + '%, Red:', (redRatio * 100).toFixed(1) + '%, Trend:', (trendStrength * 100).toFixed(1) + '%');
                 return null;
             }
         }
