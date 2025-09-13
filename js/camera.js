@@ -122,34 +122,13 @@ class POTBotCamera {
             // Perform simplified AI analysis
             const analysisResult = await this.performSimpleAnalysis(imageData);
             
-            // Only display results if we have a valid signal
+            // Only display results if we have a valid signal from candlestick detection
             if (analysisResult && analysisResult.confidence >= 80) {
                 this.displaySignal(analysisResult);
-                console.log('Analysis completed with valid signal:', analysisResult);
+                console.log('Analysis completed with valid signal from candlestick detection:', analysisResult);
             } else {
                 console.log('Analysis completed but no valid signal generated. Result:', analysisResult);
-                
-                // If no signal generated from analysis, try a simple fallback
-                if (!analysisResult) {
-                    console.log('Attempting fallback signal generation...');
-                    const fallbackSignal = this.generateSimpleSignal();
-                    if (fallbackSignal && fallbackSignal.confidence >= 80) {
-                        const entryAnalysis = this.generateEntryPointAnalysis(fallbackSignal.confidence, fallbackSignal.action);
-                        const fallbackResult = {
-                            action: fallbackSignal.action,
-                            confidence: fallbackSignal.confidence,
-                            entryPoint: entryAnalysis.entryPoint,
-                            riskLevel: entryAnalysis.riskLevel,
-                            timeframe: '1min',
-                            expiration: '3min',
-                            entryDescription: entryAnalysis.description,
-                            entryTiming: entryAnalysis.timing,
-                            timestamp: new Date()
-                        };
-                        this.displaySignal(fallbackResult);
-                        console.log('Fallback signal generated:', fallbackResult);
-                    }
-                }
+                console.log('No fallback signals - candlestick detection required for all signals');
             }
             
             // Hide analysis status
@@ -667,11 +646,11 @@ class POTBotCamera {
         
         // Detect if market chart is visible
         if (this.detectMarketChart()) {
-            console.log('Market chart detected, starting analysis...');
+            console.log('✅ Market chart with candlesticks detected, starting analysis...');
             this.showScanIndicator();
             this.performAutoAnalysis();
         } else {
-            console.log('No market chart detected in current frame');
+            console.log('❌ No market chart with candlesticks detected in current frame');
         }
     }
     
@@ -757,8 +736,8 @@ class POTBotCamera {
             pocketOptionScore += 0.1;
         }
         
-        // Candlesticks are REQUIRED - no signal without them (increased threshold for better detection)
-        if (candlestickRatio > 0.03) {
+        // Candlesticks are REQUIRED - no signal without them (very strict threshold)
+        if (candlestickRatio > 0.05) {
             pocketOptionScore += 0.15;
             hasCandlesticks = true;
         }
@@ -775,8 +754,12 @@ class POTBotCamera {
         
         // CRITICAL: Only return positive score if candlesticks are detected
         if (!hasCandlesticks) {
-            console.log('No candlesticks detected - not a valid trading chart');
+            console.log('❌ NO CANDLESTICKS DETECTED - candlestick ratio:', (candlestickRatio * 100).toFixed(1) + '% (required: 5%+)');
+            console.log('❌ NOT A VALID TRADING CHART - no signals will be generated');
             return 0; // Force detection failure if no candlesticks
+        } else {
+            console.log('✅ CANDLESTICKS DETECTED - candlestick ratio:', (candlestickRatio * 100).toFixed(1) + '%');
+            console.log('✅ VALID TRADING CHART - signals may be generated');
         }
         
         console.log('PocketOption pattern analysis:', {
