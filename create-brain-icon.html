@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Blue Brain Icon</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        .icon-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .icon-preview {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        canvas {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .download-btn {
+            margin-top: 10px;
+            padding: 8px 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .download-btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center; color: #333;">Blue Brain Icon Generator</h1>
+    <div class="icon-container" id="iconContainer">
+        <!-- Icons will be generated here -->
+    </div>
+
+    <script>
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+        
+        function createBrainIcon(size) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas with transparent background
+            ctx.clearRect(0, 0, size, size);
+            
+            // Set up scaling
+            const scale = size / 512;
+            ctx.scale(scale, scale);
+            
+            // Create gradient for brain
+            const gradient = ctx.createLinearGradient(0, 0, 512, 512);
+            gradient.addColorStop(0, '#4A90E2'); // Light blue
+            gradient.addColorStop(0.5, '#2E5BBA'); // Medium blue
+            gradient.addColorStop(1, '#1E3A8A'); // Dark blue
+            
+            // Draw brain outline
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            
+            // Brain shape - simplified but recognizable
+            // Left hemisphere
+            ctx.ellipse(200, 256, 120, 180, 0, 0, 2 * Math.PI);
+            
+            // Right hemisphere
+            ctx.ellipse(312, 256, 120, 180, 0, 0, 2 * Math.PI);
+            
+            // Connect hemispheres
+            ctx.rect(200, 200, 112, 112);
+            
+            ctx.fill();
+            
+            // Add brain folds/ridges
+            ctx.strokeStyle = '#1E3A8A';
+            ctx.lineWidth = 8;
+            
+            // Left hemisphere folds
+            ctx.beginPath();
+            ctx.arc(200, 200, 100, 0, Math.PI);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.arc(200, 312, 100, Math.PI, 2 * Math.PI);
+            ctx.stroke();
+            
+            // Right hemisphere folds
+            ctx.beginPath();
+            ctx.arc(312, 200, 100, 0, Math.PI);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.arc(312, 312, 100, Math.PI, 2 * Math.PI);
+            ctx.stroke();
+            
+            // Add neural network pattern
+            ctx.strokeStyle = '#60A5FA';
+            ctx.lineWidth = 4;
+            
+            // Neural connections
+            for (let i = 0; i < 8; i++) {
+                ctx.beginPath();
+                const x1 = 150 + Math.random() * 100;
+                const y1 = 150 + Math.random() * 100;
+                const x2 = 250 + Math.random() * 100;
+                const y2 = 250 + Math.random() * 100;
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+            }
+            
+            // Add AI circuit pattern
+            ctx.fillStyle = '#93C5FD';
+            for (let i = 0; i < 12; i++) {
+                const x = 180 + Math.random() * 152;
+                const y = 180 + Math.random() * 152;
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+            
+            // Add glow effect
+            ctx.shadowColor = '#3B82F6';
+            ctx.shadowBlur = 20;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+            
+            // Redraw brain with glow
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.ellipse(200, 256, 120, 180, 0, 0, 2 * Math.PI);
+            ctx.ellipse(312, 256, 120, 180, 0, 0, 2 * Math.PI);
+            ctx.rect(200, 200, 112, 112);
+            ctx.fill();
+            
+            return canvas;
+        }
+        
+        function downloadIcon(canvas, size) {
+            const link = document.createElement('a');
+            link.download = `icon-${size}x${size}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+        
+        // Generate all icon sizes
+        sizes.forEach(size => {
+            const container = document.createElement('div');
+            container.className = 'icon-preview';
+            
+            const canvas = createBrainIcon(size);
+            container.appendChild(canvas);
+            
+            const label = document.createElement('div');
+            label.textContent = `${size}x${size}px`;
+            label.style.marginTop = '10px';
+            label.style.fontWeight = 'bold';
+            container.appendChild(label);
+            
+            const downloadBtn = document.createElement('button');
+            downloadBtn.className = 'download-btn';
+            downloadBtn.textContent = 'Download';
+            downloadBtn.onclick = () => downloadIcon(canvas, size);
+            container.appendChild(downloadBtn);
+            
+            document.getElementById('iconContainer').appendChild(container);
+        });
+        
+        // Auto-download all icons
+        setTimeout(() => {
+            sizes.forEach((size, index) => {
+                setTimeout(() => {
+                    const canvas = createBrainIcon(size);
+                    downloadIcon(canvas, size);
+                }, index * 500); // Stagger downloads
+            });
+        }, 2000);
+    </script>
+</body>
+</html>
