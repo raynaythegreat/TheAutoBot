@@ -1,8 +1,7 @@
 // The POT Bot Service Worker
-const CACHE_NAME = 'pot-bot-v1.0.1';
+const CACHE_NAME = 'pot-bot-v1.0.2';
 const urlsToCache = [
-  '/',
-  '/index.html',
+  '.',
   './index.html',
   './404.html',
   './css/styles.css',
@@ -97,7 +96,7 @@ self.addEventListener('fetch', event => {
           
           // Return offline page for navigation requests
           if (event.request.mode === 'navigate') {
-            return caches.match('/index.html') || caches.match('./index.html') || caches.match('/') || caches.match('/404.html');
+            return caches.match('./index.html') || caches.match('.') || caches.match('./404.html');
           }
           
           throw error;
