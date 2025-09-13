@@ -9,7 +9,7 @@ class POTBotCamera {
         this.autoScanEnabled = true;
         this.scanInterval = null;
         this.lastAnalysisTime = 0;
-        this.analysisCooldown = 3000; // 3 seconds between analyses
+        this.analysisCooldown = 2000; // 2 seconds between analyses
         this.isAnalyzing = false;
         
         this.initializeElements();
@@ -336,6 +336,16 @@ class POTBotCamera {
     
     analyzeChart() {
         if (this.isActive) {
+            // Reset analysis state to allow new analysis
+            this.isAnalyzing = false;
+            this.lastAnalysisTime = 0; // Reset cooldown
+            
+            // Hide any existing signal overlay
+            if (this.signalOverlay) {
+                this.signalOverlay.style.display = 'none';
+            }
+            
+            // Perform new analysis
             this.captureAndAnalyze();
         } else {
             this.showError('Camera not active. Please restart camera.');
@@ -359,10 +369,10 @@ class POTBotCamera {
             clearInterval(this.scanInterval);
         }
         
-        // Start scanning every 2 seconds
+        // Start scanning every 1.5 seconds for better responsiveness
         this.scanInterval = setInterval(() => {
             this.performAutoScan();
-        }, 2000);
+        }, 1500);
         
         console.log('Auto-scan started');
     }
@@ -409,56 +419,53 @@ class POTBotCamera {
     }
     
     async detectMarketChart(imageData) {
-        // Enhanced market chart detection with asset identification
+        // Simplified market chart detection using current canvas
         await this.delay(100); // Simulate processing time
         
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const img = new Image();
-        
-        return new Promise((resolve) => {
-            img.onload = () => {
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
-                
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const data = imageData.data;
-                
-                // Analyze image for chart-like patterns
-                let chartScore = 0;
-                let sampleCount = 0;
-                
-                // Sample pixels to detect chart characteristics
-                for (let i = 0; i < data.length; i += 16) { // Sample every 4th pixel
-                    const r = data[i];
-                    const g = data[i + 1];
-                    const b = data[i + 2];
-                    
-                    // Look for chart-like colors (whites, grays, greens, reds)
-                    if (this.isChartColor(r, g, b)) {
-                        chartScore++;
-                    }
-                    sampleCount++;
-                }
-                
-                // Calculate chart probability
-                const chartProbability = chartScore / sampleCount;
-                
-                // Consider it a chart if probability is above threshold
-                const isChart = chartProbability > 0.3;
-                
-                if (isChart) {
-                    // Store the canvas for asset detection
-                    this.currentChartCanvas = canvas;
-                }
-                
-                console.log(`Chart detection score: ${(chartProbability * 100).toFixed(1)}%`);
-                resolve(isChart);
-            };
+        try {
+            // Use the current canvas directly
+            const canvas = this.canvas;
+            if (!canvas) return false;
             
-            img.src = imageData.data;
-        });
+            const ctx = canvas.getContext('2d');
+            const imageDataObj = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageDataObj.data;
+            
+            // Analyze image for chart-like patterns
+            let chartScore = 0;
+            let sampleCount = 0;
+            
+            // Sample pixels to detect chart characteristics
+            for (let i = 0; i < data.length; i += 16) { // Sample every 4th pixel
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                
+                // Look for chart-like colors (whites, grays, greens, reds)
+                if (this.isChartColor(r, g, b)) {
+                    chartScore++;
+                }
+                sampleCount++;
+            }
+            
+            // Calculate chart probability
+            const chartProbability = chartScore / sampleCount;
+            
+            // Consider it a chart if probability is above threshold (lowered for better detection)
+            const isChart = chartProbability > 0.15;
+            
+            if (isChart) {
+                // Store the canvas for analysis
+                this.currentChartCanvas = canvas;
+            }
+            
+            console.log(`Chart detection score: ${(chartProbability * 100).toFixed(1)}%`);
+            return isChart;
+            
+        } catch (error) {
+            console.error('Chart detection error:', error);
+            return false;
+        }
     }
     
     isChartColor(r, g, b) {
