@@ -1,13 +1,16 @@
 // The POT Bot Service Worker
-const CACHE_NAME = 'pot-bot-v1.0.0';
+const CACHE_NAME = 'pot-bot-v1.0.1';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/css/styles.css',
-  '/js/app.js',
-  '/js/camera.js',
-  '/js/ai-analysis.js',
-  '/manifest.json',
+  './index.html',
+  './404.html',
+  './css/styles.css',
+  './js/app.js',
+  './js/camera.js',
+  './js/ai-analysis.js',
+  './manifest.json',
+  './sw.js',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'
 ];
 
@@ -94,7 +97,7 @@ self.addEventListener('fetch', event => {
           
           // Return offline page for navigation requests
           if (event.request.mode === 'navigate') {
-            return caches.match('/index.html');
+            return caches.match('/index.html') || caches.match('./index.html') || caches.match('/') || caches.match('/404.html');
           }
           
           throw error;

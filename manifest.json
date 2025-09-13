@@ -2,7 +2,7 @@
   "name": "The POT Bot",
   "short_name": "POT Bot",
   "description": "The POT Bot - AI-powered trading signals with camera analysis",
-  "start_url": "/",
+  "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#1a1a2e",
   "theme_color": "#00d4ff",
