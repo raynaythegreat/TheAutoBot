@@ -1,5 +1,5 @@
-// The POT Bot App Controller
-class POTBotApp {
+// The Auto Bot App Controller
+class AutoBotApp {
     constructor() {
         this.isInitialized = false;
         this.currentPage = 'main';
@@ -188,13 +188,13 @@ class POTBotApp {
     }
     
     isCameraActive() {
-        return window.potBotCamera && window.potBotCamera.isActive;
+        return window.autoBotCamera && window.autoBotCamera.isActive;
     }
 }
 
 // Initialize app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    window.potBotApp = new POTBotApp();
+    window.autoBotApp = new AutoBotApp();
 });
 
 // Service Worker Registration

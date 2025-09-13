@@ -1,5 +1,5 @@
-// The POT Bot Service Worker
-const CACHE_NAME = 'pot-bot-v1.0.0';
+// The Auto Bot Service Worker
+const CACHE_NAME = 'auto-bot-v1.0.0';
 const urlsToCache = [
   '/',
   '/index.html',

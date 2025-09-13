@@ -1,5 +1,5 @@
-// The POT Bot Camera Module
-class POTBotCamera {
+// The Auto Bot Camera Module
+class AutoBotCamera {
     constructor() {
         this.video = null;
         this.canvas = null;
@@ -459,5 +459,5 @@ class POTBotCamera {
 
 // Initialize camera when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    window.potBotCamera = new POTBotCamera();
+    window.autoBotCamera = new AutoBotCamera();
 });

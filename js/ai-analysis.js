@@ -1,5 +1,5 @@
-// Enhanced AI Analysis Engine for The POT Bot Trading
-class POTBotAI {
+// Enhanced AI Analysis Engine for The Auto Bot Trading
+class AutoBotAI {
     constructor() {
         this.isInitialized = false;
         this.analysisHistory = [];
@@ -634,7 +634,7 @@ class MovingAverageAnalyzer {
     }
 }
 
-// Initialize The POT Bot AI Engine
+// Initialize The Auto Bot AI Engine
 document.addEventListener('DOMContentLoaded', () => {
-    window.potBotAI = new POTBotAI();
+    window.autoBotAI = new AutoBotAI();
 });

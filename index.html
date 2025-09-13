@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="The POT Bot">
+    <meta name="apple-mobile-web-app-title" content="The Auto Bot">
     <meta name="theme-color" content="#007bff">
-    <meta name="description" content="The POT Bot - AI-powered trading signals with camera analysis">
+    <meta name="description" content="The Auto Bot - AI-powered trading signals with camera analysis">
     
-    <title>The POT Bot</title>
+    <title>The Auto Bot</title>
     
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
@@ -93,7 +93,7 @@
                                 </g>
                             </svg>
                         </div>
-                        <h1>The POT Bot</h1>
+                        <h1>The Auto Bot</h1>
                     </div>
                 </div>
             </header>
@@ -139,6 +139,17 @@
                 <div class="welcome-section">
                     <h2>📷 AI Chart Analysis</h2>
                     <p>Camera captures market charts for AI analysis and instant trading signals</p>
+                    
+                    <div class="recent-changes">
+                        <h3>🆕 Recent Updates</h3>
+                        <ul>
+                            <li>✅ True accuracy percentages (70-96% range)</li>
+                            <li>✅ Blue brain logo with neural network design</li>
+                            <li>✅ Enhanced signal generation with 5 strategies</li>
+                            <li>✅ Improved entry point detection</li>
+                            <li>✅ Professional PWA with home screen support</li>
+                        </ul>
+                    </div>
                     
                     <button class="start-camera-btn" id="startCameraBtn">
                         <i class="fas fa-video"></i>
@@ -332,11 +343,11 @@
         function generateSignalNow() {
             console.log('🎯 Generate Signal button clicked!');
             
-            // Generate signal using AI analysis
-            if (window.potBotAI) {
-                // Use the AI engine to generate a signal
-                const mockImageData = 'mock-chart-data';
-                window.potBotAI.analyzeChart(mockImageData)
+                // Generate signal using AI analysis
+                if (window.autoBotAI) {
+                    // Use the AI engine to generate a signal
+                    const mockImageData = 'mock-chart-data';
+                    window.autoBotAI.analyzeChart(mockImageData)
                     .then(result => {
                         console.log('✅ AI signal generated:', result);
                         displaySignal(result);

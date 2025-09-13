@@ -186,6 +186,48 @@ body {
     margin-bottom: 2rem;
 }
 
+.recent-changes {
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+    border: 1px solid #2196f3;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    box-shadow: 0 4px 15px rgba(33, 150, 243, 0.1);
+}
+
+.recent-changes h3 {
+    color: #1976d2;
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-weight: 600;
+}
+
+.recent-changes ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.recent-changes li {
+    background: rgba(255, 255, 255, 0.8);
+    margin: 0.5rem 0;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border-left: 4px solid #4caf50;
+    font-size: 0.95rem;
+    color: #2e7d32;
+    font-weight: 500;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.recent-changes li:hover {
+    background: rgba(255, 255, 255, 0.95);
+    transform: translateX(5px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
 .features-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
