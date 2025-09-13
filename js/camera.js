@@ -11,9 +11,8 @@ class POTBotCamera {
         // Auto-analysis properties
         this.autoScanEnabled = false;
         this.scanInterval = null;
-        this.fallbackInterval = null;
         this.lastAnalysisTime = 0;
-        this.analysisCooldown = 1000; // 1 second between analyses
+        this.analysisCooldown = 2000; // 2 seconds between analyses
         this.scanIndicator = null;
         
         try {
@@ -88,7 +87,7 @@ class POTBotCamera {
             
             // Update UI
             this.isActive = true;
-            this.updateStatus('Camera ready - Auto-scanning for market charts');
+            this.updateStatus('Camera ready - Scanning for market charts to analyze');
             
             // Start auto-scanning for market detection
             this.startAutoScan();
@@ -591,12 +590,7 @@ class POTBotCamera {
         // Start scanning interval
         this.scanInterval = setInterval(() => {
             this.performAutoScan();
-        }, 500); // Scan every 0.5 seconds
-        
-        // Start fallback interval - analyze every 3 seconds regardless of detection
-        this.fallbackInterval = setInterval(() => {
-            this.performFallbackAnalysis();
-        }, 3000); // Fallback every 3 seconds
+        }, 1000); // Scan every 1 second
     }
     
     stopAutoScan() {
@@ -608,11 +602,6 @@ class POTBotCamera {
         if (this.scanInterval) {
             clearInterval(this.scanInterval);
             this.scanInterval = null;
-        }
-        
-        if (this.fallbackInterval) {
-            clearInterval(this.fallbackInterval);
-            this.fallbackInterval = null;
         }
         
         this.hideScanIndicator();
@@ -680,8 +669,8 @@ class POTBotCamera {
             const chartProbability = chartPixels / totalPixels;
             console.log(`Chart detection probability: ${(chartProbability * 100).toFixed(1)}% (${chartPixels}/${totalPixels} pixels)`);
             
-            // Return true if chart probability is above threshold (very low threshold for testing)
-            return chartProbability > 0.01; // 1% threshold - very aggressive
+            // Return true if chart probability is above threshold
+            return chartProbability > 0.05; // 5% threshold - more selective
             
         } catch (error) {
             console.error('Error detecting market chart:', error);
@@ -820,23 +809,6 @@ class POTBotCamera {
         return testSignal;
     }
     
-    performFallbackAnalysis() {
-        if (!this.isActive || this.isAnalyzing) {
-            console.log('Fallback analysis skipped: camera not active or already analyzing');
-            return;
-        }
-        
-        // Check cooldown
-        const now = Date.now();
-        if (now - this.lastAnalysisTime < this.analysisCooldown) {
-            console.log(`Fallback analysis skipped: cooldown active (${Math.round((this.analysisCooldown - (now - this.lastAnalysisTime)) / 1000)}s remaining)`);
-            return;
-        }
-        
-        console.log('Performing fallback analysis (no chart detection required)...');
-        this.showScanIndicator();
-        this.performAutoAnalysis();
-    }
     
 }
 
