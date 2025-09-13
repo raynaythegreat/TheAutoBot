@@ -1,4 +1,4 @@
-// The POT Bot Camera Module with Auto-Scan
+// The POT Bot Camera Module
 class POTBotCamera {
     constructor() {
         this.video = null;
@@ -8,8 +8,14 @@ class POTBotCamera {
         this.currentSignal = null;
         this.isAnalyzing = false;
         
-        this.initializeElements();
-        this.bindEvents();
+        try {
+            this.initializeElements();
+            this.bindEvents();
+            console.log('POT Bot Camera module initialized successfully');
+        } catch (error) {
+            console.error('Failed to initialize camera module:', error);
+            throw error;
+        }
     }
     
     initializeElements() {
@@ -32,6 +38,21 @@ class POTBotCamera {
         this.entryDescription = document.getElementById('entryDescription');
         this.entryTiming = document.getElementById('entryTiming');
         
+        // Check if all required elements are found
+        const requiredElements = [
+            'video', 'canvas', 'backBtn', 'cameraStatus', 'signalOverlay', 
+            'analysisStatus', 'statusText', 'signalTime', 'actionBadge', 
+            'confidenceScore', 'entryPoint', 'riskLevel', 'timeframe', 
+            'expiration', 'entryDescription', 'entryTiming'
+        ];
+        
+        const missingElements = requiredElements.filter(element => !this[element]);
+        if (missingElements.length > 0) {
+            console.error('Missing required elements:', missingElements);
+            throw new Error(`Missing required elements: ${missingElements.join(', ')}`);
+        }
+        
+        console.log('All camera elements initialized successfully');
     }
     
     bindEvents() {
@@ -59,7 +80,7 @@ class POTBotCamera {
             
             // Update UI
             this.isActive = true;
-            this.updateStatus('Camera ready - Click Analyze Chart to generate signals');
+            this.updateStatus('Camera ready - Viewing mode active');
             
             console.log('Camera started successfully');
             

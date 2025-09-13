@@ -188,7 +188,7 @@ class POTBotApp {
     }
     
     isCameraActive() {
-        return window.pocketOptionCamera && window.pocketOptionCamera.isActive;
+        return window.potBotCamera && window.potBotCamera.isActive;
     }
 }
 
