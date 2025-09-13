@@ -188,6 +188,14 @@ class PocketOptionCamera {
                     <span class="label">Expected Return:</span>
                     <span class="value">${Math.floor(analysis.finalSignal.expectedReturn * 100)}%</span>
                 </div>
+                <div class="detail-item">
+                    <span class="label">Entry Point:</span>
+                    <span class="value">${analysis.finalSignal.entryPoint.description}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Entry Reasoning:</span>
+                    <span class="value">${analysis.finalSignal.entryPoint.reasoning}</span>
+                </div>
             </div>
             
             <div class="strategy-breakdown">

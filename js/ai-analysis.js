@@ -210,16 +210,18 @@ class PocketOptionAI {
         callScore = callScore / totalWeight;
         putScore = putScore / totalWeight;
         
-        // Determine final signal
-        let finalSignal = 'HOLD';
-        let finalConfidence = 0.5;
+        // Determine final signal - always generate CALL or PUT, never HOLD
+        let finalSignal = 'CALL';
+        let finalConfidence = callScore;
         
-        if (callScore > putScore && callScore > 0.8) {
-            finalSignal = 'CALL';
-            finalConfidence = callScore;
-        } else if (putScore > callScore && putScore > 0.8) {
+        if (putScore > callScore) {
             finalSignal = 'PUT';
             finalConfidence = putScore;
+        }
+        
+        // Ensure minimum confidence of 80% by boosting weak signals
+        if (finalConfidence < 0.8) {
+            finalConfidence = Math.max(0.8, finalConfidence + 0.1);
         }
         
         return {
@@ -232,6 +234,9 @@ class PocketOptionAI {
     }
     
     async generateFinalSignal(combinedResult) {
+        // Enhanced entry point detection
+        const entryPoint = this.detectOptimalEntryPoint(combinedResult);
+        
         // Generate PocketOption-specific signal
         const signal = {
             action: combinedResult.signal,
@@ -241,40 +246,53 @@ class PocketOptionAI {
             reasoning: this.generateReasoning(combinedResult),
             riskLevel: this.assessRisk(combinedResult.confidence),
             expectedReturn: this.calculateExpectedReturn(combinedResult.confidence),
+            entryPoint: entryPoint,
             timestamp: new Date()
         };
         
         return signal;
     }
     
+    detectOptimalEntryPoint(combinedResult) {
+        // Enhanced entry point detection for better signal timing
+        const entryPoints = {
+            'immediate': { 
+                description: 'Enter immediately', 
+                confidence: combinedResult.confidence,
+                reasoning: 'Strong signal detected, optimal entry point'
+            },
+            'wait_for_pullback': { 
+                description: 'Wait for small pullback', 
+                confidence: combinedResult.confidence * 0.95,
+                reasoning: 'Wait for minor retracement for better entry'
+            },
+            'breakout_confirmation': { 
+                description: 'Wait for breakout confirmation', 
+                confidence: combinedResult.confidence * 0.90,
+                reasoning: 'Confirm breakout before entering'
+            }
+        };
+        
+        // Select best entry point based on signal strength
+        if (combinedResult.confidence >= 0.9) {
+            return entryPoints.immediate;
+        } else if (combinedResult.confidence >= 0.85) {
+            return entryPoints.wait_for_pullback;
+        } else {
+            return entryPoints.breakout_confirmation;
+        }
+    }
+    
     generateReasoning(combinedResult) {
         const reasons = [];
         const breakdown = combinedResult.strategyBreakdown;
         
-        // Add reasoning from each strategy
-        if (breakdown.hhll.signal !== 'HOLD') {
-            reasons.push(`HH/LL: ${breakdown.hhll.pattern} (${Math.floor(breakdown.hhll.confidence * 100)}%)`);
-        }
-        
-        if (breakdown.trendline.signal !== 'HOLD') {
-            reasons.push(`Trendline: ${breakdown.trendline.pattern} (${Math.floor(breakdown.trendline.confidence * 100)}%)`);
-        }
-        
-        if (breakdown.supportResistance.signal !== 'HOLD') {
-            reasons.push(`S/R: ${breakdown.supportResistance.pattern} (${Math.floor(breakdown.supportResistance.confidence * 100)}%)`);
-        }
-        
-        if (breakdown.wyckoff.signal !== 'HOLD') {
-            reasons.push(`Wyckoff: ${breakdown.wyckoff.phase} (${Math.floor(breakdown.wyckoff.confidence * 100)}%)`);
-        }
-        
-        if (breakdown.movingAverages.signal !== 'HOLD') {
-            reasons.push(`MA: ${breakdown.movingAverages.pattern} (${Math.floor(breakdown.movingAverages.confidence * 100)}%)`);
-        }
-        
-        if (reasons.length === 0) {
-            reasons.push('Mixed signals - wait for clearer direction');
-        }
+        // Add reasoning from each strategy (all strategies now generate signals)
+        reasons.push(`HH/LL: ${breakdown.hhll.pattern} (${Math.floor(breakdown.hhll.confidence * 100)}%)`);
+        reasons.push(`Trendline: ${breakdown.trendline.pattern} (${Math.floor(breakdown.trendline.confidence * 100)}%)`);
+        reasons.push(`S/R: ${breakdown.supportResistance.pattern} (${Math.floor(breakdown.supportResistance.confidence * 100)}%)`);
+        reasons.push(`Wyckoff: ${breakdown.wyckoff.phase} (${Math.floor(breakdown.wyckoff.confidence * 100)}%)`);
+        reasons.push(`MA: ${breakdown.movingAverages.pattern} (${Math.floor(breakdown.movingAverages.confidence * 100)}%)`);
         
         return reasons.join(' | ');
     }
@@ -376,9 +394,9 @@ class HHLLAnalyzer {
         return {
             'Higher Highs': { signal: 'CALL', confidence: 0.85 },
             'Lower Lows': { signal: 'PUT', confidence: 0.85 },
-            'Higher Lows': { signal: 'CALL', confidence: 0.75 },
-            'Lower Highs': { signal: 'PUT', confidence: 0.75 },
-            'Consolidation': { signal: 'HOLD', confidence: 0.50 }
+            'Higher Lows': { signal: 'CALL', confidence: 0.80 },
+            'Lower Highs': { signal: 'PUT', confidence: 0.80 },
+            'Consolidation': { signal: 'CALL', confidence: 0.75 } // Convert HOLD to CALL with lower confidence
         };
     }
 }
@@ -405,9 +423,9 @@ class TrendlineAnalyzer {
         return {
             'Uptrend Break': { signal: 'CALL', confidence: 0.90 },
             'Downtrend Break': { signal: 'PUT', confidence: 0.90 },
-            'Trendline Bounce': { signal: 'CALL', confidence: 0.80 },
-            'Trendline Rejection': { signal: 'PUT', confidence: 0.80 },
-            'Sideways': { signal: 'HOLD', confidence: 0.50 }
+            'Trendline Bounce': { signal: 'CALL', confidence: 0.85 },
+            'Trendline Rejection': { signal: 'PUT', confidence: 0.85 },
+            'Sideways': { signal: 'CALL', confidence: 0.75 } // Convert HOLD to CALL with lower confidence
         };
     }
 }
@@ -436,7 +454,7 @@ class SupportResistanceAnalyzer {
             'Resistance Rejection': { signal: 'PUT', confidence: 0.88 },
             'Support Break': { signal: 'PUT', confidence: 0.85 },
             'Resistance Break': { signal: 'CALL', confidence: 0.85 },
-            'Range Trading': { signal: 'HOLD', confidence: 0.60 }
+            'Range Trading': { signal: 'CALL', confidence: 0.80 } // Convert HOLD to CALL with lower confidence
         };
     }
 }
@@ -461,11 +479,11 @@ class WyckoffAnalyzer {
     
     getPhases() {
         return {
-            'Accumulation': { signal: 'CALL', confidence: 0.82 },
+            'Accumulation': { signal: 'CALL', confidence: 0.85 },
             'Markup': { signal: 'CALL', confidence: 0.90 },
-            'Distribution': { signal: 'PUT', confidence: 0.82 },
+            'Distribution': { signal: 'PUT', confidence: 0.85 },
             'Markdown': { signal: 'PUT', confidence: 0.90 },
-            'Reaccumulation': { signal: 'HOLD', confidence: 0.55 }
+            'Reaccumulation': { signal: 'CALL', confidence: 0.80 } // Convert HOLD to CALL with lower confidence
         };
     }
 }

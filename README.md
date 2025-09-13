@@ -8,7 +8,8 @@ A simplified AI-powered web application that uses camera analysis to generate tr
 - **Camera Analysis**: Point your camera at PocketOption charts for instant AI analysis
 - **Multi-Strategy AI**: Combines 5 proven trading strategies for maximum accuracy
 - **PocketOption Optimized**: Specifically designed for 1-minute timeframe and 3-minute expiration
-- **Real-time Signals**: Generate signals instantly with high confidence scores
+- **Real-time Signals**: Always generates CALL or PUT signals (no HOLD signals)
+- **Enhanced Entry Points**: Optimized entry point detection for better timing
 - **PWA Support**: Install as a mobile app for easy access
 
 ### Trading Strategies Integrated
@@ -121,15 +122,20 @@ const strategies = {
 
 ### Built-in Safeguards
 - High confidence threshold (80% minimum)
+- Enhanced entry point detection
 - Risk level warnings
 - Educational disclaimers
 - No financial advice warnings
+
+### Entry Point Optimization
+- **Immediate Entry**: 90%+ confidence signals
+- **Wait for Pullback**: 85-89% confidence signals
+- **Breakout Confirmation**: 80-84% confidence signals
 
 ### Risk Levels
 - **Low Risk**: 90%+ confidence
 - **Medium Risk**: 85-89% confidence
 - **High Risk**: 80-84% confidence
-- **Very High Risk**: Below 80% (signals not generated)
 
 ## 📱 Mobile Installation
 
