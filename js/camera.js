@@ -28,7 +28,6 @@ class POTBotCamera {
         this.statusText = document.getElementById('statusText');
         
         // Signal overlay elements
-        this.signalAsset = document.getElementById('signalAsset');
         this.signalTime = document.getElementById('signalTime');
         this.actionBadge = document.getElementById('actionBadge');
         this.confidenceScore = document.getElementById('confidenceScore');
@@ -136,30 +135,28 @@ class POTBotCamera {
     }
     
     async performSimpleAnalysis(imageData) {
-        // Enhanced analysis with detailed entry points
+        // Focus on pure signal generation from camera analysis
         await this.delay(2000);
         
-        // Detect asset from chart
-        const detectedAsset = await this.detectAssetFromChart();
-        
-        // Generate analysis result with detailed entry guidance
-        const analysisResult = await this.generateDetailedAnalysis(detectedAsset);
+        // Generate analysis result focused on trading signal quality
+        const analysisResult = await this.generateTradingSignal(imageData);
         
         return analysisResult;
     }
     
-    async generateDetailedAnalysis(asset) {
-        const actions = ['CALL', 'PUT'];
-        const action = actions[Math.floor(Math.random() * actions.length)];
-        const confidence = Math.floor(Math.random() * 20) + 80; // 80-100%
+    async generateTradingSignal(imageData) {
+        // Analyze image characteristics for signal generation
+        const imageAnalysis = this.analyzeImageForSignal(imageData);
+        
+        // Generate signal based on image analysis
+        const signal = this.generateSignalFromAnalysis(imageAnalysis);
         
         // Generate detailed entry point analysis
-        const entryAnalysis = this.generateEntryPointAnalysis(confidence, action);
+        const entryAnalysis = this.generateEntryPointAnalysis(signal.confidence, signal.action);
         
         return {
-            asset: asset,
-            action: action,
-            confidence: confidence,
+            action: signal.action,
+            confidence: signal.confidence,
             entryPoint: entryAnalysis.entryPoint,
             riskLevel: entryAnalysis.riskLevel,
             timeframe: '1min',
@@ -168,6 +165,81 @@ class POTBotCamera {
             entryTiming: entryAnalysis.timing,
             timestamp: new Date()
         };
+    }
+    
+    analyzeImageForSignal(imageData) {
+        // Analyze image characteristics to determine signal quality
+        const canvas = this.canvas;
+        const ctx = canvas.getContext('2d');
+        const imageDataObj = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageDataObj.data;
+        
+        let greenPixels = 0;
+        let redPixels = 0;
+        let totalPixels = 0;
+        let brightness = 0;
+        
+        // Sample pixels to analyze chart characteristics
+        for (let i = 0; i < data.length; i += 16) { // Sample every 4th pixel
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            
+            totalPixels++;
+            brightness += (r + g + b) / 3;
+            
+            // Detect green (bullish) and red (bearish) patterns
+            if (g > r && g > b && g > 100) {
+                greenPixels++;
+            } else if (r > g && r > b && r > 100) {
+                redPixels++;
+            }
+        }
+        
+        const avgBrightness = brightness / totalPixels;
+        const greenRatio = greenPixels / totalPixels;
+        const redRatio = redPixels / totalPixels;
+        
+        return {
+            greenRatio,
+            redRatio,
+            avgBrightness,
+            totalPixels,
+            volatility: Math.abs(greenRatio - redRatio),
+            trendStrength: Math.max(greenRatio, redRatio)
+        };
+    }
+    
+    generateSignalFromAnalysis(imageAnalysis) {
+        const { greenRatio, redRatio, volatility, trendStrength } = imageAnalysis;
+        
+        // Determine signal direction based on image analysis
+        let action, confidence;
+        
+        if (greenRatio > redRatio && greenRatio > 0.1) {
+            // More green pixels detected - bullish signal
+            action = 'CALL';
+            confidence = Math.min(95, 80 + (greenRatio * 100) + (volatility * 50));
+        } else if (redRatio > greenRatio && redRatio > 0.1) {
+            // More red pixels detected - bearish signal
+            action = 'PUT';
+            confidence = Math.min(95, 80 + (redRatio * 100) + (volatility * 50));
+        } else {
+            // Mixed or unclear signals - use trend strength
+            if (trendStrength > 0.15) {
+                action = greenRatio > redRatio ? 'CALL' : 'PUT';
+                confidence = 80 + (trendStrength * 50);
+            } else {
+                // Random signal for unclear patterns
+                action = Math.random() > 0.5 ? 'CALL' : 'PUT';
+                confidence = 80 + Math.random() * 15;
+            }
+        }
+        
+        // Ensure confidence is within bounds
+        confidence = Math.max(80, Math.min(95, Math.round(confidence)));
+        
+        return { action, confidence };
     }
     
     generateEntryPointAnalysis(confidence, action) {
@@ -237,172 +309,9 @@ class POTBotCamera {
         return `${optimalWindow} | Expires: ${expirationTimeStr}`;
     }
     
-    async detectAssetFromChart() {
-        // Enhanced asset detection from chart content
-        if (!this.currentChartCanvas) {
-            return this.getRandomAsset();
-        }
-        
-        try {
-            // Analyze chart for asset symbols and text
-            const detectedAsset = await this.analyzeChartForAsset(this.currentChartCanvas);
-            console.log(`Detected asset: ${detectedAsset}`);
-            return detectedAsset;
-        } catch (error) {
-            console.error('Asset detection failed:', error);
-            return this.getRandomAsset();
-        }
-    }
-    
-    async analyzeChartForAsset(canvas) {
-        // Enhanced asset detection from chart analysis
-        await this.delay(500); // Simulate processing time
-        
-        try {
-            // Analyze chart characteristics to determine asset type
-            const chartCharacteristics = await this.analyzeChartCharacteristics(canvas);
-            
-            // Use characteristics to determine most likely asset
-            const detectedAsset = this.determineAssetFromCharacteristics(chartCharacteristics);
-            
-            console.log(`Chart characteristics:`, chartCharacteristics);
-            console.log(`Detected asset: ${detectedAsset}`);
-            
-            return detectedAsset;
-        } catch (error) {
-            console.error('Chart analysis failed:', error);
-            return this.getTimeBasedAsset();
-        }
-    }
-    
-    async analyzeChartCharacteristics(canvas) {
-        // Analyze chart to determine characteristics
-        const ctx = canvas.getContext('2d');
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imageData.data;
-        
-        let characteristics = {
-            volatility: 0,
-            trendStrength: 0,
-            colorProfile: {},
-            patternType: 'unknown'
-        };
-        
-        // Analyze color distribution
-        let colorCounts = { red: 0, green: 0, blue: 0, white: 0, gray: 0 };
-        let totalPixels = 0;
-        
-        for (let i = 0; i < data.length; i += 4) {
-            const r = data[i];
-            const g = data[i + 1];
-            const b = data[i + 2];
-            
-            // Categorize colors
-            if (r > 200 && g > 200 && b > 200) {
-                colorCounts.white++;
-            } else if (Math.abs(r - g) < 30 && Math.abs(g - b) < 30) {
-                colorCounts.gray++;
-            } else if (g > r && g > b && g > 150) {
-                colorCounts.green++;
-            } else if (r > g && r > b && r > 150) {
-                colorCounts.red++;
-            } else if (b > r && b > g && b > 150) {
-                colorCounts.blue++;
-            }
-            totalPixels++;
-        }
-        
-        // Calculate volatility based on color distribution
-        const volatility = (colorCounts.red + colorCounts.green) / totalPixels;
-        characteristics.volatility = volatility;
-        
-        // Determine trend strength
-        const trendStrength = Math.abs(colorCounts.green - colorCounts.red) / totalPixels;
-        characteristics.trendStrength = trendStrength;
-        
-        // Store color profile
-        characteristics.colorProfile = colorCounts;
-        
-        // Determine pattern type based on characteristics
-        if (volatility > 0.3) {
-            characteristics.patternType = 'volatile';
-        } else if (trendStrength > 0.2) {
-            characteristics.patternType = 'trending';
-        } else {
-            characteristics.patternType = 'ranging';
-        }
-        
-        return characteristics;
-    }
-    
-    determineAssetFromCharacteristics(characteristics) {
-        const currentHour = new Date().getHours();
-        const { volatility, trendStrength, patternType } = characteristics;
-        
-        // Select assets based on chart characteristics and time
-        let assetPool = [];
-        
-        if (patternType === 'volatile') {
-            // High volatility assets
-            assetPool = ['GBP/USD', 'GBP/JPY', 'AUD/USD', 'NZD/USD', 'EUR/GBP'];
-        } else if (patternType === 'trending') {
-            // Trending assets
-            assetPool = ['EUR/USD', 'USD/JPY', 'USD/CAD', 'AUD/USD'];
-        } else {
-            // Ranging assets
-            assetPool = ['EUR/CHF', 'USD/CHF', 'AUD/JPY', 'NZD/JPY'];
-        }
-        
-        // Adjust based on trading session
-        if (currentHour >= 6 && currentHour < 12) {
-            // European session - prefer EUR pairs
-            assetPool = assetPool.filter(asset => asset.includes('EUR') || asset.includes('GBP'));
-            if (assetPool.length === 0) assetPool = ['EUR/USD', 'EUR/GBP', 'EUR/JPY'];
-        } else if (currentHour >= 12 && currentHour < 18) {
-            // US session - prefer USD pairs
-            assetPool = assetPool.filter(asset => asset.includes('USD'));
-            if (assetPool.length === 0) assetPool = ['USD/JPY', 'USD/CAD', 'AUD/USD'];
-        } else if (currentHour >= 18 && currentHour < 24) {
-            // Asian session - prefer JPY pairs
-            assetPool = assetPool.filter(asset => asset.includes('JPY'));
-            if (assetPool.length === 0) assetPool = ['USD/JPY', 'EUR/JPY', 'GBP/JPY'];
-        }
-        
-        // Select from filtered pool
-        return assetPool[Math.floor(Math.random() * assetPool.length)];
-    }
-    
-    getTimeBasedAsset() {
-        // Fallback method based on time of day
-        const currentHour = new Date().getHours();
-        
-        if (currentHour >= 6 && currentHour < 12) {
-            // European session
-            const eurPairs = ['EUR/USD', 'EUR/GBP', 'EUR/JPY', 'EUR/CHF'];
-            return eurPairs[Math.floor(Math.random() * eurPairs.length)];
-        } else if (currentHour >= 12 && currentHour < 18) {
-            // US session
-            const usdPairs = ['USD/JPY', 'USD/CAD', 'USD/CHF', 'AUD/USD'];
-            return usdPairs[Math.floor(Math.random() * usdPairs.length)];
-        } else if (currentHour >= 18 && currentHour < 24) {
-            // Asian session
-            const jpyPairs = ['USD/JPY', 'EUR/JPY', 'GBP/JPY', 'AUD/JPY'];
-            return jpyPairs[Math.floor(Math.random() * jpyPairs.length)];
-        } else {
-            // Off hours
-            const volatilePairs = ['GBP/USD', 'GBP/JPY', 'AUD/USD', 'NZD/USD'];
-            return volatilePairs[Math.floor(Math.random() * volatilePairs.length)];
-        }
-    }
-    
-    getRandomAsset() {
-        const assets = ['EUR/USD', 'GBP/USD', 'USD/JPY', 'AUD/USD', 'USD/CAD', 'NZD/USD', 'EUR/GBP', 'EUR/JPY', 'GBP/JPY', 'AUD/JPY'];
-        return assets[Math.floor(Math.random() * assets.length)];
-    }
     
     displaySignal(analysis) {
         // Update signal overlay with enhanced entry information
-        this.signalAsset.textContent = analysis.asset;
         this.signalTime.textContent = analysis.timestamp.toLocaleTimeString();
         this.actionBadge.textContent = analysis.action;
         this.actionBadge.className = `action-badge ${analysis.action.toLowerCase()}`;
@@ -695,7 +604,6 @@ class POTBotCamera {
         signalCard.className = 'signal-card';
         signalCard.innerHTML = `
             <div class="signal-header">
-                <div class="signal-asset">${analysis.asset}</div>
                 <div class="signal-time">${analysis.timestamp.toLocaleTimeString()}</div>
             </div>
             <div class="signal-action">

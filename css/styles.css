@@ -268,15 +268,9 @@ body {
 
 .signal-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     margin-bottom: 1rem;
-}
-
-.signal-asset {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #007bff;
 }
 
 .signal-time {
@@ -550,15 +544,9 @@ body {
 
 .signal-content .signal-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     margin-bottom: 1rem;
-}
-
-.signal-content .signal-asset {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #00ff88;
 }
 
 .signal-content .signal-time {
