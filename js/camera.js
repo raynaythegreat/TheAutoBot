@@ -29,6 +29,7 @@ class POTBotCamera {
         this.video = document.getElementById('cameraPreview');
         this.canvas = document.getElementById('captureCanvas');
         this.backBtn = document.getElementById('backBtn');
+        this.analyzeChartBtn = document.getElementById('analyzeChartBtn');
         this.cameraStatus = document.getElementById('cameraStatus');
         this.signalOverlay = document.getElementById('signalOverlay');
         this.analysisStatus = document.getElementById('analysisStatus');
@@ -64,6 +65,7 @@ class POTBotCamera {
     
     bindEvents() {
         this.backBtn.addEventListener('click', () => this.goBack());
+        this.analyzeChartBtn.addEventListener('click', () => this.analyzeChart());
     }
     
     async startCamera() {
@@ -87,10 +89,9 @@ class POTBotCamera {
             
             // Update UI
             this.isActive = true;
-            this.updateStatus('Camera ready - Auto-detecting candlesticks for analysis');
+            this.updateStatus('Camera ready - Manual analysis mode');
             
-            // Start auto-scanning for market detection
-            this.startAutoScan();
+            // Don't start auto-scanning - manual mode only
             
             console.log('Camera started successfully');
             
@@ -1126,6 +1127,39 @@ class POTBotCamera {
         console.log('Generated test signal:', testSignal);
         this.displaySignal(testSignal);
         return testSignal;
+    }
+    
+    goBack() {
+        window.potBotApp.showMainPage();
+    }
+    
+    async analyzeChart() {
+        if (!this.isActive) {
+            console.log('Camera not active, cannot analyze');
+            return;
+        }
+        
+        if (this.isAnalyzing) {
+            console.log('Already analyzing, please wait...');
+            return;
+        }
+        
+        console.log('Manual chart analysis triggered');
+        
+        // Check if we're looking at a PocketOption chart
+        const isPocketOptionChart = this.detectMarketChart();
+        
+        if (!isPocketOptionChart) {
+            console.log('❌ No PocketOption chart detected - please point camera at PocketOption chart');
+            this.updateStatus('No PocketOption chart detected - point camera at PocketOption chart');
+            return;
+        }
+        
+        console.log('✅ PocketOption chart detected - starting manual analysis');
+        this.updateStatus('PocketOption chart detected - analyzing...');
+        
+        // Perform the analysis
+        await this.captureAndAnalyze();
     }
     
     
