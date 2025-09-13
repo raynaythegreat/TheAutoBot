@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icon Generator - The POT Bot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #1a1a2e;
+            color: white;
+        }
+        .icon-preview {
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+        }
+        canvas {
+            border: 1px solid #333;
+            margin: 5px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>🤖 The POT Bot - Icon Generator</h1>
+    <p>Click "Generate Icons" to create all required PWA icons:</p>
+    
+    <button onclick="generateAllIcons()">Generate All Icons</button>
+    <button onclick="downloadAllIcons()">Download All Icons</button>
+    
+    <div id="iconPreviews"></div>
+    
+    <script>
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+        const icons = {};
+        
+        function generateAllIcons() {
+            const container = document.getElementById('iconPreviews');
+            container.innerHTML = '';
+            
+            sizes.forEach(size => {
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                
+                // Create gradient background
+                const gradient = ctx.createLinearGradient(0, 0, size, size);
+                gradient.addColorStop(0, '#1a1a2e');
+                gradient.addColorStop(1, '#16213e');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, size, size);
+                
+                // Add border
+                ctx.strokeStyle = '#00d4ff';
+                ctx.lineWidth = size / 32;
+                ctx.strokeRect(0, 0, size, size);
+                
+                // Add robot emoji
+                ctx.font = `${size * 0.6}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = '#00d4ff';
+                ctx.fillText('🤖', size / 2, size / 2);
+                
+                // Add "POT" text
+                ctx.font = `bold ${size * 0.12}px Arial`;
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText('POT', size / 2, size * 0.8);
+                
+                // Store canvas
+                icons[size] = canvas;
+                
+                // Add to preview
+                const preview = document.createElement('div');
+                preview.className = 'icon-preview';
+                preview.innerHTML = `
+                    <canvas width="${size}" height="${size}"></canvas>
+                    <br>${size}x${size}
+                `;
+                preview.querySelector('canvas').getContext('2d').drawImage(canvas, 0, 0);
+                container.appendChild(preview);
+            });
+            
+            console.log('All icons generated!');
+        }
+        
+        function downloadAllIcons() {
+            sizes.forEach(size => {
+                const canvas = icons[size];
+                if (canvas) {
+                    canvas.toBlob(blob => {
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `icon-${size}x${size}.png`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                    });
+                }
+            });
+        }
+        
+        // Auto-generate on load
+        window.onload = generateAllIcons;
+    </script>
+</body>
+</html>
