@@ -183,7 +183,22 @@ body {
 .welcome-section p {
     font-size: 1.2rem;
     color: #6c757d;
+    margin-bottom: 1rem;
+}
+
+.version-indicator {
+    text-align: center;
     margin-bottom: 2rem;
+}
+
+.version-text {
+    background: rgba(0, 123, 255, 0.1);
+    color: #007bff;
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: 1px solid rgba(0, 123, 255, 0.2);
 }
 
 
