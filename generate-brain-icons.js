@@ -1,97 +1,197 @@
 const fs = require('fs');
 const path = require('path');
 
-// Create a simple brain icon generator using canvas-like approach
-function generateBrainIcon(size) {
-    // This is a simplified approach - in a real implementation, you'd use a canvas library
-    // For now, we'll create SVG-based icons that can be converted to PNG
+// The complete blue brain SVG from the main logo
+const brainSVG = `<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="brainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#4A90E2;stop-opacity:1" />
+            <stop offset="50%" style="stop-color:#2E5BBA;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#1E3A8A;stop-opacity:1" />
+        </linearGradient>
+        <filter id="brainShadow">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.2"/>
+        </filter>
+    </defs>
     
-    const svg = `
-<svg width="${size}" height="${size}" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="brainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#4A90E2;stop-opacity:1" />
-      <stop offset="50%" style="stop-color:#2E5BBA;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#1E3A8A;stop-opacity:1" />
-    </linearGradient>
-    <filter id="glow">
-      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-      <feMerge> 
-        <feMergeNode in="coloredBlur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-  </defs>
-  
-  <!-- Brain Background -->
-  <ellipse cx="200" cy="256" rx="120" ry="180" fill="url(#brainGradient)" filter="url(#glow)"/>
-  <ellipse cx="312" cy="256" rx="120" ry="180" fill="url(#brainGradient)" filter="url(#glow)"/>
-  <rect x="200" y="200" width="112" height="112" fill="url(#brainGradient)" filter="url(#glow)"/>
-  
-  <!-- Brain Folds -->
-  <path d="M 100 200 Q 200 150 300 200" stroke="#1E3A8A" stroke-width="8" fill="none"/>
-  <path d="M 100 312 Q 200 362 300 312" stroke="#1E3A8A" stroke-width="8" fill="none"/>
-  <path d="M 212 200 Q 312 150 412 200" stroke="#1E3A8A" stroke-width="8" fill="none"/>
-  <path d="M 212 312 Q 312 362 412 312" stroke="#1E3A8A" stroke-width="8" fill="none"/>
-  
-  <!-- Neural Network -->
-  <g stroke="#60A5FA" stroke-width="3" fill="none">
-    <line x1="150" y1="200" x2="250" y2="300"/>
-    <line x1="180" y1="180" x2="280" y2="280"/>
-    <line x1="220" y1="220" x2="320" y2="320"/>
-    <line x1="160" y1="320" x2="260" y2="220"/>
-    <line x1="190" y1="340" x2="290" y2="240"/>
-    <line x1="230" y1="240" x2="330" y2="340"/>
-  </g>
-  
-  <!-- AI Circuit Nodes -->
-  <g fill="#93C5FD">
-    <circle cx="170" cy="220" r="4"/>
-    <circle cx="200" cy="250" r="4"/>
-    <circle cx="230" cy="280" r="4"/>
-    <circle cx="260" cy="220" r="4"/>
-    <circle cx="290" cy="250" r="4"/>
-    <circle cx="320" cy="280" r="4"/>
-    <circle cx="180" cy="300" r="4"/>
-    <circle cx="210" cy="330" r="4"/>
-    <circle cx="240" cy="200" r="4"/>
-    <circle cx="270" cy="300" r="4"/>
-    <circle cx="300" cy="200" r="4"/>
-    <circle cx="330" cy="330" r="4"/>
-  </g>
-  
-  <!-- Central Processing Unit -->
-  <rect x="240" y="240" width="32" height="32" fill="#1E3A8A" rx="4"/>
-  <rect x="244" y="244" width="24" height="24" fill="#60A5FA" rx="2"/>
-  
-  <!-- Data Flow Lines -->
-  <g stroke="#3B82F6" stroke-width="2" fill="none" opacity="0.7">
-    <path d="M 200 200 Q 256 180 312 200"/>
-    <path d="M 200 312 Q 256 332 312 312"/>
-    <path d="M 150 256 Q 200 256 250 256"/>
-    <path d="M 262 256 Q 312 256 362 256"/>
-  </g>
+    <!-- White Background Circle -->
+    <circle cx="100" cy="100" r="95" fill="white" stroke="#e0e0e0" stroke-width="2"/>
+    
+    <!-- Brain Shape - Left Hemisphere -->
+    <ellipse cx="80" cy="100" rx="45" ry="65" fill="url(#brainGradient)" filter="url(#brainShadow)"/>
+    
+    <!-- Brain Shape - Right Hemisphere -->
+    <ellipse cx="120" cy="100" rx="45" ry="65" fill="url(#brainGradient)" filter="url(#brainShadow)"/>
+    
+    <!-- Brain Connection -->
+    <rect x="80" y="80" width="40" height="40" fill="url(#brainGradient)" filter="url(#brainShadow)"/>
+    
+    <!-- Brain Folds - More Prominent -->
+    <path d="M 35 80 Q 80 55 125 80" stroke="#1E3A8A" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M 35 120 Q 80 145 125 120" stroke="#1E3A8A" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M 65 80 Q 120 55 165 80" stroke="#1E3A8A" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M 65 120 Q 120 145 165 120" stroke="#1E3A8A" stroke-width="4" fill="none" stroke-linecap="round"/>
+    
+    <!-- Neural Network - More Visible -->
+    <g stroke="#60A5FA" stroke-width="3" fill="none" stroke-linecap="round">
+        <line x1="55" y1="80" x2="95" y2="120"/>
+        <line x1="70" y1="70" x2="110" y2="110"/>
+        <line x1="90" y1="90" x2="130" y2="130"/>
+        <line x1="60" y1="120" x2="100" y2="80"/>
+        <line x1="75" y1="130" x2="115" y2="90"/>
+        <line x1="95" y1="90" x2="135" y2="130"/>
+    </g>
+    
+    <!-- AI Circuit Nodes - Larger -->
+    <g fill="#93C5FD">
+        <circle cx="70" cy="90" r="3"/>
+        <circle cx="80" cy="100" r="3"/>
+        <circle cx="90" cy="110" r="3"/>
+        <circle cx="100" cy="90" r="3"/>
+        <circle cx="110" cy="100" r="3"/>
+        <circle cx="120" cy="110" r="3"/>
+        <circle cx="75" cy="120" r="3"/>
+        <circle cx="85" cy="130" r="3"/>
+        <circle cx="95" cy="80" r="3"/>
+        <circle cx="105" cy="120" r="3"/>
+        <circle cx="115" cy="80" r="3"/>
+        <circle cx="125" cy="130" r="3"/>
+    </g>
+    
+    <!-- Central Processing Unit - More Prominent -->
+    <rect x="95" y="95" width="10" height="10" fill="#1E3A8A" rx="2"/>
+    <rect x="97" y="97" width="6" height="6" fill="#60A5FA" rx="1"/>
+    
+    <!-- Data Flow Lines - More Visible -->
+    <g stroke="#3B82F6" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.8">
+        <path d="M 80 80 Q 100 70 120 80"/>
+        <path d="M 80 120 Q 100 130 120 120"/>
+        <path d="M 60 100 Q 80 100 100 100"/>
+        <path d="M 100 100 Q 120 100 140 100"/>
+    </g>
 </svg>`;
 
-    return svg;
-}
+// Icon sizes required for PWA
+const iconSizes = [72, 96, 128, 144, 152, 192, 384, 512];
 
-// Generate icons for all required sizes
-const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+// Create a simple HTML file that can be used to generate PNG icons
+const htmlContent = `<!DOCTYPE html>
+<html>
+<head>
+    <title>Brain Icon Generator</title>
+    <style>
+        body { margin: 0; padding: 20px; background: #f0f0f0; }
+        .icon-container { 
+            display: inline-block; 
+            margin: 10px; 
+            padding: 10px; 
+            background: white; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .icon-container h3 { margin: 0 0 10px 0; text-align: center; }
+        .icon { display: block; margin: 0 auto; }
+    </style>
+</head>
+<body>
+    <h1>The Auto Bot - Brain Icon Generator</h1>
+    <p>Right-click on each icon and "Save image as..." to save as PNG files.</p>
+    
+    ${iconSizes.map(size => `
+        <div class="icon-container">
+            <h3>${size}x${size}</h3>
+            <svg class="icon" width="${size}" height="${size}" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="brainGradient${size}" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#4A90E2;stop-opacity:1" />
+                        <stop offset="50%" style="stop-color:#2E5BBA;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#1E3A8A;stop-opacity:1" />
+                    </linearGradient>
+                    <filter id="brainShadow${size}">
+                        <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.2"/>
+                    </filter>
+                </defs>
+                
+                <!-- White Background Circle -->
+                <circle cx="100" cy="100" r="95" fill="white" stroke="#e0e0e0" stroke-width="2"/>
+                
+                <!-- Brain Shape - Left Hemisphere -->
+                <ellipse cx="80" cy="100" rx="45" ry="65" fill="url(#brainGradient${size})" filter="url(#brainShadow${size})"/>
+                
+                <!-- Brain Shape - Right Hemisphere -->
+                <ellipse cx="120" cy="100" rx="45" ry="65" fill="url(#brainGradient${size})" filter="url(#brainShadow${size})"/>
+                
+                <!-- Brain Connection -->
+                <rect x="80" y="80" width="40" height="40" fill="url(#brainGradient${size})" filter="url(#brainShadow${size})"/>
+                
+                <!-- Brain Folds - More Prominent -->
+                <path d="M 35 80 Q 80 55 125 80" stroke="#1E3A8A" stroke-width="4" fill="none" stroke-linecap="round"/>
+                <path d="M 35 120 Q 80 145 125 120" stroke="#1E3A8A" stroke-width="4" fill="none" stroke-linecap="round"/>
+                <path d="M 65 80 Q 120 55 165 80" stroke="#1E3A8A" stroke-width="4" fill="none" stroke-linecap="round"/>
+                <path d="M 65 120 Q 120 145 165 120" stroke="#1E3A8A" stroke-width="4" fill="none" stroke-linecap="round"/>
+                
+                <!-- Neural Network - More Visible -->
+                <g stroke="#60A5FA" stroke-width="3" fill="none" stroke-linecap="round">
+                    <line x1="55" y1="80" x2="95" y2="120"/>
+                    <line x1="70" y1="70" x2="110" y2="110"/>
+                    <line x1="90" y1="90" x2="130" y2="130"/>
+                    <line x1="60" y1="120" x2="100" y2="80"/>
+                    <line x1="75" y1="130" x2="115" y2="90"/>
+                    <line x1="95" y1="90" x2="135" y2="130"/>
+                </g>
+                
+                <!-- AI Circuit Nodes - Larger -->
+                <g fill="#93C5FD">
+                    <circle cx="70" cy="90" r="3"/>
+                    <circle cx="80" cy="100" r="3"/>
+                    <circle cx="90" cy="110" r="3"/>
+                    <circle cx="100" cy="90" r="3"/>
+                    <circle cx="110" cy="100" r="3"/>
+                    <circle cx="120" cy="110" r="3"/>
+                    <circle cx="75" cy="120" r="3"/>
+                    <circle cx="85" cy="130" r="3"/>
+                    <circle cx="95" cy="80" r="3"/>
+                    <circle cx="105" cy="120" r="3"/>
+                    <circle cx="115" cy="80" r="3"/>
+                    <circle cx="125" cy="130" r="3"/>
+                </g>
+                
+                <!-- Central Processing Unit - More Prominent -->
+                <rect x="95" y="95" width="10" height="10" fill="#1E3A8A" rx="2"/>
+                <rect x="97" y="97" width="6" height="6" fill="#60A5FA" rx="1"/>
+                
+                <!-- Data Flow Lines - More Visible -->
+                <g stroke="#3B82F6" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.8">
+                    <path d="M 80 80 Q 100 70 120 80"/>
+                    <path d="M 80 120 Q 100 130 120 120"/>
+                    <path d="M 60 100 Q 80 100 100 100"/>
+                    <path d="M 100 100 Q 120 100 140 100"/>
+                </g>
+            </svg>
+        </div>
+    `).join('')}
+    
+    <div style="margin-top: 30px; padding: 20px; background: white; border-radius: 10px;">
+        <h2>Instructions:</h2>
+        <ol>
+            <li>Right-click on each icon above</li>
+            <li>Select "Save image as..."</li>
+            <li>Save with the filename: icon-[size]x[size].png (e.g., icon-192x192.png)</li>
+            <li>Save all icons to the assets/icons/ folder</li>
+        </ol>
+        
+        <h3>Required Files:</h3>
+        <ul>
+            ${iconSizes.map(size => `<li>icon-${size}x${size}.png</li>`).join('')}
+        </ul>
+    </div>
+</body>
+</html>`;
 
-// Ensure assets/icons directory exists
-const iconsDir = path.join(__dirname, 'assets', 'icons');
-if (!fs.existsSync(iconsDir)) {
-    fs.mkdirSync(iconsDir, { recursive: true });
-}
+// Write the HTML file
+fs.writeFileSync('generate-brain-icons.html', htmlContent);
 
-// Generate SVG files for each size
-sizes.forEach(size => {
-    const svg = generateBrainIcon(size);
-    const filename = path.join(iconsDir, `icon-${size}x${size}.svg`);
-    fs.writeFileSync(filename, svg);
-    console.log(`Generated icon-${size}x${size}.svg`);
-});
-
-console.log('All brain icons generated successfully!');
-console.log('Note: You may need to convert SVG to PNG for PWA compatibility.');
+console.log('✅ Brain icon generator created: generate-brain-icons.html');
+console.log('📱 Open this file in your browser to generate all required icon sizes');
+console.log('🎯 Each icon will match the main blue brain logo exactly');
+console.log('💾 Save all icons to assets/icons/ folder with proper filenames');
