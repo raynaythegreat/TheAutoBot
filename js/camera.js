@@ -657,24 +657,36 @@ class POTBotCamera {
         }
         
         console.log('Performing auto-scan...');
+        console.log('Camera status:', { isActive: this.isActive, isAnalyzing: this.isAnalyzing });
         
         // Detect if market chart is visible
-        if (this.detectMarketChart()) {
+        const detectionResult = this.detectMarketChart();
+        console.log('Detection result:', detectionResult);
+        
+        if (detectionResult) {
             console.log('✅ Market chart with candlesticks detected, starting analysis...');
             this.showScanIndicator();
             this.performAutoAnalysis();
         } else {
             console.log('❌ No market chart with candlesticks detected in current frame');
+            console.log('❌ Detection failed - check console for detailed analysis');
         }
     }
     
     detectMarketChart() {
-        if (!this.video || !this.video.videoWidth) return false;
+        console.log('🔍 Starting market chart detection...');
+        
+        if (!this.video || !this.video.videoWidth) {
+            console.log('❌ Video not ready:', { video: !!this.video, width: this.video?.videoWidth });
+            return false;
+        }
         
         try {
             // Set canvas size to match video
             this.canvas.width = this.video.videoWidth;
             this.canvas.height = this.video.videoHeight;
+            
+            console.log('📐 Canvas dimensions:', { width: this.canvas.width, height: this.canvas.height });
             
             // Draw current video frame to canvas
             const ctx = this.canvas.getContext('2d');
@@ -684,16 +696,34 @@ class POTBotCamera {
             const imageData = ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
             const data = imageData.data;
             
+            console.log('📊 Image data ready:', { dataLength: data.length, totalPixels: data.length / 4 });
+            
             // Analyze for PocketOption-specific patterns
             const pocketOptionScore = this.analyzePocketOptionPatterns(data, this.canvas.width, this.canvas.height);
             
-            console.log(`PocketOption detection score: ${(pocketOptionScore * 100).toFixed(1)}%`);
+            console.log(`🎯 PocketOption detection score: ${(pocketOptionScore * 100).toFixed(1)}%`);
+            console.log(`🎯 Detection threshold: 5%`);
+            console.log(`🎯 Detection result: ${pocketOptionScore > 0.05 ? 'PASS' : 'FAIL'}`);
             
             // Return true if PocketOption score is above threshold
-            return pocketOptionScore > 0.1; // 10% threshold for PocketOption detection (more sensitive)
+            const threshold = 0.05; // 5% threshold for PocketOption detection (very sensitive)
+            const detectionPassed = pocketOptionScore > threshold;
+            
+            // If detection fails, try a more lenient fallback
+            if (!detectionPassed && pocketOptionScore > 0.02) {
+                console.log('🔄 Trying fallback detection with lower threshold...');
+                // Check if we have any chart-like elements at all
+                const fallbackScore = this.performFallbackDetection(data);
+                if (fallbackScore > 0.03) {
+                    console.log('✅ Fallback detection passed:', (fallbackScore * 100).toFixed(1) + '%');
+                    return true;
+                }
+            }
+            
+            return detectionPassed;
             
         } catch (error) {
-            console.error('Error detecting market chart:', error);
+            console.error('❌ Error detecting market chart:', error);
             return false;
         }
     }
@@ -795,6 +825,30 @@ class POTBotCamera {
         });
         
         return Math.min(pocketOptionScore, 1.0); // Cap at 100%
+    }
+    
+    performFallbackDetection(data) {
+        // Very lenient fallback detection for any chart-like elements
+        let chartLikePixels = 0;
+        let totalPixels = 0;
+        
+        // Sample every 20th pixel for performance
+        for (let i = 0; i < data.length; i += 80) { // 4 bytes per pixel, so 80 = 20 pixels
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            
+            totalPixels++;
+            
+            // Very lenient detection - any bright colors or dark backgrounds
+            if (r > 80 || g > 80 || b > 80 || (r < 100 && g < 100 && b < 100)) {
+                chartLikePixels++;
+            }
+        }
+        
+        const fallbackScore = chartLikePixels / totalPixels;
+        console.log('🔄 Fallback detection score:', (fallbackScore * 100).toFixed(1) + '%');
+        return fallbackScore;
     }
     
     detectCandlestickPatterns(data, width, height) {
