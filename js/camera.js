@@ -1,5 +1,5 @@
-// Simplified PocketOption Camera Module with Auto-Scan
-class PocketOptionCamera {
+// The POT Bot Camera Module with Auto-Scan
+class POTBotCamera {
     constructor() {
         this.video = null;
         this.canvas = null;
@@ -752,5 +752,5 @@ class PocketOptionCamera {
 
 // Initialize camera when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    window.pocketOptionCamera = new PocketOptionCamera();
+    window.potBotCamera = new POTBotCamera();
 });

@@ -1,5 +1,5 @@
-// PocketOption AI Signals Service Worker
-const CACHE_NAME = 'pocketoption-ai-v1.0.0';
+// The POT Bot Service Worker
+const CACHE_NAME = 'pot-bot-v1.0.0';
 const urlsToCache = [
   '/',
   '/index.html',

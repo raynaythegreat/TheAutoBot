@@ -1,7 +1,7 @@
 {
-  "name": "PocketOption AI Signals",
-  "short_name": "PocketOption AI",
-  "description": "AI-powered trading signals for PocketOption with camera analysis",
+  "name": "The POT Bot",
+  "short_name": "POT Bot",
+  "description": "The POT Bot - AI-powered trading signals with camera analysis",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1a1a2e",

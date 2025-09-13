@@ -1,5 +1,5 @@
-// Simplified PocketOption App Controller
-class PocketOptionApp {
+// The POT Bot App Controller
+class POTBotApp {
     constructor() {
         this.isInitialized = false;
         this.currentPage = 'main';
@@ -9,7 +9,7 @@ class PocketOptionApp {
     
     async initializeApp() {
         try {
-            console.log('Initializing PocketOption AI Signals App...');
+            console.log('Initializing The POT Bot...');
             
             // Check for required APIs
             await this.checkRequirements();
@@ -21,7 +21,7 @@ class PocketOptionApp {
             this.bindGlobalEvents();
             
             this.isInitialized = true;
-            console.log('PocketOption AI Signals App initialized successfully');
+            console.log('The POT Bot initialized successfully');
             
         } catch (error) {
             console.error('Failed to initialize app:', error);
@@ -62,13 +62,13 @@ class PocketOptionApp {
     async waitForCameraModule() {
         // Wait for Camera module
         let attempts = 0;
-        while (!window.pocketOptionCamera && attempts < 50) {
+        while (!window.potBotCamera && attempts < 50) {
             await new Promise(resolve => setTimeout(resolve, 100));
             attempts++;
         }
         
-        if (!window.pocketOptionCamera) {
-            throw new Error('PocketOption Camera module not loaded');
+        if (!window.potBotCamera) {
+            throw new Error('POT Bot Camera module not loaded');
         }
         
         console.log('Camera module loaded successfully');
@@ -108,8 +108,8 @@ class PocketOptionApp {
             
             // Start camera after a short delay to ensure page is visible
             setTimeout(() => {
-                if (window.pocketOptionCamera) {
-                    window.pocketOptionCamera.startCamera();
+                if (window.potBotCamera) {
+                    window.potBotCamera.startCamera();
                 }
             }, 100);
             
@@ -180,7 +180,7 @@ class PocketOptionApp {
 
 // Initialize app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    window.pocketOptionApp = new PocketOptionApp();
+    window.potBotApp = new POTBotApp();
 });
 
 // Service Worker Registration

@@ -1,5 +1,5 @@
-// Enhanced AI Analysis Engine for PocketOption Trading
-class PocketOptionAI {
+// Enhanced AI Analysis Engine for The POT Bot Trading
+class POTBotAI {
     constructor() {
         this.isInitialized = false;
         this.analysisHistory = [];
@@ -517,7 +517,7 @@ class MovingAverageAnalyzer {
     }
 }
 
-// Initialize PocketOption AI Engine
+// Initialize The POT Bot AI Engine
 document.addEventListener('DOMContentLoaded', () => {
-    window.pocketOptionAI = new PocketOptionAI();
+    window.potBotAI = new POTBotAI();
 });

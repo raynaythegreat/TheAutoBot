@@ -1,4 +1,4 @@
-# PocketOption AI Signals Generator
+# The POT Bot
 
 A simplified AI-powered web application that uses camera analysis to generate trading signals specifically optimized for PocketOption's 1-minute timeframe and 3-minute expiration trades.
 
