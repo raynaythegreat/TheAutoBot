@@ -103,9 +103,7 @@ class POTBotCamera {
     
     async captureAndAnalyze() {
         if (!this.isActive) {
-            console.log('Camera not active, generating fallback signal...');
-            const fallbackSignal = this.generateFallbackSignal();
-            this.displaySignal(fallbackSignal);
+            console.log('Camera not active, skipping analysis');
             return;
         }
         
@@ -124,22 +122,21 @@ class POTBotCamera {
             // Perform simplified AI analysis
             const analysisResult = await this.performSimpleAnalysis(imageData);
             
-            // Display results
-            this.displaySignal(analysisResult);
+            // Only display results if we have a valid signal
+            if (analysisResult && analysisResult.confidence >= 80) {
+                this.displaySignal(analysisResult);
+                console.log('Analysis completed with valid signal:', analysisResult);
+            } else {
+                console.log('Analysis completed but no valid signal generated');
+            }
             
             // Hide analysis status
             this.hideAnalysisStatus();
             
-            console.log('Analysis completed:', analysisResult);
-            
         } catch (error) {
             console.error('Analysis failed:', error);
             this.hideAnalysisStatus();
-            
-            // Generate fallback signal instead of showing error
-            console.log('Generating fallback signal due to analysis failure...');
-            const fallbackSignal = this.generateFallbackSignal();
-            this.displaySignal(fallbackSignal);
+            console.log('Analysis failed, no signal generated');
         }
     }
     
@@ -189,18 +186,32 @@ class POTBotCamera {
             return analysisResult;
         } catch (error) {
             console.error('Simple analysis failed:', error);
-            // Return fallback signal instead of throwing error
-            console.log('Returning fallback signal due to analysis failure...');
-            return this.generateFallbackSignal();
+            console.log('Analysis failed, no signal generated');
+            return null;
         }
     }
     
     async generateTradingSignal(imageData) {
         try {
-            console.log('Generating trading signal...');
+            console.log('Generating trading signal from market detection...');
             
-            // Simplified analysis - just generate a signal based on current time and random factors
-            const signal = this.generateSimpleSignal();
+            // Only generate signals if we have actual image data from market detection
+            if (!imageData) {
+                console.log('No image data available, skipping signal generation');
+                return null;
+            }
+            
+            // Analyze the actual captured market image
+            const imageAnalysis = this.analyzeImageForSignal(imageData);
+            
+            // Generate signal based on real market analysis
+            const signal = this.generateSignalFromAnalysis(imageAnalysis);
+            
+            // Only proceed if we have a valid signal with good confidence
+            if (signal.confidence < 80) {
+                console.log('Signal confidence too low, skipping signal generation');
+                return null;
+            }
             
             // Generate detailed entry point analysis
             const entryAnalysis = this.generateEntryPointAnalysis(signal.confidence, signal.action);
@@ -217,13 +228,12 @@ class POTBotCamera {
                 timestamp: new Date()
             };
             
-            console.log('Trading signal generated successfully:', result);
+            console.log('Accurate trading signal generated from market detection:', result);
             return result;
         } catch (error) {
             console.error('Trading signal generation failed:', error);
-            // Return fallback signal instead of throwing error
-            console.log('Returning fallback signal due to trading signal generation failure...');
-            return this.generateFallbackSignal();
+            console.log('Skipping signal generation due to analysis failure');
+            return null;
         }
     }
     
@@ -269,12 +279,13 @@ class POTBotCamera {
         const imageDataObj = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const data = imageDataObj.data;
         
-        console.log('Analyzing image data:', { width: canvas.width, height: canvas.height, dataLength: data.length });
+        console.log('Analyzing market image data:', { width: canvas.width, height: canvas.height, dataLength: data.length });
         
         let greenPixels = 0;
         let redPixels = 0;
         let totalPixels = 0;
         let brightness = 0;
+        let chartPixels = 0;
         
         // Sample pixels to analyze chart characteristics
         for (let i = 0; i < data.length; i += 16) { // Sample every 4th pixel
@@ -285,22 +296,29 @@ class POTBotCamera {
             totalPixels++;
             brightness += (r + g + b) / 3;
             
-            // Detect green (bullish) and red (bearish) patterns
-            if (g > r && g > b && g > 100) {
-                greenPixels++;
-            } else if (r > g && r > b && r > 100) {
-                redPixels++;
+            // Detect chart-like colors
+            if (this.isChartColor(r, g, b)) {
+                chartPixels++;
+                
+                // Detect green (bullish) and red (bearish) patterns
+                if (g > r && g > b && g > 120) {
+                    greenPixels++;
+                } else if (r > g && r > b && r > 120) {
+                    redPixels++;
+                }
             }
         }
         
         const avgBrightness = brightness / totalPixels;
         const greenRatio = greenPixels / totalPixels;
         const redRatio = redPixels / totalPixels;
+        const chartRatio = chartPixels / totalPixels;
         
-        console.log('Image analysis results:', { 
-            greenPixels, redPixels, totalPixels, 
+        console.log('Market image analysis results:', { 
+            greenPixels, redPixels, chartPixels, totalPixels, 
             greenRatio: (greenRatio * 100).toFixed(1) + '%', 
             redRatio: (redRatio * 100).toFixed(1) + '%',
+            chartRatio: (chartRatio * 100).toFixed(1) + '%',
             avgBrightness: avgBrightness.toFixed(1)
         });
         
@@ -309,59 +327,51 @@ class POTBotCamera {
             redRatio,
             avgBrightness,
             totalPixels,
+            chartRatio,
             volatility: Math.abs(greenRatio - redRatio),
             trendStrength: Math.max(greenRatio, redRatio)
         };
     }
     
     generateSignalFromAnalysis(imageAnalysis) {
-        const { greenRatio, redRatio, volatility, trendStrength } = imageAnalysis;
-        console.log('Generating signal from analysis:', { greenRatio, redRatio, volatility, trendStrength });
+        const { greenRatio, redRatio, volatility, trendStrength, chartRatio } = imageAnalysis;
+        console.log('Generating signal from market analysis:', { greenRatio, redRatio, volatility, trendStrength, chartRatio });
         
-        // Determine signal direction based on image analysis
+        // Only generate signals if we have sufficient chart data
+        if (chartRatio < 0.1) {
+            console.log('Insufficient chart data detected, skipping signal generation');
+            return null;
+        }
+        
+        // Determine signal direction based on market analysis
         let action, confidence;
         
-        if (greenRatio > redRatio && greenRatio > 0.1) {
-            // More green pixels detected - bullish signal
+        if (greenRatio > redRatio && greenRatio > 0.05) {
+            // Clear green dominance - bullish signal
             action = 'CALL';
-            confidence = Math.min(95, 80 + (greenRatio * 100) + (volatility * 50));
-            console.log('Bullish signal detected (green dominance)');
-        } else if (redRatio > greenRatio && redRatio > 0.1) {
-            // More red pixels detected - bearish signal
+            confidence = Math.min(95, 85 + (greenRatio * 100) + (volatility * 30));
+            console.log('Bullish signal detected (clear green dominance)');
+        } else if (redRatio > greenRatio && redRatio > 0.05) {
+            // Clear red dominance - bearish signal
             action = 'PUT';
-            confidence = Math.min(95, 80 + (redRatio * 100) + (volatility * 50));
-            console.log('Bearish signal detected (red dominance)');
+            confidence = Math.min(95, 85 + (redRatio * 100) + (volatility * 30));
+            console.log('Bearish signal detected (clear red dominance)');
         } else {
-            // Mixed or unclear signals - use trend strength
-            if (trendStrength > 0.1) {
+            // Mixed or unclear signals - require higher threshold
+            if (trendStrength > 0.15) {
                 action = greenRatio > redRatio ? 'CALL' : 'PUT';
-                confidence = 80 + (trendStrength * 50);
-                console.log('Signal based on trend strength');
+                confidence = 85 + (trendStrength * 30);
+                console.log('Signal based on strong trend');
             } else {
-                // Generate signal based on overall image characteristics
-                if (imageAnalysis.avgBrightness > 150) {
-                    // Bright image - likely bullish
-                    action = 'CALL';
-                    confidence = 82;
-                    console.log('Bright image - bullish signal');
-                } else if (imageAnalysis.avgBrightness < 100) {
-                    // Dark image - likely bearish
-                    action = 'PUT';
-                    confidence = 82;
-                    console.log('Dark image - bearish signal');
-                } else {
-                    // Random signal for unclear patterns
-                    action = Math.random() > 0.5 ? 'CALL' : 'PUT';
-                    confidence = 80 + Math.random() * 15;
-                    console.log('Random signal for unclear pattern');
-                }
+                console.log('Insufficient market clarity, skipping signal generation');
+                return null;
             }
         }
         
-        // Ensure confidence is within bounds
-        confidence = Math.max(80, Math.min(95, Math.round(confidence)));
+        // Ensure confidence is within bounds and meets minimum threshold
+        confidence = Math.max(85, Math.min(95, Math.round(confidence)));
         
-        console.log('Generated signal:', { action, confidence });
+        console.log('Generated accurate market signal:', { action, confidence });
         return { action, confidence };
     }
     
@@ -723,11 +733,7 @@ class POTBotCamera {
             
         } catch (error) {
             console.error('Auto-analysis failed:', error);
-            
-            // Fallback: Generate a basic signal even if analysis fails
-            console.log('Generating fallback signal...');
-            const fallbackSignal = this.generateFallbackSignal();
-            this.displaySignal(fallbackSignal);
+            console.log('Auto-analysis failed, no signal generated');
             
         } finally {
             this.isAnalyzing = false;
