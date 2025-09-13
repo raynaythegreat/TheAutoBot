@@ -133,27 +133,27 @@ class POTBotApp {
     }
     
     openPocketOption() {
-        const url = 'https://pocketoption.com/en/trade';
+        const url = 'https://pocket-friends.com/r/k9fb7vp1y9';
         window.open(url, '_blank');
-        this.showNotification('Opening PocketOption...');
+        this.showNotification('Opening Pocket Option registration...');
     }
     
     onAppHidden() {
         console.log('App hidden');
-        if (this.currentPage === 'camera' && window.pocketOptionCamera && window.pocketOptionCamera.isActive) {
+        if (this.currentPage === 'camera' && window.potBotCamera && window.potBotCamera.isActive) {
             // Pause camera when app is hidden
-            if (window.pocketOptionCamera.stream) {
-                window.pocketOptionCamera.stream.getTracks().forEach(track => track.enabled = false);
+            if (window.potBotCamera.stream) {
+                window.potBotCamera.stream.getTracks().forEach(track => track.enabled = false);
             }
         }
     }
     
     onAppVisible() {
         console.log('App visible');
-        if (this.currentPage === 'camera' && window.pocketOptionCamera && window.pocketOptionCamera.isActive) {
+        if (this.currentPage === 'camera' && window.potBotCamera && window.potBotCamera.isActive) {
             // Resume camera when app is visible
-            if (window.pocketOptionCamera.stream) {
-                window.pocketOptionCamera.stream.getTracks().forEach(track => track.enabled = true);
+            if (window.potBotCamera.stream) {
+                window.potBotCamera.stream.getTracks().forEach(track => track.enabled = true);
             }
         }
     }
