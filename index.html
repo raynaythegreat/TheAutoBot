@@ -15,7 +15,7 @@
     <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
     <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192x192.png">
     
-    <link rel="stylesheet" href="css/styles.css?v=20241220g">
+    <link rel="stylesheet" href="css/styles.css?v=20241220i">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <!-- Cache busting meta tags -->
@@ -148,21 +148,6 @@
                     <h2>📷 AI Chart Analysis</h2>
                     <p>Camera captures market charts for AI analysis and instant trading signals</p>
                     
-                    <div class="recent-changes">
-                        <h3>🆕 Recent Updates</h3>
-                        <div class="version-info">
-                            <span class="version-badge">v1.0.2</span>
-                            <span class="version-date">Updated: Dec 20, 2024</span>
-                        </div>
-                        <ul>
-                            <li>✅ True accuracy percentages (70-96% range)</li>
-                            <li>✅ Blue brain logo with neural network design</li>
-                            <li>✅ Enhanced signal generation with 5 strategies</li>
-                            <li>✅ Improved entry point detection</li>
-                            <li>✅ Professional PWA with home screen support</li>
-                            <li>✅ Synchronized web and webapp versions</li>
-                        </ul>
-                    </div>
                     
                     <button class="start-camera-btn" id="startCameraBtn">
                         <i class="fas fa-video"></i>
@@ -350,9 +335,9 @@
     </div>
 
     <!-- Scripts -->
-    <script src="js/app.js?v=20241220g"></script>
-    <script src="js/camera.js?v=20241220g"></script>
-    <script src="js/ai-analysis.js?v=20241220g"></script>
+    <script src="js/app.js?v=20241220i"></script>
+    <script src="js/camera.js?v=20241220i"></script>
+    <script src="js/ai-analysis.js?v=20241220i"></script>
     
     <!-- Signal Generation Function -->
     <script>
@@ -369,23 +354,60 @@
         function generateSignalNow() {
             console.log('🎯 Generate Signal button clicked!');
             
-                // Generate signal using AI analysis
-                if (window.autoBotAI) {
-                    // Use the AI engine to generate a signal
-                    const mockImageData = 'mock-chart-data';
-                    window.autoBotAI.analyzeChart(mockImageData)
-                    .then(result => {
-                        console.log('✅ AI signal generated:', result);
-                        displaySignal(result);
-                    })
-                    .catch(error => {
-                        console.error('❌ AI analysis failed:', error);
-                        // Fallback to simple signal generation
-                        generateFallbackSignal();
-                    });
+            // Check if camera is active and has video stream
+            const video = document.getElementById('cameraPreview');
+            if (!video || !video.srcObject || !video.srcObject.active) {
+                console.warn('⚠️ Camera not active - cannot generate signal without market data');
+                alert('Please start the camera first to capture market data for analysis.');
+                return;
+            }
+            
+            // Capture current frame from camera
+            const canvas = document.getElementById('captureCanvas');
+            if (!canvas) {
+                console.error('❌ Capture canvas not found');
+                alert('Camera capture not available. Please refresh the page.');
+                return;
+            }
+            
+            // Set canvas size to match video
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            // Draw current video frame to canvas
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Get image data for analysis
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            
+            // Check if we have valid image data
+            if (!imageData || imageData.data.length === 0) {
+                console.warn('⚠️ No image data captured from camera');
+                alert('Failed to capture market data. Please ensure camera is pointing at a chart.');
+                return;
+            }
+            
+            console.log('📸 Market data captured from camera:', {
+                width: canvas.width,
+                height: canvas.height,
+                dataLength: imageData.data.length
+            });
+            
+            // Generate signal using AI analysis with real camera data
+            if (window.autoBotAI) {
+                window.autoBotAI.analyzeChart(imageData)
+                .then(result => {
+                    console.log('✅ AI signal generated from camera data:', result);
+                    displaySignal(result);
+                })
+                .catch(error => {
+                    console.error('❌ AI analysis failed:', error);
+                    alert('Analysis failed. Please ensure camera is pointing at a valid market chart.');
+                });
             } else {
-                // Fallback if AI engine not available
-                generateFallbackSignal();
+                console.error('❌ AI engine not available');
+                alert('AI analysis engine not available. Please refresh the page.');
             }
         }
         

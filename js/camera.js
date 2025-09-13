@@ -38,21 +38,23 @@ class AutoBotCamera {
         this.entryDescription = document.getElementById('entryDescription');
         this.entryTiming = document.getElementById('entryTiming');
         
-        // Check if all required elements are found
-        const requiredElements = [
-            'video', 'canvas', 'backBtn', 'cameraStatus', 'signalOverlay', 
-            'analysisStatus', 'statusText', 'signalTime', 'actionBadge', 
-            'confidenceScore', 'entryPoint', 'riskLevel', 'timeframe', 
-            'expiration', 'entryDescription', 'entryTiming'
-        ];
+        // Check if core required elements are found
+        const coreElements = ['video', 'canvas', 'backBtn', 'cameraStatus', 'signalOverlay'];
+        const missingCoreElements = coreElements.filter(element => !this[element]);
         
-        const missingElements = requiredElements.filter(element => !this[element]);
-        if (missingElements.length > 0) {
-            console.error('Missing required elements:', missingElements);
-            throw new Error(`Missing required elements: ${missingElements.join(', ')}`);
+        if (missingCoreElements.length > 0) {
+            console.error('Missing core camera elements:', missingCoreElements);
+            throw new Error(`Missing required camera elements: ${missingCoreElements.join(', ')}`);
         }
         
-        console.log('All camera elements initialized successfully');
+        // Log missing optional elements
+        const optionalElements = ['analysisStatus', 'statusText', 'signalTime', 'actionBadge', 'confidenceScore', 'entryPoint', 'riskLevel', 'timeframe', 'expiration', 'entryDescription', 'entryTiming'];
+        const missingOptionalElements = optionalElements.filter(element => !this[element]);
+        if (missingOptionalElements.length > 0) {
+            console.warn('Missing optional signal elements:', missingOptionalElements);
+        }
+        
+        console.log('Camera elements initialized successfully');
     }
     
     bindEvents() {
@@ -457,7 +459,24 @@ class AutoBotCamera {
     }
 }
 
-// Initialize camera when DOM is loaded
+// Initialize camera when DOM is loaded with retry mechanism
 document.addEventListener('DOMContentLoaded', () => {
-    window.autoBotCamera = new AutoBotCamera();
+    // Wait a bit for all elements to be ready
+    setTimeout(() => {
+        try {
+            window.autoBotCamera = new AutoBotCamera();
+            console.log('✅ Auto Bot Camera module loaded successfully');
+        } catch (error) {
+            console.error('❌ Failed to initialize camera module:', error);
+            // Retry after a longer delay
+            setTimeout(() => {
+                try {
+                    window.autoBotCamera = new AutoBotCamera();
+                    console.log('✅ Auto Bot Camera module loaded on retry');
+                } catch (retryError) {
+                    console.error('❌ Camera module failed on retry:', retryError);
+                }
+            }, 1000);
+        }
+    }, 100);
 });
