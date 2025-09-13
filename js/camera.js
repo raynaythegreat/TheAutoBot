@@ -736,6 +736,8 @@ class POTBotCamera {
         let redCandlestickPixels = 0;
         let lightBluePixels = 0;
         let gridLinePixels = 0;
+        let tradingPanelPixels = 0;
+        let priceLabelPixels = 0;
         
         // Sample pixels for analysis
         for (let i = 0; i < data.length; i += 40) { // Sample every 10th pixel
@@ -753,16 +755,22 @@ class POTBotCamera {
                 if (r < 80 && g < 80 && b < 80) {
                     darkBackgroundPixels++; // Dark background
                 } else if (g > 100 && g > r + 20 && g > b + 20) {
-                    greenCandlestickPixels++; // Green candlesticks (flexible)
+                    greenCandlestickPixels++; // Green candlesticks
                 } else if (r > 100 && r > g + 20 && r > b + 20) {
-                    redCandlestickPixels++; // Red candlesticks (flexible)
+                    redCandlestickPixels++; // Red candlesticks
                 } else if (b > 80 && b > r + 15 && b > g + 15) {
-                    lightBluePixels++; // Blue elements
+                    lightBluePixels++; // Blue elements (price indicators)
                 } else if (r > 60 && g > 60 && b > 60 && r < 200 && g < 200 && b < 200) {
                     gridLinePixels++; // Grid lines
+                } else if (r > 200 && g > 200 && b > 200) {
+                    priceLabelPixels++; // White price labels
                 }
             }
         }
+        
+        // Look for PocketOption trading panel characteristics
+        const tradingPanelScore = this.detectTradingPanel(data, width, height);
+        tradingPanelPixels = tradingPanelScore * totalPixels;
         
         // Calculate PocketOption-specific score
         const baseScore = pocketOptionPixels / totalPixels;
@@ -770,20 +778,25 @@ class POTBotCamera {
         const candlestickRatio = (greenCandlestickPixels + redCandlestickPixels) / totalPixels;
         const lightBlueRatio = lightBluePixels / totalPixels;
         const gridRatio = gridLinePixels / totalPixels;
+        const tradingPanelRatio = tradingPanelPixels / totalPixels;
+        const priceLabelRatio = priceLabelPixels / totalPixels;
         
         // Boost score if we detect PocketOption characteristics
         let pocketOptionScore = baseScore;
         let hasCandlesticks = false;
+        let hasPocketOptionElements = false;
         
         // Dark background is essential for PocketOption
         if (darkBackgroundRatio > 0.3) {
             pocketOptionScore += 0.1;
+            hasPocketOptionElements = true;
         }
         
-        // Candlesticks are REQUIRED - no signal without them (more sensitive threshold)
+        // Candlesticks are REQUIRED - no signal without them
         if (candlestickRatio > 0.02) {
             pocketOptionScore += 0.15;
             hasCandlesticks = true;
+            hasPocketOptionElements = true;
         }
         
         // Additional candlestick pattern detection for PocketOption
@@ -791,28 +804,51 @@ class POTBotCamera {
         if (candlestickPatterns > 0) {
             pocketOptionScore += 0.1;
             hasCandlesticks = true;
+            hasPocketOptionElements = true;
             console.log('✅ PocketOption candlestick patterns detected:', candlestickPatterns);
         }
         
-        // Light blue elements (price indicators, lines)
+        // Light blue elements (price indicators, lines) - PocketOption specific
         if (lightBlueRatio > 0.01) {
             pocketOptionScore += 0.1;
+            hasPocketOptionElements = true;
         }
         
         // Grid lines are common in PocketOption
         if (gridRatio > 0.05) {
             pocketOptionScore += 0.05;
+            hasPocketOptionElements = true;
         }
         
-        // CRITICAL: Only return positive score if candlesticks are detected
+        // Trading panel detection - very specific to PocketOption
+        if (tradingPanelRatio > 0.02) {
+            pocketOptionScore += 0.2;
+            hasPocketOptionElements = true;
+            console.log('✅ PocketOption trading panel detected');
+        }
+        
+        // Price labels - specific to PocketOption
+        if (priceLabelRatio > 0.01) {
+            pocketOptionScore += 0.05;
+            hasPocketOptionElements = true;
+        }
+        
+        // CRITICAL: Only return positive score if BOTH candlesticks AND PocketOption elements are detected
         if (!hasCandlesticks) {
             console.log('❌ NO CANDLESTICKS DETECTED - candlestick ratio:', (candlestickRatio * 100).toFixed(1) + '% (required: 2%+)');
             console.log('❌ NOT A VALID TRADING CHART - no signals will be generated');
             return 0; // Force detection failure if no candlesticks
-        } else {
-            console.log('✅ CANDLESTICKS DETECTED - candlestick ratio:', (candlestickRatio * 100).toFixed(1) + '%');
-            console.log('✅ VALID TRADING CHART - signals may be generated');
         }
+        
+        if (!hasPocketOptionElements) {
+            console.log('❌ NO POCKETOPTION ELEMENTS DETECTED - not a PocketOption chart');
+            console.log('❌ NOT A POCKETOPTION CHART - no signals will be generated');
+            return 0; // Force detection failure if no PocketOption elements
+        }
+        
+        console.log('✅ CANDLESTICKS DETECTED - candlestick ratio:', (candlestickRatio * 100).toFixed(1) + '%');
+        console.log('✅ POCKETOPTION ELEMENTS DETECTED - valid PocketOption chart');
+        console.log('✅ VALID POCKETOPTION TRADING CHART - signals may be generated');
         
         console.log('PocketOption pattern analysis:', {
             baseScore: (baseScore * 100).toFixed(1) + '%',
@@ -820,7 +856,10 @@ class POTBotCamera {
             candlesticks: (candlestickRatio * 100).toFixed(1) + '%',
             lightBlue: (lightBlueRatio * 100).toFixed(1) + '%',
             gridLines: (gridRatio * 100).toFixed(1) + '%',
+            tradingPanel: (tradingPanelRatio * 100).toFixed(1) + '%',
+            priceLabels: (priceLabelRatio * 100).toFixed(1) + '%',
             hasCandlesticks: hasCandlesticks,
+            hasPocketOptionElements: hasPocketOptionElements,
             finalScore: (pocketOptionScore * 100).toFixed(1) + '%'
         });
         
@@ -849,6 +888,38 @@ class POTBotCamera {
         const fallbackScore = chartLikePixels / totalPixels;
         console.log('🔄 Fallback detection score:', (fallbackScore * 100).toFixed(1) + '%');
         return fallbackScore;
+    }
+    
+    detectTradingPanel(data, width, height) {
+        // Look for PocketOption trading panel characteristics
+        let tradingPanelPixels = 0;
+        let totalPixels = 0;
+        
+        // Focus on right side of screen where trading panel typically appears
+        const rightSideStart = Math.floor(width * 0.7); // Start from 70% of width
+        
+        for (let y = 0; y < height; y += 20) {
+            for (let x = rightSideStart; x < width; x += 20) {
+                const pixelIndex = (y * width + x) * 4;
+                const r = data[pixelIndex];
+                const g = data[pixelIndex + 1];
+                const b = data[pixelIndex + 2];
+                
+                totalPixels++;
+                
+                // Look for trading panel colors (dark backgrounds, green/red buttons, white text)
+                if ((r < 100 && g < 100 && b < 100) || // Dark backgrounds
+                    (g > 120 && g > r + 30 && g > b + 30) || // Green buttons
+                    (r > 120 && r > g + 30 && r > b + 30) || // Red buttons
+                    (r > 200 && g > 200 && b > 200)) { // White text
+                    tradingPanelPixels++;
+                }
+            }
+        }
+        
+        const tradingPanelRatio = tradingPanelPixels / totalPixels;
+        console.log('🎛️ Trading panel detection:', (tradingPanelRatio * 100).toFixed(1) + '%');
+        return tradingPanelRatio;
     }
     
     detectCandlestickPatterns(data, width, height) {
