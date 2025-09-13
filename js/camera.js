@@ -230,6 +230,7 @@ class POTBotCamera {
     
     generateSignalFromAnalysis(imageAnalysis) {
         const { greenRatio, redRatio, volatility, trendStrength } = imageAnalysis;
+        console.log('Generating signal from analysis:', { greenRatio, redRatio, volatility, trendStrength });
         
         // Determine signal direction based on image analysis
         let action, confidence;
@@ -238,25 +239,30 @@ class POTBotCamera {
             // More green pixels detected - bullish signal
             action = 'CALL';
             confidence = Math.min(95, 80 + (greenRatio * 100) + (volatility * 50));
+            console.log('Bullish signal detected (green dominance)');
         } else if (redRatio > greenRatio && redRatio > 0.1) {
             // More red pixels detected - bearish signal
             action = 'PUT';
             confidence = Math.min(95, 80 + (redRatio * 100) + (volatility * 50));
+            console.log('Bearish signal detected (red dominance)');
         } else {
             // Mixed or unclear signals - use trend strength
             if (trendStrength > 0.15) {
                 action = greenRatio > redRatio ? 'CALL' : 'PUT';
                 confidence = 80 + (trendStrength * 50);
+                console.log('Signal based on trend strength');
             } else {
                 // Random signal for unclear patterns
                 action = Math.random() > 0.5 ? 'CALL' : 'PUT';
                 confidence = 80 + Math.random() * 15;
+                console.log('Random signal for unclear pattern');
             }
         }
         
         // Ensure confidence is within bounds
         confidence = Math.max(80, Math.min(95, Math.round(confidence)));
         
+        console.log('Generated signal:', { action, confidence });
         return { action, confidence };
     }
     
@@ -329,6 +335,8 @@ class POTBotCamera {
     
     
     displaySignal(analysis) {
+        console.log('Displaying signal:', analysis);
+        
         // Update signal overlay with enhanced entry information
         this.signalTime.textContent = analysis.timestamp.toLocaleTimeString();
         this.actionBadge.textContent = analysis.action;
@@ -343,6 +351,7 @@ class POTBotCamera {
         
         // Show signal overlay
         this.signalOverlay.style.display = 'block';
+        console.log('Signal overlay displayed');
         
         // Store current signal
         this.currentSignal = analysis;
@@ -482,7 +491,7 @@ class POTBotCamera {
         // Start scanning interval
         this.scanInterval = setInterval(() => {
             this.performAutoScan();
-        }, 2000); // Scan every 2 seconds
+        }, 1000); // Scan every 1 second
     }
     
     stopAutoScan() {
@@ -561,8 +570,8 @@ class POTBotCamera {
             const chartProbability = chartPixels / totalPixels;
             console.log(`Chart detection probability: ${(chartProbability * 100).toFixed(1)}% (${chartPixels}/${totalPixels} pixels)`);
             
-            // Return true if chart probability is above threshold (lowered to 10% for better detection)
-            return chartProbability > 0.1; // 10% threshold
+            // Return true if chart probability is above threshold (lowered to 5% for better detection)
+            return chartProbability > 0.05; // 5% threshold
             
         } catch (error) {
             console.error('Error detecting market chart:', error);
@@ -667,15 +676,6 @@ class POTBotCamera {
         }
     }
     
-    // Debug method - force analysis for testing
-    forceAnalysis() {
-        console.log('Force analysis triggered for debugging...');
-        if (this.isActive) {
-            this.performAutoAnalysis();
-        } else {
-            console.log('Camera not active, cannot force analysis');
-        }
-    }
 }
 
 // Initialize camera when DOM is loaded
