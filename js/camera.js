@@ -87,7 +87,7 @@ class POTBotCamera {
             
             // Update UI
             this.isActive = true;
-            this.updateStatus('Camera ready - Scanning for PocketOption charts (po.trade optimized)');
+            this.updateStatus('Camera ready - Scanning for PocketOption charts with candlesticks');
             
             // Start auto-scanning for market detection
             this.startAutoScan();
@@ -750,15 +750,17 @@ class POTBotCamera {
         
         // Boost score if we detect PocketOption characteristics
         let pocketOptionScore = baseScore;
+        let hasCandlesticks = false;
         
         // Dark background is essential for PocketOption
         if (darkBackgroundRatio > 0.3) {
             pocketOptionScore += 0.1;
         }
         
-        // Candlesticks are key indicators
-        if (candlestickRatio > 0.02) {
+        // Candlesticks are REQUIRED - no signal without them (increased threshold for better detection)
+        if (candlestickRatio > 0.03) {
             pocketOptionScore += 0.15;
+            hasCandlesticks = true;
         }
         
         // Light blue elements (price indicators, lines)
@@ -771,12 +773,19 @@ class POTBotCamera {
             pocketOptionScore += 0.05;
         }
         
+        // CRITICAL: Only return positive score if candlesticks are detected
+        if (!hasCandlesticks) {
+            console.log('No candlesticks detected - not a valid trading chart');
+            return 0; // Force detection failure if no candlesticks
+        }
+        
         console.log('PocketOption pattern analysis:', {
             baseScore: (baseScore * 100).toFixed(1) + '%',
             darkBackground: (darkBackgroundRatio * 100).toFixed(1) + '%',
             candlesticks: (candlestickRatio * 100).toFixed(1) + '%',
             lightBlue: (lightBlueRatio * 100).toFixed(1) + '%',
             gridLines: (gridRatio * 100).toFixed(1) + '%',
+            hasCandlesticks: hasCandlesticks,
             finalScore: (pocketOptionScore * 100).toFixed(1) + '%'
         });
         
