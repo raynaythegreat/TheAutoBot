@@ -720,15 +720,15 @@ class POTBotCamera {
                 pocketOptionPixels++;
                 
                 // Count specific PocketOption elements
-                if (r < 40 && g < 40 && b < 40) {
+                if (r < 30 && g < 30 && b < 30) {
                     darkBackgroundPixels++; // Dark background
-                } else if (g > 140 && g > r + 40 && g > b + 40 && r < 80 && b < 80) {
-                    greenCandlestickPixels++; // Green candlesticks
-                } else if (r > 140 && r > g + 40 && r > b + 40 && g < 80 && b < 80) {
-                    redCandlestickPixels++; // Red candlesticks
-                } else if (b > 120 && b > r + 30 && b > g + 30 && r < 100 && g < 100 && b < 200) {
+                } else if (g > 160 && g > r + 60 && g > b + 60 && r < 60 && b < 60) {
+                    greenCandlestickPixels++; // Green candlesticks (very specific)
+                } else if (r > 160 && r > g + 60 && r > b + 60 && g < 60 && b < 60) {
+                    redCandlestickPixels++; // Red candlesticks (very specific)
+                } else if (b > 140 && b > r + 40 && b > g + 40 && r < 80 && g < 80 && b < 220) {
                     lightBluePixels++; // Light blue elements
-                } else if (r > 100 && g > 100 && b > 100 && r < 180 && g < 180 && b < 180) {
+                } else if (r > 80 && g > 80 && b > 80 && r < 140 && g < 140 && b < 140) {
                     gridLinePixels++; // Grid lines
                 }
             }
@@ -754,6 +754,14 @@ class POTBotCamera {
         if (candlestickRatio > 0.05) {
             pocketOptionScore += 0.15;
             hasCandlesticks = true;
+        }
+        
+        // Additional candlestick pattern detection for PocketOption
+        const candlestickPatterns = this.detectCandlestickPatterns(data, width, height);
+        if (candlestickPatterns > 0) {
+            pocketOptionScore += 0.1;
+            hasCandlesticks = true;
+            console.log('✅ PocketOption candlestick patterns detected:', candlestickPatterns);
         }
         
         // Light blue elements (price indicators, lines)
@@ -789,32 +797,99 @@ class POTBotCamera {
         return Math.min(pocketOptionScore, 1.0); // Cap at 100%
     }
     
+    detectCandlestickPatterns(data, width, height) {
+        // Look for specific PocketOption candlestick patterns
+        let candlestickPatterns = 0;
+        
+        // Sample every 20th pixel to look for candlestick patterns
+        for (let y = 0; y < height - 10; y += 20) {
+            for (let x = 0; x < width - 10; x += 20) {
+                const pixelIndex = (y * width + x) * 4;
+                const r = data[pixelIndex];
+                const g = data[pixelIndex + 1];
+                const b = data[pixelIndex + 2];
+                
+                // Check for green candlestick pattern (rectangular shape)
+                if (g > 160 && g > r + 60 && g > b + 60 && r < 60 && b < 60) {
+                    // Look for rectangular pattern around this pixel
+                    if (this.isCandlestickRectangle(data, x, y, width, height, 'green')) {
+                        candlestickPatterns++;
+                    }
+                }
+                
+                // Check for red candlestick pattern (rectangular shape)
+                if (r > 160 && r > g + 60 && r > b + 60 && g < 60 && b < 60) {
+                    // Look for rectangular pattern around this pixel
+                    if (this.isCandlestickRectangle(data, x, y, width, height, 'red')) {
+                        candlestickPatterns++;
+                    }
+                }
+            }
+        }
+        
+        return candlestickPatterns;
+    }
+    
+    isCandlestickRectangle(data, startX, startY, width, height, color) {
+        // Check for rectangular candlestick pattern
+        const rectWidth = 8; // Typical candlestick width
+        const rectHeight = 20; // Typical candlestick height
+        
+        if (startX + rectWidth >= width || startY + rectHeight >= height) {
+            return false;
+        }
+        
+        let matchingPixels = 0;
+        let totalPixels = 0;
+        
+        // Check rectangle area for consistent color
+        for (let y = startY; y < startY + rectHeight; y++) {
+            for (let x = startX; x < startX + rectWidth; x++) {
+                const pixelIndex = (y * width + x) * 4;
+                const r = data[pixelIndex];
+                const g = data[pixelIndex + 1];
+                const b = data[pixelIndex + 2];
+                
+                totalPixels++;
+                
+                if (color === 'green' && g > 160 && g > r + 60 && g > b + 60 && r < 60 && b < 60) {
+                    matchingPixels++;
+                } else if (color === 'red' && r > 160 && r > g + 60 && r > b + 60 && g < 60 && b < 60) {
+                    matchingPixels++;
+                }
+            }
+        }
+        
+        // Consider it a candlestick if 70% of pixels match the color
+        return (matchingPixels / totalPixels) > 0.7;
+    }
+    
     isChartColor(r, g, b) {
         // Check for PocketOption-specific chart colors and characteristics
         
-        // PocketOption Green Candlesticks (bright, solid green)
-        if (g > 140 && g > r + 40 && g > b + 40 && r < 80 && b < 80) return true;
+        // PocketOption Green Candlesticks (very specific bright green)
+        if (g > 160 && g > r + 60 && g > b + 60 && r < 60 && b < 60) return true;
         
-        // PocketOption Red Candlesticks (bright, solid red)
-        if (r > 140 && r > g + 40 && r > b + 40 && g < 80 && b < 80) return true;
+        // PocketOption Red Candlesticks (very specific bright red)
+        if (r > 160 && r > g + 60 && r > b + 60 && g < 60 && b < 60) return true;
         
-        // PocketOption Light Blue (current price, lines, highlights)
-        if (b > 120 && b > r + 30 && b > g + 30 && r < 100 && g < 100 && b < 200) return true;
+        // PocketOption Light Blue (current price box, lines)
+        if (b > 140 && b > r + 40 && b > g + 40 && r < 80 && g < 80 && b < 220) return true;
         
         // PocketOption Dark Background (very dark grey/black)
-        if (r < 40 && g < 40 && b < 40) return true;
+        if (r < 30 && g < 30 && b < 30) return true;
         
-        // PocketOption Light Grey Grid Lines
-        if (r > 100 && g > 100 && b > 100 && r < 180 && g < 180 && b < 180) return true;
+        // PocketOption Light Grey Grid Lines (subtle)
+        if (r > 80 && g > 80 && b > 80 && r < 140 && g < 140 && b < 140) return true;
         
-        // PocketOption White Text/Labels
-        if (r > 220 && g > 220 && b > 220) return true;
+        // PocketOption White Text/Labels (pure white)
+        if (r > 240 && g > 240 && b > 240) return true;
         
-        // PocketOption Orange Indicator Lines
-        if (r > 200 && g > 120 && g < 180 && b < 60) return true;
+        // PocketOption Orange Indicator Lines (Stochastic)
+        if (r > 220 && g > 140 && g < 200 && b < 40) return true;
         
-        // PocketOption Blue Indicator Lines
-        if (b > 150 && b > r + 50 && b > g + 50 && r < 100 && g < 100) return true;
+        // PocketOption Blue Indicator Lines (Stochastic)
+        if (b > 180 && b > r + 60 && b > g + 60 && r < 80 && g < 80) return true;
         
         return false;
     }
