@@ -822,7 +822,46 @@ class MovingAverageAnalyzer {
     }
 }
 
-// Initialize The Auto Bot AI Engine
+// Initialize The Auto Bot AI Engine with retry mechanism
 document.addEventListener('DOMContentLoaded', () => {
-    window.autoBotAI = new AutoBotAI();
+    console.log('🚀 Initializing Auto Bot AI Engine...');
+    
+    try {
+        window.autoBotAI = new AutoBotAI();
+        console.log('✅ Auto Bot AI Engine initialized successfully');
+        console.log('AI Engine methods available:', Object.getOwnPropertyNames(Object.getPrototypeOf(window.autoBotAI)));
+        
+        // Test the analyzeChart method
+        if (typeof window.autoBotAI.analyzeChart === 'function') {
+            console.log('✅ analyzeChart method is available');
+        } else {
+            console.error('❌ analyzeChart method is missing');
+        }
+        
+    } catch (error) {
+        console.error('❌ Failed to initialize AI Engine:', error);
+        
+        // Retry initialization after a delay
+        setTimeout(() => {
+            try {
+                window.autoBotAI = new AutoBotAI();
+                console.log('✅ Auto Bot AI Engine initialized on retry');
+            } catch (retryError) {
+                console.error('❌ AI Engine failed on retry:', retryError);
+            }
+        }, 1000);
+    }
+});
+
+// Also initialize when window loads (backup)
+window.addEventListener('load', () => {
+    if (!window.autoBotAI) {
+        console.log('🔄 Initializing AI Engine on window load...');
+        try {
+            window.autoBotAI = new AutoBotAI();
+            console.log('✅ Auto Bot AI Engine initialized on window load');
+        } catch (error) {
+            console.error('❌ Failed to initialize AI Engine on window load:', error);
+        }
+    }
 });
