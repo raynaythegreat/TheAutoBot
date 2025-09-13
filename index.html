@@ -15,7 +15,7 @@
     <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
     <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192x192.png">
     
-    <link rel="stylesheet" href="css/styles.css?v=20241220l">
+    <link rel="stylesheet" href="css/styles.css?v=20241220m">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <!-- Cache busting meta tags -->
@@ -335,19 +335,22 @@
     </div>
 
     <!-- Scripts -->
-    <script src="js/app.js?v=20241220l"></script>
-    <script src="js/camera.js?v=20241220l"></script>
-    <script src="js/ai-analysis.js?v=20241220l"></script>
+    <script src="js/app.js?v=20241220m"></script>
+    <script src="js/camera.js?v=20241220m"></script>
+    <script src="js/ai-analysis.js?v=20241220m"></script>
     
     <!-- Signal Generation Function -->
     <script>
         // Force update page title and clear cache
         document.title = 'The Auto Bot';
+        
+        // Force service worker update for both versions
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(function(registrations) {
                 for(let registration of registrations) {
                     registration.unregister();
                 }
+                console.log('All service workers unregistered for fresh update');
             });
         }
         
