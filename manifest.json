@@ -1,7 +1,7 @@
 {
   "name": "The Auto Bot",
   "short_name": "Auto Bot",
-  "description": "The Auto Bot v1.0.5 - AI-powered trading signals with camera analysis",
+  "description": "The Auto Bot v1.0.6 - AI-powered trading signals with camera analysis",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f8f9fa",
