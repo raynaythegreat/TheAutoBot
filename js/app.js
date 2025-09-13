@@ -174,12 +174,12 @@ class POTBotApp {
     
     showError(message) {
         console.error('App Error:', message);
-        // Removed alert to prevent popup messages
+        alert(message);
     }
     
     showNotification(message) {
         console.log('App Notification:', message);
-        // Removed alert to prevent popup messages
+        alert(message);
     }
     
     // Public API methods
@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Service Worker Registration
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
+        navigator.serviceWorker.register('/sw.js')
             .then(registration => {
                 console.log('SW registered: ', registration);
             })

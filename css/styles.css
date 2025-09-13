@@ -576,40 +576,6 @@ body {
     }
 }
 
-/* Scan Indicator */
-.scan-indicator {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(10px);
-    border-radius: 15px;
-    padding: 1rem 1.5rem;
-    border: 1px solid rgba(0, 123, 255, 0.3);
-    z-index: 25;
-    display: none;
-    animation: pulse 2s infinite;
-}
-
-.scan-content {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    color: #fff;
-}
-
-.scan-icon {
-    color: #00ff88;
-    font-size: 1.2rem;
-    animation: spin 2s linear infinite;
-}
-
-.scan-text {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: #00ff88;
-}
-
 /* Analysis Status */
 .analysis-status {
     position: absolute;
@@ -726,65 +692,4 @@ body {
     .welcome-section p {
         font-size: 1rem;
     }
-    
-    /* Mobile adjustments for bottom button */
-    .bottom-button-container {
-        bottom: 10px;
-        padding: 5px;
-    }
-    
-    .camera-btn {
-        padding: 15px 30px;
-        font-size: 16px;
-        min-width: 200px;
-    }
-}
-
-/* Bottom button container styles */
-.bottom-button-container {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 10px;
-}
-
-.camera-btn {
-    background: linear-gradient(135deg, #007bff, #0056b3);
-    color: white;
-    border: none;
-    padding: 20px 40px;
-    border-radius: 35px;
-    font-size: 20px;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.5);
-    transition: all 0.3s ease;
-    min-width: 250px;
-    justify-content: center;
-    backdrop-filter: blur(10px);
-    border: 2px solid rgba(255, 255, 255, 0.2);
-}
-
-.camera-btn:hover {
-    background: linear-gradient(135deg, #0056b3, #004085);
-    transform: translateY(-5px);
-    box-shadow: 0 12px 30px rgba(0, 123, 255, 0.6);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-}
-
-.camera-btn:active {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
-}
-
-.camera-btn i {
-    font-size: 24px;
 }

@@ -2,12 +2,12 @@
   "name": "The POT Bot",
   "short_name": "POT Bot",
   "description": "The POT Bot - AI-powered trading signals with camera analysis",
-  "start_url": "./index.html",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#1a1a2e",
   "theme_color": "#00d4ff",
   "orientation": "portrait-primary",
-  "scope": ".",
+  "scope": "/",
   "lang": "en",
   "categories": ["finance", "productivity", "utilities"],
   "icons": [
@@ -58,6 +58,20 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "assets/screenshots/desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "assets/screenshots/mobile.png",
+      "sizes": "375x667",
+      "type": "image/png",
+      "form_factor": "narrow"
     }
   ],
   "features": [

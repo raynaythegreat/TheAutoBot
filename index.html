@@ -8,17 +8,14 @@
     <meta name="apple-mobile-web-app-title" content="The POT Bot">
     <meta name="theme-color" content="#007bff">
     <meta name="description" content="The POT Bot - AI-powered trading signals with camera analysis">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
     
     <title>The POT Bot</title>
     
-    <link rel="manifest" href="manifest.json?v=20241220h">
+    <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
     <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192x192.png">
     
-    <link rel="stylesheet" href="css/styles.css?v=20241220h">
+    <link rel="stylesheet" href="css/styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
@@ -74,8 +71,8 @@
                 </div>
 
                 <div class="welcome-section">
-                    <h2>🤖 Live AI Trading Signals</h2>
-                    <p>AI generates live trading signals with real-time market analysis</p>
+                    <h2>📷 AI Chart Analysis</h2>
+                    <p>Camera captures market charts for AI analysis and instant trading signals</p>
                     
                     <button class="start-camera-btn" id="startCameraBtn">
                         <i class="fas fa-video"></i>
@@ -96,9 +93,9 @@
                             <p>3min expiration trades</p>
                         </div>
                         <div class="feature-item">
-                            <i class="fas fa-hand-pointer"></i>
-                            <h3>Manual Control</h3>
-                            <p>You control when to analyze</p>
+                            <i class="fas fa-chart-line"></i>
+                            <h3>Auto-Scanning</h3>
+                            <p>Detects charts automatically</p>
                         </div>
                         <div class="feature-item">
                             <i class="fas fa-magic"></i>
@@ -136,8 +133,8 @@
                             <div class="corner bottom-right"></div>
                         </div>
                         <div class="overlay-text">
-                            <p>Point camera at any trading chart</p>
-                            <p>Click "Generate Live Signal" for real-time AI analysis</p>
+                            <p>Point camera at market chart</p>
+                            <p>Camera ready for viewing</p>
                         </div>
                     </div>
 
@@ -170,6 +167,7 @@
                     </div>
                 </div>
 
+
                 <!-- Analysis Status -->
                 <div class="analysis-status" id="analysisStatus" style="display: none;">
                     <div class="status-content">
@@ -177,489 +175,13 @@
                         <p id="statusText">Analyzing chart with AI...</p>
                     </div>
                 </div>
-
-                <!-- Generate Live Signal Button - Absolute Bottom -->
-                <div class="bottom-button-container">
-                    <button id="analyzeChartBtn" class="camera-btn" onclick="generateSignalNow()">
-                        <i class="fas fa-robot"></i>
-                        Generate Live Signal
-                    </button>
-                </div>
-                
             </div>
         </div>
     </div>
 
     <!-- Scripts -->
-    <script src="js/app.js?v=20241220h"></script>
-    <script src="js/camera.js?v=20241220h"></script>
-    <script src="js/ai-analysis.js?v=20241220h"></script>
-    
-    <!-- Simple Signal Generation Function -->
-    <script>
-        function generateSignalNow() {
-            console.log('🎯 Generate Signal button clicked!');
-            
-            // Advanced multi-strategy signal generation
-            const signal = generateAdvancedSignal();
-            
-            console.log('✅ Advanced signal generated:', signal);
-            
-            // Display signal in overlay
-            displaySimpleSignal(signal);
-        }
-        
-        function generateAdvancedSignal() {
-            console.log('🧠 Running advanced multi-strategy analysis for 90% accuracy...');
-            
-            // Get current market conditions
-            const marketConditions = analyzeMarketConditions();
-            console.log('📊 Market conditions:', marketConditions);
-            
-            // Run all trading strategies
-            const hhllAnalysis = analyzeHHLL(marketConditions);
-            const wyckoffAnalysis = analyzeWyckoff(marketConditions);
-            const supportResistanceAnalysis = analyzeSupportResistance(marketConditions);
-            const movingAveragesAnalysis = analyzeMovingAverages(marketConditions);
-            
-            console.log('📈 Strategy results:', {
-                hhll: hhllAnalysis,
-                wyckoff: wyckoffAnalysis,
-                supportResistance: supportResistanceAnalysis,
-                movingAverages: movingAveragesAnalysis
-            });
-            
-            // Combine all strategies for final signal
-            const finalSignal = combineStrategies(hhllAnalysis, wyckoffAnalysis, supportResistanceAnalysis, movingAveragesAnalysis);
-            
-            // If signal is rejected due to low confidence, try again with different market conditions
-            if (!finalSignal) {
-                console.log('🔄 Retrying with different market conditions...');
-                const retryMarketConditions = analyzeMarketConditions();
-                const retryHhll = analyzeHHLL(retryMarketConditions);
-                const retryWyckoff = analyzeWyckoff(retryMarketConditions);
-                const retrySupportResistance = analyzeSupportResistance(retryMarketConditions);
-                const retryMovingAverages = analyzeMovingAverages(retryMarketConditions);
-                
-                const retrySignal = combineStrategies(retryHhll, retryWyckoff, retrySupportResistance, retryMovingAverages);
-                
-                if (retrySignal) {
-                    console.log('✅ Retry successful - 90% accuracy signal generated');
-                    return retrySignal;
-                } else {
-                    console.log('⚠️ Retry failed - generating fallback signal');
-                    return generateFallbackSignal();
-                }
-            }
-            
-            return finalSignal;
-        }
-        
-        function generateFallbackSignal() {
-            // Fallback signal when 90% accuracy cannot be achieved
-            console.log('🔄 Generating fallback signal...');
-            
-            const actions = ['CALL', 'PUT'];
-            const action = actions[Math.floor(Math.random() * actions.length)];
-            
-            return {
-                action: action,
-                confidence: 88, // Slightly below 90% threshold
-                entryPoint: 'Wait for confirmation',
-                riskLevel: 'Medium',
-                timeframe: '1min',
-                expiration: '3min',
-                timestamp: new Date(),
-                note: 'Fallback signal - wait for better setup'
-            };
-        }
-        
-        function analyzeMarketConditions() {
-            // Simulate real market analysis
-            const now = new Date();
-            const volatility = Math.random() * 100;
-            const trend = Math.random() > 0.5 ? 'bullish' : 'bearish';
-            const momentum = (Math.random() - 0.5) * 200;
-            const volume = Math.random() * 100;
-            
-            return {
-                volatility,
-                trend,
-                momentum,
-                volume,
-                timestamp: now
-            };
-        }
-        
-        function analyzeHHLL(market) {
-            // Higher Highs / Lower Lows Analysis - Enhanced for 90% accuracy
-            const hhStrength = Math.random() * 100;
-            const llStrength = Math.random() * 100;
-            const patternConfirmation = Math.random() * 100;
-            const volumeConfirmation = Math.random() * 100;
-            
-            let signal = 'NEUTRAL';
-            let confidence = 0;
-            
-            // Stricter criteria for 90% accuracy
-            if (hhStrength > 85 && market.trend === 'bullish' && patternConfirmation > 80 && volumeConfirmation > 75) {
-                signal = 'CALL';
-                confidence = Math.min(95, 85 + (hhStrength / 6) + (patternConfirmation / 10));
-            } else if (llStrength > 85 && market.trend === 'bearish' && patternConfirmation > 80 && volumeConfirmation > 75) {
-                signal = 'PUT';
-                confidence = Math.min(95, 85 + (llStrength / 6) + (patternConfirmation / 10));
-            } else if (hhStrength > 80 && patternConfirmation > 70) {
-                signal = 'CALL';
-                confidence = 80 + (hhStrength / 8);
-            } else if (llStrength > 80 && patternConfirmation > 70) {
-                signal = 'PUT';
-                confidence = 80 + (llStrength / 8);
-            }
-            
-            return {
-                strategy: 'HH/LL',
-                signal,
-                confidence: Math.round(confidence),
-                hhStrength: Math.round(hhStrength),
-                llStrength: Math.round(llStrength),
-                patternConfirmation: Math.round(patternConfirmation),
-                volumeConfirmation: Math.round(volumeConfirmation)
-            };
-        }
-        
-        function analyzeWyckoff(market) {
-            // Wyckoff Method Analysis - Enhanced for 90% accuracy
-            const phases = ['accumulation', 'markup', 'distribution', 'markdown'];
-            const currentPhase = phases[Math.floor(Math.random() * phases.length)];
-            const phaseStrength = Math.random() * 100;
-            const volumeProfile = Math.random() * 100;
-            const priceAction = Math.random() * 100;
-            
-            let signal = 'NEUTRAL';
-            let confidence = 0;
-            
-            // Enhanced Wyckoff analysis with multiple confirmations
-            switch (currentPhase) {
-                case 'accumulation':
-                    if (phaseStrength > 85 && volumeProfile > 80 && priceAction > 75) {
-                        signal = 'CALL';
-                        confidence = Math.min(95, 88 + (phaseStrength / 8) + (volumeProfile / 15));
-                    } else if (phaseStrength > 75) {
-                        signal = 'CALL';
-                        confidence = 82 + (phaseStrength / 10);
-                    }
-                    break;
-                case 'markup':
-                    if (phaseStrength > 90 && volumeProfile > 85 && priceAction > 80) {
-                        signal = 'CALL';
-                        confidence = Math.min(95, 90 + (phaseStrength / 10) + (volumeProfile / 20));
-                    } else if (phaseStrength > 80) {
-                        signal = 'CALL';
-                        confidence = 85 + (phaseStrength / 8);
-                    }
-                    break;
-                case 'distribution':
-                    if (phaseStrength > 85 && volumeProfile > 80 && priceAction > 75) {
-                        signal = 'PUT';
-                        confidence = Math.min(95, 88 + (phaseStrength / 8) + (volumeProfile / 15));
-                    } else if (phaseStrength > 75) {
-                        signal = 'PUT';
-                        confidence = 82 + (phaseStrength / 10);
-                    }
-                    break;
-                case 'markdown':
-                    if (phaseStrength > 90 && volumeProfile > 85 && priceAction > 80) {
-                        signal = 'PUT';
-                        confidence = Math.min(95, 90 + (phaseStrength / 10) + (volumeProfile / 20));
-                    } else if (phaseStrength > 80) {
-                        signal = 'PUT';
-                        confidence = 85 + (phaseStrength / 8);
-                    }
-                    break;
-            }
-            
-            return {
-                strategy: 'Wyckoff',
-                signal,
-                confidence: Math.round(confidence),
-                phase: currentPhase,
-                phaseStrength: Math.round(phaseStrength),
-                volumeProfile: Math.round(volumeProfile),
-                priceAction: Math.round(priceAction)
-            };
-        }
-        
-        function analyzeSupportResistance(market) {
-            // Support & Resistance Analysis - Enhanced for 90% accuracy
-            const supportStrength = Math.random() * 100;
-            const resistanceStrength = Math.random() * 100;
-            const breakoutProbability = Math.random() * 100;
-            const volumeBreakout = Math.random() * 100;
-            const retestConfirmation = Math.random() * 100;
-            const timeAtLevel = Math.random() * 100;
-            
-            let signal = 'NEUTRAL';
-            let confidence = 0;
-            
-            // Enhanced S/R analysis with multiple confirmations
-            if (breakoutProbability > 90 && volumeBreakout > 85 && market.momentum > 60 && retestConfirmation > 80) {
-                signal = 'CALL';
-                confidence = Math.min(95, 88 + (breakoutProbability / 8) + (volumeBreakout / 12));
-            } else if (breakoutProbability > 90 && volumeBreakout > 85 && market.momentum < -60 && retestConfirmation > 80) {
-                signal = 'PUT';
-                confidence = Math.min(95, 88 + (breakoutProbability / 8) + (volumeBreakout / 12));
-            } else if (breakoutProbability > 85 && volumeBreakout > 75 && timeAtLevel > 70) {
-                if (market.momentum > 50) {
-                    signal = 'CALL';
-                    confidence = 85 + (breakoutProbability / 10);
-                } else if (market.momentum < -50) {
-                    signal = 'PUT';
-                    confidence = 85 + (breakoutProbability / 10);
-                }
-            } else if (supportStrength > 85 && resistanceStrength < 60 && timeAtLevel > 80) {
-                signal = 'CALL';
-                confidence = 82 + (supportStrength / 8);
-            } else if (resistanceStrength > 85 && supportStrength < 60 && timeAtLevel > 80) {
-                signal = 'PUT';
-                confidence = 82 + (resistanceStrength / 8);
-            }
-            
-            return {
-                strategy: 'Support/Resistance',
-                signal,
-                confidence: Math.round(confidence),
-                supportStrength: Math.round(supportStrength),
-                resistanceStrength: Math.round(resistanceStrength),
-                breakoutProbability: Math.round(breakoutProbability),
-                volumeBreakout: Math.round(volumeBreakout),
-                retestConfirmation: Math.round(retestConfirmation),
-                timeAtLevel: Math.round(timeAtLevel)
-            };
-        }
-        
-        function analyzeMovingAverages(market) {
-            // Moving Averages Analysis - Enhanced for 90% accuracy
-            const ma20 = Math.random() * 100;
-            const ma50 = Math.random() * 100;
-            const ma200 = Math.random() * 100;
-            const maSeparation = Math.random() * 100;
-            const maSlope = Math.random() * 100;
-            const priceDistance = Math.random() * 100;
-            
-            let signal = 'NEUTRAL';
-            let confidence = 0;
-            
-            // Enhanced MA analysis with multiple confirmations
-            // Perfect Golden Cross with strong separation and slope
-            if (ma20 > ma50 && ma50 > ma200 && maSeparation > 85 && maSlope > 80 && priceDistance > 75) {
-                signal = 'CALL';
-                confidence = Math.min(95, 90 + (maSeparation / 10) + (maSlope / 15));
-            } 
-            // Perfect Death Cross with strong separation and slope
-            else if (ma20 < ma50 && ma50 < ma200 && maSeparation > 85 && maSlope > 80 && priceDistance > 75) {
-                signal = 'PUT';
-                confidence = Math.min(95, 90 + (maSeparation / 10) + (maSlope / 15));
-            }
-            // Strong Golden Cross with good separation
-            else if (ma20 > ma50 && ma50 > ma200 && maSeparation > 70 && maSlope > 65) {
-                signal = 'CALL';
-                confidence = 87 + (maSeparation / 12);
-            }
-            // Strong Death Cross with good separation
-            else if (ma20 < ma50 && ma50 < ma200 && maSeparation > 70 && maSlope > 65) {
-                signal = 'PUT';
-                confidence = 87 + (maSeparation / 12);
-            }
-            // Basic Golden Cross
-            else if (ma20 > ma50 && ma50 > ma200) {
-                signal = 'CALL';
-                confidence = 85 + (maSeparation / 15);
-            }
-            // Basic Death Cross
-            else if (ma20 < ma50 && ma50 < ma200) {
-                signal = 'PUT';
-                confidence = 85 + (maSeparation / 15);
-            }
-            // MA20 above MA50 with strong slope
-            else if (ma20 > ma50 && maSlope > 80) {
-                signal = 'CALL';
-                confidence = 82 + (maSlope / 10);
-            }
-            // MA20 below MA50 with strong slope
-            else if (ma20 < ma50 && maSlope > 80) {
-                signal = 'PUT';
-                confidence = 82 + (maSlope / 10);
-            }
-            
-            return {
-                strategy: 'Moving Averages',
-                signal,
-                confidence: Math.round(confidence),
-                ma20: Math.round(ma20),
-                ma50: Math.round(ma50),
-                ma200: Math.round(ma200),
-                maSeparation: Math.round(maSeparation),
-                maSlope: Math.round(maSlope),
-                priceDistance: Math.round(priceDistance)
-            };
-        }
-        
-        function combineStrategies(hhll, wyckoff, supportResistance, movingAverages) {
-            console.log('🔄 Combining all strategies for 90% accuracy...');
-            
-            // Enhanced weighting for 90% accuracy
-            const weights = {
-                hhll: 0.25,
-                wyckoff: 0.25,
-                supportResistance: 0.25,
-                movingAverages: 0.25
-            };
-            
-            // Count signals and calculate weighted confidence
-            let callVotes = 0;
-            let putVotes = 0;
-            let totalConfidence = 0;
-            let highConfidenceStrategies = 0;
-            
-            const strategies = [hhll, wyckoff, supportResistance, movingAverages];
-            
-            strategies.forEach((strategy, index) => {
-                const weight = Object.values(weights)[index];
-                if (strategy.signal === 'CALL') {
-                    callVotes += weight;
-                } else if (strategy.signal === 'PUT') {
-                    putVotes += weight;
-                }
-                totalConfidence += strategy.confidence * weight;
-                
-                // Count high-confidence strategies (85%+)
-                if (strategy.confidence >= 85) {
-                    highConfidenceStrategies++;
-                }
-            });
-            
-            // Determine final signal
-            let finalSignal = 'CALL';
-            if (putVotes > callVotes) {
-                finalSignal = 'PUT';
-            }
-            
-            // Calculate final confidence with 90% target
-            let finalConfidence = Math.round(totalConfidence);
-            
-            // Enhanced confidence boosting for 90% accuracy
-            const agreement = Math.max(callVotes, putVotes);
-            
-            // Strong agreement bonus (3+ strategies agree)
-            if (agreement >= 0.75) {
-                finalConfidence = Math.min(95, finalConfidence + 15);
-            } else if (agreement >= 0.5) {
-                finalConfidence = Math.min(95, finalConfidence + 8);
-            }
-            
-            // High-confidence strategies bonus
-            if (highConfidenceStrategies >= 3) {
-                finalConfidence = Math.min(95, finalConfidence + 10);
-            } else if (highConfidenceStrategies >= 2) {
-                finalConfidence = Math.min(95, finalConfidence + 5);
-            }
-            
-            // Quality control: Only generate signals with 90%+ confidence
-            if (finalConfidence < 90) {
-                // If confidence is too low, try to boost it or reject
-                if (agreement >= 0.5 && highConfidenceStrategies >= 2) {
-                    finalConfidence = Math.max(90, finalConfidence + 5);
-                } else {
-                    // Reject low-quality signals
-                    console.log('⚠️ Signal rejected: Confidence too low for 90% accuracy target');
-                    return null;
-                }
-            }
-            
-            // Ensure minimum 90% confidence for immediate entry
-            finalConfidence = Math.max(90, finalConfidence);
-            
-            // Determine entry point - all 90%+ signals are immediate entry
-            let entryPoint = 'Immediate';
-            let riskLevel = 'Low';
-            
-            if (finalConfidence >= 95) {
-                entryPoint = 'Immediate';
-                riskLevel = 'Very Low';
-            } else if (finalConfidence >= 90) {
-                entryPoint = 'Immediate';
-                riskLevel = 'Low';
-            }
-            
-            const signal = {
-                action: finalSignal,
-                confidence: finalConfidence,
-                entryPoint: entryPoint,
-                riskLevel: riskLevel,
-                timeframe: '1min',
-                expiration: '3min',
-                timestamp: new Date(),
-                strategies: {
-                    hhll: hhll,
-                    wyckoff: wyckoff,
-                    supportResistance: supportResistance,
-                    movingAverages: movingAverages
-                },
-                analysis: {
-                    callVotes: Math.round(callVotes * 100) / 100,
-                    putVotes: Math.round(putVotes * 100) / 100,
-                    agreement: Math.round(agreement * 100) / 100,
-                    highConfidenceStrategies: highConfidenceStrategies,
-                    qualityScore: Math.round((agreement * 100 + highConfidenceStrategies * 25) / 2)
-                }
-            };
-            
-            console.log('🎯 Final 90% accuracy signal:', signal);
-            return signal;
-        }
-        
-        function displaySimpleSignal(signal) {
-            console.log('📱 Displaying signal in overlay...');
-            
-            // Update signal overlay elements
-            const signalTime = document.getElementById('signalTime');
-            const actionBadge = document.getElementById('actionBadge');
-            const confidenceScore = document.getElementById('confidenceScore');
-            const entryPoint = document.getElementById('entryPoint');
-            const riskLevel = document.getElementById('riskLevel');
-            const timeframe = document.getElementById('timeframe');
-            const expiration = document.getElementById('expiration');
-            const signalOverlay = document.getElementById('signalOverlay');
-            
-            if (signalTime) signalTime.textContent = signal.timestamp.toLocaleTimeString();
-            if (actionBadge) {
-                actionBadge.textContent = signal.action;
-                actionBadge.className = `action-badge ${signal.action.toLowerCase()}`;
-            }
-            if (confidenceScore) confidenceScore.textContent = `${signal.confidence}%`;
-            if (entryPoint) entryPoint.textContent = signal.entryPoint;
-            if (riskLevel) riskLevel.textContent = signal.riskLevel;
-            if (timeframe) timeframe.textContent = signal.timeframe;
-            if (expiration) expiration.textContent = signal.expiration;
-            
-            // Show the overlay
-            if (signalOverlay) {
-                signalOverlay.style.display = 'block';
-                console.log('✅ Signal overlay displayed');
-            }
-            
-            // Update status
-            const cameraStatus = document.getElementById('cameraStatus');
-            if (cameraStatus) {
-                cameraStatus.textContent = `Live signal generated: ${signal.action} (${signal.confidence}%)`;
-            }
-        }
-        
-        // Make function globally available
-        window.generateSignalNow = generateSignalNow;
-        window.displaySimpleSignal = displaySimpleSignal;
-        
-        console.log('🔧 Simple signal generation functions loaded');
-    </script>
+    <script src="js/app.js"></script>
+    <script src="js/camera.js"></script>
+    <script src="js/ai-analysis.js"></script>
 </body>
 </html>
