@@ -112,7 +112,7 @@ const strategies = {
 - Historical analysis tracking
 
 ### Confidence Scoring
-- 60-95% confidence range
+- 80-95% confidence range
 - Based on strategy agreement
 - Risk level assessment
 - Expected return calculation
@@ -120,16 +120,16 @@ const strategies = {
 ## 🛡️ Risk Management
 
 ### Built-in Safeguards
-- High confidence threshold (60% minimum)
+- High confidence threshold (80% minimum)
 - Risk level warnings
 - Educational disclaimers
 - No financial advice warnings
 
 ### Risk Levels
 - **Low Risk**: 90%+ confidence
-- **Medium Risk**: 80-89% confidence
-- **High Risk**: 70-79% confidence
-- **Very High Risk**: 60-69% confidence
+- **Medium Risk**: 85-89% confidence
+- **High Risk**: 80-84% confidence
+- **Very High Risk**: Below 80% (signals not generated)
 
 ## 📱 Mobile Installation
 

@@ -214,10 +214,10 @@ class PocketOptionAI {
         let finalSignal = 'HOLD';
         let finalConfidence = 0.5;
         
-        if (callScore > putScore && callScore > 0.6) {
+        if (callScore > putScore && callScore > 0.8) {
             finalSignal = 'CALL';
             finalConfidence = callScore;
-        } else if (putScore > callScore && putScore > 0.6) {
+        } else if (putScore > callScore && putScore > 0.8) {
             finalSignal = 'PUT';
             finalConfidence = putScore;
         }
@@ -300,13 +300,13 @@ class PocketOptionAI {
         // Boost confidence if strategies agree
         const finalConfidence = averageConfidence * (0.7 + 0.3 * agreementRatio);
         
-        return Math.min(95, Math.max(60, Math.floor(finalConfidence * 100)));
+        return Math.min(95, Math.max(80, Math.floor(finalConfidence * 100)));
     }
     
     assessRisk(confidence) {
         if (confidence >= 0.9) return 'Low';
-        if (confidence >= 0.8) return 'Medium';
-        if (confidence >= 0.7) return 'High';
+        if (confidence >= 0.85) return 'Medium';
+        if (confidence >= 0.8) return 'High';
         return 'Very High';
     }
     
