@@ -1,4 +1,4 @@
-// Simplified PocketOption Camera Module
+// Simplified PocketOption Camera Module with Auto-Scan
 class PocketOptionCamera {
     constructor() {
         this.video = null;
@@ -6,6 +6,11 @@ class PocketOptionCamera {
         this.stream = null;
         this.isActive = false;
         this.currentSignal = null;
+        this.autoScanEnabled = true;
+        this.scanInterval = null;
+        this.lastAnalysisTime = 0;
+        this.analysisCooldown = 3000; // 3 seconds between analyses
+        this.isAnalyzing = false;
         
         this.initializeElements();
         this.bindEvents();
@@ -29,6 +34,9 @@ class PocketOptionCamera {
         this.confidenceScore = document.getElementById('confidenceScore');
         this.entryPoint = document.getElementById('entryPoint');
         this.riskLevel = document.getElementById('riskLevel');
+        
+        // Auto-scan elements
+        this.scanIndicator = this.createScanIndicator();
     }
     
     bindEvents() {
@@ -58,7 +66,10 @@ class PocketOptionCamera {
             
             // Update UI
             this.isActive = true;
-            this.updateStatus('Camera ready - Point at chart');
+            this.updateStatus('Camera ready - Auto-scanning for charts...');
+            
+            // Start auto-scanning
+            this.startAutoScan();
             
             console.log('Camera started successfully');
             
@@ -189,7 +200,208 @@ class PocketOptionCamera {
         document.getElementById('cameraPage').classList.remove('active');
     }
     
+    startAutoScan() {
+        if (!this.autoScanEnabled || !this.isActive) return;
+        
+        // Clear any existing interval
+        if (this.scanInterval) {
+            clearInterval(this.scanInterval);
+        }
+        
+        // Start scanning every 2 seconds
+        this.scanInterval = setInterval(() => {
+            this.performAutoScan();
+        }, 2000);
+        
+        console.log('Auto-scan started');
+    }
+    
+    stopAutoScan() {
+        if (this.scanInterval) {
+            clearInterval(this.scanInterval);
+            this.scanInterval = null;
+        }
+        console.log('Auto-scan stopped');
+    }
+    
+    async performAutoScan() {
+        if (!this.isActive || this.isAnalyzing) return;
+        
+        try {
+            // Check if enough time has passed since last analysis
+            const now = Date.now();
+            if (now - this.lastAnalysisTime < this.analysisCooldown) {
+                return;
+            }
+            
+            // Capture current frame
+            const imageData = this.captureFrame();
+            
+            // Detect if market chart is present
+            const hasMarketChart = await this.detectMarketChart(imageData);
+            
+            if (hasMarketChart) {
+                console.log('Market chart detected - starting auto-analysis');
+                this.updateStatus('Market detected - Analyzing...');
+                this.showScanIndicator('Market detected!');
+                
+                // Perform automatic analysis
+                await this.performAutoAnalysis(imageData);
+            } else {
+                this.updateStatus('Scanning for market charts...');
+                this.showScanIndicator('Scanning...');
+            }
+            
+        } catch (error) {
+            console.error('Auto-scan error:', error);
+        }
+    }
+    
+    async detectMarketChart(imageData) {
+        // Simulate market chart detection
+        // In a real implementation, this would use computer vision
+        // to detect chart patterns, candlesticks, price lines, etc.
+        
+        await this.delay(100); // Simulate processing time
+        
+        // Simple detection based on image characteristics
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        
+        return new Promise((resolve) => {
+            img.onload = () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+                
+                // Analyze image for chart-like patterns
+                let chartScore = 0;
+                let sampleCount = 0;
+                
+                // Sample pixels to detect chart characteristics
+                for (let i = 0; i < data.length; i += 16) { // Sample every 4th pixel
+                    const r = data[i];
+                    const g = data[i + 1];
+                    const b = data[i + 2];
+                    
+                    // Look for chart-like colors (whites, grays, greens, reds)
+                    if (this.isChartColor(r, g, b)) {
+                        chartScore++;
+                    }
+                    sampleCount++;
+                }
+                
+                // Calculate chart probability
+                const chartProbability = chartScore / sampleCount;
+                
+                // Consider it a chart if probability is above threshold
+                const isChart = chartProbability > 0.3;
+                
+                console.log(`Chart detection score: ${(chartProbability * 100).toFixed(1)}%`);
+                resolve(isChart);
+            };
+            
+            img.src = imageData.data;
+        });
+    }
+    
+    isChartColor(r, g, b) {
+        // Detect colors commonly found in trading charts
+        // White/light colors (background)
+        if (r > 200 && g > 200 && b > 200) return true;
+        
+        // Gray colors (grid lines, text)
+        if (Math.abs(r - g) < 30 && Math.abs(g - b) < 30 && r > 100 && r < 200) return true;
+        
+        // Green colors (bullish candles, positive values)
+        if (g > r && g > b && g > 150) return true;
+        
+        // Red colors (bearish candles, negative values)
+        if (r > g && r > b && r > 150) return true;
+        
+        // Blue colors (lines, indicators)
+        if (b > r && b > g && b > 150) return true;
+        
+        return false;
+    }
+    
+    async performAutoAnalysis(imageData) {
+        if (this.isAnalyzing) return;
+        
+        this.isAnalyzing = true;
+        this.lastAnalysisTime = Date.now();
+        
+        try {
+            this.showAnalysisStatus('Auto-analyzing market chart...');
+            
+            // Perform analysis
+            const analysisResult = await this.performSimpleAnalysis(imageData);
+            
+            // Display results
+            this.displaySignal(analysisResult);
+            
+            // Hide analysis status
+            this.hideAnalysisStatus();
+            
+            // Update status
+            this.updateStatus('Signal generated - Auto-scanning continues...');
+            
+            console.log('Auto-analysis completed:', analysisResult);
+            
+        } catch (error) {
+            console.error('Auto-analysis failed:', error);
+            this.hideAnalysisStatus();
+            this.updateStatus('Auto-scanning for charts...');
+        } finally {
+            this.isAnalyzing = false;
+        }
+    }
+    
+    createScanIndicator() {
+        const indicator = document.createElement('div');
+        indicator.className = 'scan-indicator';
+        indicator.innerHTML = `
+            <div class="scan-content">
+                <div class="scan-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="scan-text">Scanning...</div>
+            </div>
+        `;
+        
+        // Add to camera container
+        const cameraContainer = document.querySelector('.camera-container');
+        if (cameraContainer) {
+            cameraContainer.appendChild(indicator);
+        }
+        
+        return indicator;
+    }
+    
+    showScanIndicator(message) {
+        if (this.scanIndicator) {
+            const scanText = this.scanIndicator.querySelector('.scan-text');
+            if (scanText) {
+                scanText.textContent = message;
+            }
+            this.scanIndicator.style.display = 'flex';
+        }
+    }
+    
+    hideScanIndicator() {
+        if (this.scanIndicator) {
+            this.scanIndicator.style.display = 'none';
+        }
+    }
+    
     stopCamera() {
+        // Stop auto-scanning
+        this.stopAutoScan();
+        
         if (this.stream) {
             this.stream.getTracks().forEach(track => track.stop());
             this.stream = null;
