@@ -1,13 +1,13 @@
 // The Auto Bot Service Worker
-const CACHE_NAME = 'auto-bot-v1.0.1';
+const CACHE_NAME = 'auto-bot-v1.0.2';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/css/styles.css',
-  '/js/app.js',
-  '/js/camera.js',
-  '/js/ai-analysis.js',
-  '/manifest.json',
+  './',
+  './index.html',
+  './css/styles.css',
+  './js/app.js',
+  './js/camera.js',
+  './js/ai-analysis.js',
+  './manifest.json',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'
 ];
 

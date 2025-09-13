@@ -203,6 +203,34 @@ body {
     font-weight: 600;
 }
 
+.version-info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    border: 1px solid #2196f3;
+}
+
+.version-badge {
+    background: linear-gradient(135deg, #4caf50, #2e7d32);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: 0 2px 5px rgba(76, 175, 80, 0.3);
+}
+
+.version-date {
+    color: #1976d2;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
 .recent-changes ul {
     list-style: none;
     padding: 0;
