@@ -726,15 +726,31 @@ body {
     .welcome-section p {
         font-size: 1rem;
     }
+    
+    /* Mobile adjustments for bottom button */
+    .bottom-button-container {
+        bottom: 10px;
+        padding: 5px;
+    }
+    
+    .camera-btn {
+        padding: 15px 30px;
+        font-size: 16px;
+        min-width: 200px;
+    }
 }
 
 /* Bottom button container styles */
 .bottom-button-container {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
-    margin: 20px 0;
+    padding: 10px;
 }
 
 .camera-btn {
