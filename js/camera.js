@@ -11,6 +11,7 @@ class POTBotCamera {
         // Auto-analysis properties
         this.autoScanEnabled = false;
         this.scanInterval = null;
+        this.fallbackInterval = null;
         this.lastAnalysisTime = 0;
         this.analysisCooldown = 2000; // 2 seconds between analyses
         this.scanIndicator = null;
@@ -520,7 +521,12 @@ class POTBotCamera {
         // Start scanning interval
         this.scanInterval = setInterval(() => {
             this.performAutoScan();
-        }, 1000); // Scan every 1 second
+        }, 500); // Scan every 0.5 seconds
+        
+        // Start fallback interval - analyze every 10 seconds regardless of detection
+        this.fallbackInterval = setInterval(() => {
+            this.performFallbackAnalysis();
+        }, 10000); // Fallback every 10 seconds
     }
     
     stopAutoScan() {
@@ -532,6 +538,11 @@ class POTBotCamera {
         if (this.scanInterval) {
             clearInterval(this.scanInterval);
             this.scanInterval = null;
+        }
+        
+        if (this.fallbackInterval) {
+            clearInterval(this.fallbackInterval);
+            this.fallbackInterval = null;
         }
         
         this.hideScanIndicator();
@@ -599,8 +610,8 @@ class POTBotCamera {
             const chartProbability = chartPixels / totalPixels;
             console.log(`Chart detection probability: ${(chartProbability * 100).toFixed(1)}% (${chartPixels}/${totalPixels} pixels)`);
             
-            // Return true if chart probability is above threshold (lowered to 5% for better detection)
-            return chartProbability > 0.05; // 5% threshold
+            // Return true if chart probability is above threshold (very low threshold for testing)
+            return chartProbability > 0.01; // 1% threshold - very aggressive
             
         } catch (error) {
             console.error('Error detecting market chart:', error);
@@ -737,6 +748,24 @@ class POTBotCamera {
         console.log('Generated test signal:', testSignal);
         this.displaySignal(testSignal);
         return testSignal;
+    }
+    
+    performFallbackAnalysis() {
+        if (!this.isActive || this.isAnalyzing) {
+            console.log('Fallback analysis skipped: camera not active or already analyzing');
+            return;
+        }
+        
+        // Check cooldown
+        const now = Date.now();
+        if (now - this.lastAnalysisTime < this.analysisCooldown) {
+            console.log(`Fallback analysis skipped: cooldown active (${Math.round((this.analysisCooldown - (now - this.lastAnalysisTime)) / 1000)}s remaining)`);
+            return;
+        }
+        
+        console.log('Performing fallback analysis (no chart detection required)...');
+        this.showScanIndicator();
+        this.performAutoAnalysis();
     }
     
 }
