@@ -15,7 +15,6 @@ class POTBotCamera {
     initializeElements() {
         this.video = document.getElementById('cameraPreview');
         this.canvas = document.getElementById('captureCanvas');
-        this.analyzeChartBtn = document.getElementById('analyzeChartBtn');
         this.backBtn = document.getElementById('backBtn');
         this.cameraStatus = document.getElementById('cameraStatus');
         this.signalOverlay = document.getElementById('signalOverlay');
@@ -36,7 +35,6 @@ class POTBotCamera {
     }
     
     bindEvents() {
-        this.analyzeChartBtn.addEventListener('click', () => this.analyzeChart());
         this.backBtn.addEventListener('click', () => this.goBack());
     }
     
@@ -325,22 +323,6 @@ class POTBotCamera {
         this.updateStats();
     }
     
-    analyzeChart() {
-        if (this.isActive) {
-            // Reset analysis state to allow new analysis
-            this.isAnalyzing = false;
-            
-            // Hide any existing signal overlay
-            if (this.signalOverlay) {
-                this.signalOverlay.style.display = 'none';
-            }
-            
-            // Perform new analysis
-            this.captureAndAnalyze();
-        } else {
-            this.showError('Camera not active. Please restart camera.');
-        }
-    }
     
     goBack() {
         // Stop camera

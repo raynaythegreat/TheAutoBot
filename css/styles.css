@@ -529,44 +529,6 @@ body {
     font-style: italic;
 }
 
-/* Camera Controls */
-.camera-controls {
-    background: rgba(0, 0, 0, 0.8);
-    padding: 1.5rem;
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    position: sticky;
-    bottom: 0;
-    z-index: 100;
-}
-
-.camera-btn {
-    background: rgba(0, 123, 255, 0.2);
-    color: #007bff;
-    border: 1px solid #007bff;
-    padding: 1rem 2rem;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 600;
-    font-size: 1rem;
-}
-
-.camera-btn:hover:not(:disabled) {
-    background: #007bff;
-    color: #fff;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
-}
-
-.camera-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
 
 
 /* Scan Indicator */
