@@ -608,6 +608,58 @@ body {
     margin-bottom: 0.5rem;
 }
 
+.entry-guidance {
+    margin-top: 1rem;
+    padding: 0.8rem;
+    background: rgba(0, 123, 255, 0.1);
+    border-radius: 8px;
+    border-left: 3px solid #007bff;
+}
+
+.entry-title {
+    font-weight: 600;
+    color: #00ff88;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.entry-description {
+    color: #fff;
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+    line-height: 1.3;
+}
+
+.entry-timing {
+    color: #00ff88;
+    font-size: 0.8rem;
+    font-weight: 500;
+    font-style: italic;
+}
+
+/* Mini entry guidance for signal cards */
+.entry-guidance-mini {
+    margin-top: 0.8rem;
+    padding: 0.6rem;
+    background: rgba(0, 123, 255, 0.05);
+    border-radius: 6px;
+    border-left: 2px solid #007bff;
+}
+
+.entry-desc-mini {
+    color: #212529;
+    font-size: 0.8rem;
+    margin-bottom: 0.3rem;
+    line-height: 1.2;
+}
+
+.entry-timing-mini {
+    color: #007bff;
+    font-size: 0.7rem;
+    font-weight: 500;
+    font-style: italic;
+}
+
 /* Camera Controls */
 .camera-controls {
     background: rgba(0, 0, 0, 0.8);

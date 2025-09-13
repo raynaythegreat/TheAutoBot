@@ -34,6 +34,10 @@ class PocketOptionCamera {
         this.confidenceScore = document.getElementById('confidenceScore');
         this.entryPoint = document.getElementById('entryPoint');
         this.riskLevel = document.getElementById('riskLevel');
+        this.timeframe = document.getElementById('timeframe');
+        this.expiration = document.getElementById('expiration');
+        this.entryDescription = document.getElementById('entryDescription');
+        this.entryTiming = document.getElementById('entryTiming');
         
         // Auto-scan elements
         this.scanIndicator = this.createScanIndicator();
@@ -132,30 +136,105 @@ class PocketOptionCamera {
     }
     
     async performSimpleAnalysis(imageData) {
-        // Enhanced analysis with asset detection
+        // Enhanced analysis with detailed entry points
         await this.delay(2000);
         
         // Detect asset from chart
         const detectedAsset = await this.detectAssetFromChart();
         
-        // Generate analysis result based on detected asset
-        const actions = ['CALL', 'PUT'];
-        const entryPoints = ['Immediate', 'Wait for pullback', 'Breakout confirmation'];
-        const riskLevels = ['Low', 'Medium', 'High'];
+        // Generate analysis result with detailed entry guidance
+        const analysisResult = await this.generateDetailedAnalysis(detectedAsset);
         
+        return analysisResult;
+    }
+    
+    async generateDetailedAnalysis(asset) {
+        const actions = ['CALL', 'PUT'];
         const action = actions[Math.floor(Math.random() * actions.length)];
         const confidence = Math.floor(Math.random() * 20) + 80; // 80-100%
-        const entryPoint = entryPoints[Math.floor(Math.random() * entryPoints.length)];
-        const riskLevel = riskLevels[Math.floor(Math.random() * riskLevels.length)];
+        
+        // Generate detailed entry point analysis
+        const entryAnalysis = this.generateEntryPointAnalysis(confidence, action);
         
         return {
-            asset: detectedAsset,
+            asset: asset,
             action: action,
             confidence: confidence,
-            entryPoint: entryPoint,
-            riskLevel: riskLevel,
+            entryPoint: entryAnalysis.entryPoint,
+            riskLevel: entryAnalysis.riskLevel,
+            timeframe: '1min',
+            expiration: '3min',
+            entryDescription: entryAnalysis.description,
+            entryTiming: entryAnalysis.timing,
             timestamp: new Date()
         };
+    }
+    
+    generateEntryPointAnalysis(confidence, action) {
+        const currentTime = new Date();
+        const currentSecond = currentTime.getSeconds();
+        
+        // Determine entry strategy based on confidence and timing
+        let entryPoint, riskLevel, description, timing;
+        
+        if (confidence >= 90) {
+            // High confidence - immediate entry
+            entryPoint = 'Immediate';
+            riskLevel = 'Low';
+            description = 'Enter immediately at current market price';
+            timing = this.calculateOptimalTiming(currentSecond, 'immediate');
+        } else if (confidence >= 85) {
+            // Medium-high confidence - wait for small pullback
+            entryPoint = 'Wait for pullback';
+            riskLevel = 'Medium';
+            description = 'Wait for 5-10 pip pullback before entering';
+            timing = this.calculateOptimalTiming(currentSecond, 'pullback');
+        } else {
+            // Medium confidence - wait for confirmation
+            entryPoint = 'Breakout confirmation';
+            riskLevel = 'Medium';
+            description = 'Wait for price to break key level before entering';
+            timing = this.calculateOptimalTiming(currentSecond, 'confirmation');
+        }
+        
+        return {
+            entryPoint,
+            riskLevel,
+            description,
+            timing
+        };
+    }
+    
+    calculateOptimalTiming(currentSecond, entryType) {
+        const now = new Date();
+        const currentMinute = now.getMinutes();
+        const currentSecondInMinute = now.getSeconds();
+        
+        // Calculate optimal entry window based on 1-minute timeframe
+        let optimalWindow;
+        
+        if (entryType === 'immediate') {
+            // For immediate entry, best time is within first 30 seconds of minute
+            if (currentSecondInMinute <= 30) {
+                optimalWindow = 'Enter now - optimal timing';
+            } else {
+                optimalWindow = 'Enter within next 30 seconds';
+            }
+        } else if (entryType === 'pullback') {
+            // For pullback, wait for next 30-45 seconds
+            const waitTime = 60 - currentSecondInMinute;
+            optimalWindow = `Wait ${waitTime}s for pullback opportunity`;
+        } else {
+            // For confirmation, wait for next minute
+            const waitTime = 60 - currentSecondInMinute;
+            optimalWindow = `Wait ${waitTime}s for breakout confirmation`;
+        }
+        
+        // Add 3-minute expiration context
+        const expirationTime = new Date(now.getTime() + 3 * 60 * 1000);
+        const expirationTimeStr = expirationTime.toLocaleTimeString();
+        
+        return `${optimalWindow} | Expires: ${expirationTimeStr}`;
     }
     
     async detectAssetFromChart() {
@@ -322,7 +401,7 @@ class PocketOptionCamera {
     }
     
     displaySignal(analysis) {
-        // Update signal overlay
+        // Update signal overlay with enhanced entry information
         this.signalAsset.textContent = analysis.asset;
         this.signalTime.textContent = analysis.timestamp.toLocaleTimeString();
         this.actionBadge.textContent = analysis.action;
@@ -330,6 +409,10 @@ class PocketOptionCamera {
         this.confidenceScore.textContent = `${analysis.confidence}%`;
         this.entryPoint.textContent = analysis.entryPoint;
         this.riskLevel.textContent = analysis.riskLevel;
+        this.timeframe.textContent = analysis.timeframe;
+        this.expiration.textContent = analysis.expiration;
+        this.entryDescription.textContent = analysis.entryDescription;
+        this.entryTiming.textContent = analysis.entryTiming;
         
         // Show signal overlay
         this.signalOverlay.style.display = 'block';
@@ -607,7 +690,7 @@ class PocketOptionCamera {
             noSignals.remove();
         }
         
-        // Create signal card
+        // Create signal card with enhanced entry information
         const signalCard = document.createElement('div');
         signalCard.className = 'signal-card';
         signalCard.innerHTML = `
@@ -626,6 +709,14 @@ class PocketOptionCamera {
                 <div class="detail-row">
                     <span>Entry: ${analysis.entryPoint}</span>
                     <span>Risk: ${analysis.riskLevel}</span>
+                </div>
+                <div class="detail-row">
+                    <span>Timeframe: ${analysis.timeframe}</span>
+                    <span>Expiration: ${analysis.expiration}</span>
+                </div>
+                <div class="entry-guidance-mini">
+                    <div class="entry-desc-mini">${analysis.entryDescription}</div>
+                    <div class="entry-timing-mini">${analysis.entryTiming}</div>
                 </div>
             </div>
         `;
