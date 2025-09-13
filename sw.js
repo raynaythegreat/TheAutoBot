@@ -1,5 +1,5 @@
 // The Auto Bot Service Worker
-const CACHE_NAME = 'auto-bot-v1.0.7';
+const CACHE_NAME = 'auto-bot-v1.0.8';
 const urlsToCache = [
   './',
   './index.html',
