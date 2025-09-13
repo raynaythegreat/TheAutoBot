@@ -58,7 +58,19 @@ class AutoBotCamera {
     }
     
     bindEvents() {
-        this.backBtn.addEventListener('click', () => this.goBack());
+        if (this.backBtn) {
+            this.backBtn.addEventListener('click', () => this.goBack());
+        }
+    }
+    
+    goBack() {
+        // Stop camera when going back
+        this.stopCamera();
+        
+        // Switch back to main page
+        if (window.autoBotApp) {
+            window.autoBotApp.showPage('main');
+        }
     }
     
     async startCamera() {
@@ -452,6 +464,30 @@ class AutoBotCamera {
     showError(message) {
         console.error('Camera Error:', message);
         alert(message);
+    }
+    
+    stopCamera() {
+        try {
+            if (this.stream) {
+                this.stream.getTracks().forEach(track => track.stop());
+                this.stream = null;
+            }
+            
+            if (this.video) {
+                this.video.srcObject = null;
+            }
+            
+            this.isActive = false;
+            console.log('Camera stopped');
+            
+            // Update status
+            if (this.cameraStatus) {
+                this.cameraStatus.textContent = 'Camera stopped';
+            }
+            
+        } catch (error) {
+            console.error('Error stopping camera:', error);
+        }
     }
     
     delay(ms) {

@@ -62,13 +62,13 @@ class AutoBotApp {
     async waitForCameraModule() {
         // Wait for Camera module
         let attempts = 0;
-        while (!window.potBotCamera && attempts < 50) {
+        while (!window.autoBotCamera && attempts < 50) {
             await new Promise(resolve => setTimeout(resolve, 100));
             attempts++;
         }
         
-        if (!window.potBotCamera) {
-            throw new Error('POT Bot Camera module not loaded');
+        if (!window.autoBotCamera) {
+            throw new Error('Auto Bot Camera module not loaded');
         }
         
         console.log('Camera module loaded successfully');
@@ -108,8 +108,11 @@ class AutoBotApp {
             
             // Start camera after a short delay to ensure page is visible
             setTimeout(() => {
-                if (window.potBotCamera) {
-                    window.potBotCamera.startCamera();
+                if (window.autoBotCamera) {
+                    window.autoBotCamera.startCamera();
+                } else {
+                    console.error('Camera module not available');
+                    this.showError('Camera module not loaded. Please refresh the page.');
                 }
             }, 100);
             
