@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PocketOption Signals">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="description" content="AI-powered binary options signals generator for PocketOption with camera analysis">
+    
+    <title>PocketOption AI Signals Generator</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192x192.png">
+    
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Main App Container -->
+    <div id="app" class="app-container">
+        
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-chart-line"></i>
+                    <h1>PocketOption AI Signals</h1>
+                </div>
+                <div class="header-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Accuracy</span>
+                        <span class="stat-value" id="accuracyRate">87.3%</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Active Signals</span>
+                        <span class="stat-value" id="activeSignals">12</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Critical Risk Warning -->
+        <div class="risk-warning">
+            <div class="warning-content">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div class="warning-text">
+                    <h3>⚠️ HIGH RISK WARNING ⚠️</h3>
+                    <p><strong>Binary options trading involves substantial risk of loss and is not suitable for all investors.</strong></p>
+                    <p>This app provides signals for educational purposes only. Past performance does not guarantee future results.</p>
+                    <p><strong>Never invest more than you can afford to lose.</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Navigation -->
+        <nav class="main-nav">
+            <button class="nav-btn active" data-tab="signals">
+                <i class="fas fa-signal"></i>
+                <span>Live Signals</span>
+            </button>
+            <button class="nav-btn" data-tab="camera">
+                <i class="fas fa-camera"></i>
+                <span>Camera Analysis</span>
+            </button>
+            <button class="nav-btn" data-tab="portfolio">
+                <i class="fas fa-wallet"></i>
+                <span>Portfolio</span>
+            </button>
+            <button class="nav-btn" data-tab="settings">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </button>
+        </nav>
+
+        <!-- Tab Content -->
+        <main class="main-content">
+            
+            <!-- Live Signals Tab -->
+            <div id="signals-tab" class="tab-content active">
+                <div class="signals-container">
+                    
+                    <!-- Signal Filters -->
+                    <div class="signal-filters">
+                        <div class="filter-group">
+                            <label>Asset Type:</label>
+                            <select id="assetFilter">
+                                <option value="all">All Assets</option>
+                                <option value="forex">Forex</option>
+                                <option value="crypto">Cryptocurrency</option>
+                                <option value="stocks">Stocks</option>
+                                <option value="commodities">Commodities</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Timeframe:</label>
+                            <select id="timeframeFilter">
+                                <option value="all">All Timeframes</option>
+                                <option value="1m">1 Minute</option>
+                                <option value="5m">5 Minutes</option>
+                                <option value="15m">15 Minutes</option>
+                                <option value="30m">30 Minutes</option>
+                                <option value="1h">1 Hour</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Confidence:</label>
+                            <select id="confidenceFilter">
+                                <option value="all">All Levels</option>
+                                <option value="high">High (80%+)</option>
+                                <option value="medium">Medium (60-80%)</option>
+                                <option value="low">Low (40-60%)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Live Signals List -->
+                    <div class="signals-list" id="signalsList">
+                        <!-- Signals will be dynamically generated here -->
+                    </div>
+
+                    <!-- Generate New Signal Button -->
+                    <div class="generate-signal-section">
+                        <button class="generate-btn" id="generateSignalBtn">
+                            <i class="fas fa-magic"></i>
+                            Generate New Signal
+                        </button>
+                        <div class="generation-status" id="generationStatus"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Camera Analysis Tab -->
+            <div id="camera-tab" class="tab-content">
+                <div class="camera-container">
+                    
+                    <!-- Camera Controls -->
+                    <div class="camera-controls">
+                        <div class="camera-header">
+                            <h3>Chart Analysis Camera</h3>
+                            <p>Point your camera at PocketOption charts for AI analysis</p>
+                        </div>
+                        
+                        <div class="camera-actions">
+                            <button class="camera-btn" id="startCameraBtn">
+                                <i class="fas fa-video"></i>
+                                Start Camera
+                            </button>
+                            <button class="camera-btn" id="captureBtn" disabled>
+                                <i class="fas fa-camera"></i>
+                                Capture & Analyze
+                            </button>
+                            <button class="camera-btn" id="stopCameraBtn" disabled>
+                                <i class="fas fa-stop"></i>
+                                Stop Camera
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Camera Preview -->
+                    <div class="camera-preview-container">
+                        <video id="cameraPreview" autoplay playsinline></video>
+                        <canvas id="captureCanvas" style="display: none;"></canvas>
+                        
+                        <!-- Camera Overlay -->
+                        <div class="camera-overlay">
+                            <div class="overlay-frame">
+                                <div class="corner top-left"></div>
+                                <div class="corner top-right"></div>
+                                <div class="corner bottom-left"></div>
+                                <div class="corner bottom-right"></div>
+                            </div>
+                            <div class="overlay-text">
+                                <p>Align chart within frame</p>
+                                <p>Ensure good lighting</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Analysis Results -->
+                    <div class="analysis-results" id="analysisResults" style="display: none;">
+                        <h3>AI Analysis Results</h3>
+                        <div class="analysis-content">
+                            <div class="analysis-item">
+                                <span class="label">Detected Asset:</span>
+                                <span class="value" id="detectedAsset">-</span>
+                            </div>
+                            <div class="analysis-item">
+                                <span class="label">Chart Pattern:</span>
+                                <span class="value" id="chartPattern">-</span>
+                            </div>
+                            <div class="analysis-item">
+                                <span class="label">Trend Direction:</span>
+                                <span class="value" id="trendDirection">-</span>
+                            </div>
+                            <div class="analysis-item">
+                                <span class="label">Confidence Level:</span>
+                                <span class="value" id="confidenceLevel">-</span>
+                            </div>
+                            <div class="analysis-item">
+                                <span class="label">Recommended Action:</span>
+                                <span class="value" id="recommendedAction">-</span>
+                            </div>
+                        </div>
+                        
+                        <div class="analysis-actions">
+                            <button class="action-btn primary" id="createSignalBtn">
+                                <i class="fas fa-plus"></i>
+                                Create Signal
+                            </button>
+                            <button class="action-btn secondary" id="retryAnalysisBtn">
+                                <i class="fas fa-redo"></i>
+                                Retry Analysis
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio Tab -->
+            <div id="portfolio-tab" class="tab-content">
+                <div class="portfolio-container">
+                    <h3>Portfolio Overview</h3>
+                    
+                    <div class="portfolio-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Total P&L</span>
+                                <span class="stat-value" id="totalPnL">+$1,247.50</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-percentage"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Win Rate</span>
+                                <span class="stat-value" id="winRate">73.2%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Total Trades</span>
+                                <span class="stat-value" id="totalTrades">156</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="recent-trades">
+                        <h4>Recent Trades</h4>
+                        <div class="trades-list" id="tradesList">
+                            <!-- Recent trades will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settings-tab" class="tab-content">
+                <div class="settings-container">
+                    <h3>Settings & Preferences</h3>
+                    
+                    <div class="settings-section">
+                        <h4>Signal Preferences</h4>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" id="autoGenerateSignals" checked>
+                                Auto-generate signals every 5 minutes
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" id="highConfidenceOnly" checked>
+                                Show only high confidence signals (80%+)
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" id="soundNotifications" checked>
+                                Enable sound notifications
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h4>Risk Management</h4>
+                        <div class="setting-item">
+                            <label for="maxRiskPerTrade">Maximum risk per trade (%):</label>
+                            <input type="range" id="maxRiskPerTrade" min="1" max="10" value="2">
+                            <span id="riskValue">2%</span>
+                        </div>
+                        <div class="setting-item">
+                            <label for="dailyLossLimit">Daily loss limit ($):</label>
+                            <input type="number" id="dailyLossLimit" value="100" min="10" max="1000">
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h4>Camera Settings</h4>
+                        <div class="setting-item">
+                            <label for="cameraQuality">Camera Quality:</label>
+                            <select id="cameraQuality">
+                                <option value="high">High (1080p)</option>
+                                <option value="medium" selected>Medium (720p)</option>
+                                <option value="low">Low (480p)</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" id="autoCapture" checked>
+                                Auto-capture when chart is detected
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Signal Modal -->
+        <div id="signalModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>New Signal Generated</h3>
+                    <button class="close-btn" id="closeModalBtn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="signal-details" id="signalDetails">
+                        <!-- Signal details will be populated here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn secondary" id="copySignalBtn">
+                        <i class="fas fa-copy"></i>
+                        Copy Signal
+                    </button>
+                    <button class="btn primary" id="openPocketOptionBtn">
+                        <i class="fas fa-external-link-alt"></i>
+                        Open PocketOption
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="loading-overlay">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <p id="loadingText">Analyzing market data...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script src="js/camera.js"></script>
+    <script src="js/signals.js"></script>
+    <script src="js/ai-analysis.js"></script>
+</body>
+</html>
