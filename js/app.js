@@ -174,12 +174,12 @@ class POTBotApp {
     
     showError(message) {
         console.error('App Error:', message);
-        alert(message);
+        // Removed alert to prevent popup messages
     }
     
     showNotification(message) {
         console.log('App Notification:', message);
-        alert(message);
+        // Removed alert to prevent popup messages
     }
     
     // Public API methods

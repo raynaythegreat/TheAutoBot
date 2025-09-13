@@ -570,7 +570,7 @@ class POTBotCamera {
     
     showError(message) {
         console.error('Camera Error:', message);
-        alert(message);
+        // Removed alert to prevent popup messages
     }
     
     delay(ms) {
