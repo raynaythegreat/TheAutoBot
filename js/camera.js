@@ -87,7 +87,7 @@ class POTBotCamera {
             
             // Update UI
             this.isActive = true;
-            this.updateStatus('Camera ready - Scanning for market charts to analyze');
+            this.updateStatus('Camera ready - Scanning for actual market charts (strict detection)');
             
             // Start auto-scanning for market detection
             this.startAutoScan();
@@ -337,8 +337,8 @@ class POTBotCamera {
         const { greenRatio, redRatio, volatility, trendStrength, chartRatio } = imageAnalysis;
         console.log('Generating signal from market analysis:', { greenRatio, redRatio, volatility, trendStrength, chartRatio });
         
-        // Only generate signals if we have sufficient chart data
-        if (chartRatio < 0.1) {
+        // Only generate signals if we have sufficient chart data - very strict
+        if (chartRatio < 0.3) {
             console.log('Insufficient chart data detected, skipping signal generation');
             return null;
         }
@@ -346,22 +346,22 @@ class POTBotCamera {
         // Determine signal direction based on market analysis
         let action, confidence;
         
-        if (greenRatio > redRatio && greenRatio > 0.05) {
+        if (greenRatio > redRatio && greenRatio > 0.15) {
             // Clear green dominance - bullish signal
             action = 'CALL';
             confidence = Math.min(95, 85 + (greenRatio * 100) + (volatility * 30));
             console.log('Bullish signal detected (clear green dominance)');
-        } else if (redRatio > greenRatio && redRatio > 0.05) {
+        } else if (redRatio > greenRatio && redRatio > 0.15) {
             // Clear red dominance - bearish signal
             action = 'PUT';
             confidence = Math.min(95, 85 + (redRatio * 100) + (volatility * 30));
             console.log('Bearish signal detected (clear red dominance)');
         } else {
-            // Mixed or unclear signals - require higher threshold
-            if (trendStrength > 0.15) {
+            // Mixed or unclear signals - require much higher threshold
+            if (trendStrength > 0.25) {
                 action = greenRatio > redRatio ? 'CALL' : 'PUT';
                 confidence = 85 + (trendStrength * 30);
-                console.log('Signal based on strong trend');
+                console.log('Signal based on very strong trend');
             } else {
                 console.log('Insufficient market clarity, skipping signal generation');
                 return null;
@@ -679,8 +679,8 @@ class POTBotCamera {
             const chartProbability = chartPixels / totalPixels;
             console.log(`Chart detection probability: ${(chartProbability * 100).toFixed(1)}% (${chartPixels}/${totalPixels} pixels)`);
             
-            // Return true if chart probability is above threshold
-            return chartProbability > 0.05; // 5% threshold - more selective
+            // Return true if chart probability is above threshold - much more strict
+            return chartProbability > 0.25; // 25% threshold - very strict for real charts
             
         } catch (error) {
             console.error('Error detecting market chart:', error);
@@ -689,28 +689,24 @@ class POTBotCamera {
     }
     
     isChartColor(r, g, b) {
-        // Check for common chart colors (more lenient detection)
+        // Check for specific chart colors - very strict detection
         
-        // Green (bullish candles) - more lenient
-        if (g > r && g > b && g > 80) return true;
+        // Bright Green (bullish candles) - very specific
+        if (g > 150 && g > r + 50 && g > b + 50) return true;
         
-        // Red (bearish candles) - more lenient
-        if (r > g && r > b && r > 80) return true;
+        // Bright Red (bearish candles) - very specific
+        if (r > 150 && r > g + 50 && r > b + 50) return true;
         
-        // Blue (chart lines, axes) - more lenient
-        if (b > r && b > g && b > 80) return true;
+        // Dark Blue (chart lines, axes) - very specific
+        if (b > 100 && b > r + 30 && b > g + 30 && b < 200) return true;
         
-        // White/Light colors (background, grid) - more lenient
-        if (r > 180 && g > 180 && b > 180) return true;
+        // Very specific chart background colors
+        if (r > 240 && g > 240 && b > 240) return true; // Pure white
+        if (r < 30 && g < 30 && b < 30) return true; // Very dark
         
-        // Dark colors (text, borders) - more lenient
-        if (r < 80 && g < 80 && b < 80) return true;
-        
-        // Yellow/Gold colors (often used in charts)
-        if (r > 150 && g > 150 && b < 100) return true;
-        
-        // Orange colors (trend lines, indicators)
-        if (r > 150 && g > 100 && b < 100) return true;
+        // Specific chart indicator colors
+        if (r > 200 && g > 200 && b < 50) return true; // Bright yellow
+        if (r > 200 && g > 100 && b < 50) return true; // Bright orange
         
         return false;
     }
